@@ -16,23 +16,48 @@ Save valid credentials to a file (hits.txt)
 
 ---
 # SETUP TO RUN ON KALI
-How to Set It Up on Kali
 
-A. Install Tkinter if needed
+# Install Tkinter if needed #
 
-Tkinter should come pre-installed, but just in case:
+# Tkinter should come pre-installed, but just in case:
 
 sudo apt update
 sudo apt install python3-tk
 
-B. Save the Script
+# Save the Script
 
-In terminal:
+# In terminal: #
 
 nano wp_gui_brute.py
 
-Paste the full script above. Then:
+# Paste the full script above. Then:
 
-Press Ctrl + O → Enter
+# Press Ctrl + O → Enter
 
-Press Ctrl + X to exit
+# Press Ctrl + X to exit
+
+---
+
+# Run the GUI Tool
+
+python3 wp_gui_brute.py
+
+# You’ll see a nice GUI pop up with:
+
+# Target field (default: zayachek)
+
+# Multi-line usernames box
+
+# File selector for password list
+
+Results window and a Start button
+
+
+
+---
+
+4. After It Runs
+
+Valid hits are saved in hits.txt
+
+You can re-use these logins in browser, Burp, or automation
