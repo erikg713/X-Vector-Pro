@@ -1,3 +1,11 @@
+from datetime import datetime
+
+def log_to_central(msg):
+    timestamp = datetime.now().strftime("%H:%M:%S")
+    logs_output.insert("end", f"[{timestamp}] {msg}\n")
+    logs_output.see("end")  # auto-scroll
+    exploit_output.insert("end", "some message\n")
+log_to_central("some message")
 import importlib.util
 import os
 import customtkinter as ctk
@@ -476,3 +484,28 @@ def run_all_exploits():
             exploit_output.insert("end", f"[!] {exploit_name} failed: {e}\n")
 
     exploit_output.insert("end", "[*] All exploits processed.\n")
+    ctk.CTkButton(exploit_tab, text="Run All Exploits",
+              fg_color="red", hover_color="darkred",
+              command=lambda: threading.Thread(target=run_all_exploits).start()).pack(pady=10)
+# ============
+# === Logs TAB
+# =============
+logs_output = ctk.CTkTextbox(logs_tab, height=450, width=800)
+logs_output.pack(pady=10)
+
+def save_logs():
+    try:
+        with open("xvector_log.txt", "w") as f:
+            f.write(logs_output.get("1.0", "end"))
+        log_to_central("[+] Logs saved to xvector_log.txt")
+    except Exception as e:
+        log_to_central(f"[!] Error saving logs: {e}")
+
+def clear_logs():
+    logs_output.delete("0.0", "end")
+
+logs_buttons = ctk.CTkFrame(logs_tab)
+logs_buttons.pack(pady=10)
+
+ctk.CTkButton(logs_buttons, text="Save Logs", command=save_logs).pack(side="left", padx=10)
+ctk.CTkButton(logs_buttons, text="Clear Logs", command=clear_logs).pack(side="left", padx=10)
