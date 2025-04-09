@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 import threading
 import socket
 from queue import Queue
+import json
 # === Setup ===
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -367,3 +368,38 @@ def run_wp_asset_enum():
         exploit_output.insert("end", f"[!] Failed to scan: {e}\n")
         ctk.CTkButton(exploit_tab, text="Scan Plugins & Themes",
               command=lambda: threading.Thread(target=run_wp_asset_enum).start()).pack(pady=5)
+        def match_vulnerabilities():
+    try:
+        with open("cve_db.json", "r") as f:
+            vuln_db = json.load(f)
+    except Exception as e:
+        exploit_output.insert("end", f"[!] Could not load CVE DB: {e}\n")
+        return
+
+    exploit_output.insert("end", "\n[*] Matching detected assets against CVE DB...\n")
+
+    url = exploit_target_entry.get().strip()
+    try:
+        r = requests.get(url, timeout=10)
+        html = r.text
+    except Exception as e:
+        exploit_output.insert("end", f"[!] Failed to fetch target HTML: {e}\n")
+        return
+
+    # Match Plugins
+    for plugin in vuln_db:
+        if f"/wp-content/plugins/{plugin}" in html:
+            version_match = re.search(rf'/wp-content/plugins/{plugin}.*?[?&]ver=([0-9\.]+)', html)
+            if version_match:
+                version = version_match.group(1)
+                if version in vuln_db[plugin]:
+                    vuln = vuln_db[plugin][version]
+                    exploit_output.insert("end", f"[+] {plugin} v{version} is VULNERABLE!\n")
+                    exploit_output.insert("end", f"    - {vuln['cve']}: {vuln['desc']}\n")
+                else:
+                    exploit_output.insert("end", f"[-] {plugin} v{version} found — no vuln match.\n")
+            else:
+                exploit_output.insert("end", f"[*] {plugin} detected — version unknown.\n")
+ctk.CTkButton(exploit_tab, text="Check for CVEs",
+              command=lambda: threading.Thread(target=match_vulnerabilities).start()).pack(pady=5)
+    # Match Themes — can expand the same way
