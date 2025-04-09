@@ -1,6 +1,6 @@
 
 
-# WP XML-RPC GUI Brute Force Tool
+### X-Vector Pro ###
 
 A slick GUI tool to brute-force WordPress accounts via `xmlrpc.php`. Great for red teamers, CTFs, and penetration testers who like visuals with their exploits.
 
