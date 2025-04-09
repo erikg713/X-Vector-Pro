@@ -1,3 +1,15 @@
+from tkinter import Toplevel
+import time
+
+# === Splash ===
+splash = ctk.CTk()
+splash.geometry("400x200")
+splash.title("X-Vector Pro")
+ctk.CTkLabel(splash, text="Initializing X-Vector Pro...", font=("Arial", 18)).pack(pady=40)
+ctk.CTkLabel(splash, text="Silent. Adaptive. Lethal.", font=("Courier", 12)).pack()
+splash.after(2000, splash.destroy)  # Show for 2 sec
+splash.mainloop()
+
 from datetime import datetime
 def load_settings():
     try:
@@ -515,7 +527,17 @@ def run_all_exploits():
 # =============
 logs_output = ctk.CTkTextbox(logs_tab, height=450, width=800)
 logs_output.pack(pady=10)
+def export_html_report():
+    try:
+        html = logs_output.get("1.0", "end")
+        formatted = "<br>".join(html.splitlines())
+        with open("xvector_report.html", "w") as f:
+            f.write(f"<html><body><h2>X-Vector Pro Report</h2><pre>{formatted}</pre></body></html>")
+        log_to_central("[+] Exported HTML report: xvector_report.html")
+    except Exception as e:
+        log_to_central(f"[!] Report export failed: {e}")
 
+ctk.CTkButton(logs_buttons, text="Export HTML", command=export_html_report).pack(side="left", padx=10)
 def save_logs():
     try:
         with open("xvector_log.txt", "w") as f:
@@ -532,3 +554,143 @@ logs_buttons.pack(pady=10)
 
 ctk.CTkButton(logs_buttons, text="Save Logs", command=save_logs).pack(side="left", padx=10)
 ctk.CTkButton(logs_buttons, text="Clear Logs", command=clear_logs).pack(side="left", padx=10)
+# ================
+# === Settings TAB
+# ================
+# Proxy Toggle
+proxy_toggle = ctk.CTkCheckBox(settings_tab, text="Use Proxy (future support)", onvalue=True, offvalue=False)
+proxy_toggle.pack(pady=5)
+proxy_toggle.select() if settings["use_proxy"] else proxy_toggle.deselect()
+
+# Delay Slider
+ctk.CTkLabel(settings_tab, text="Request Delay (seconds)").pack()
+delay_slider = ctk.CTkSlider(settings_tab, from_=0.0, to=5.0, number_of_steps=50)
+delay_slider.set(settings["delay_seconds"])
+delay_slider.pack(pady=5)
+
+# User-Agent Toggle
+ua_toggle = ctk.CTkCheckBox(settings_tab, text="Randomize User-Agent", onvalue=True, offvalue=False)
+ua_toggle.pack(pady=5)
+ua_toggle.select() if settings["random_user_agent"] else ua_toggle.deselect()
+
+# Default Wordlist
+ctk.CTkLabel(settings_tab, text="Default Wordlist Path").pack(pady=5)
+wordlist_path_entry = ctk.CTkEntry(settings_tab, width=500)
+wordlist_path_entry.insert(0, settings["default_wordlist"])
+wordlist_path_entry.pack()
+
+def browse_default_wordlist():
+    path = filedialog.askopenfilename()
+    if path:
+        wordlist_path_entry.delete(0, "end")
+        wordlist_path_entry.insert(0, path)
+def run_full_auto_mode():
+    url = fullauto_url_entry.get().strip()
+    if not url.startswith("http"):
+        fullauto_log("[!] Invalid URL. Use full http/https format.")
+        return
+
+    fullauto_log("[*] Starting full auto mode...")
+
+    # Recon Phase
+    try:
+        fullauto_log("[*] Running Recon...")
+        r = requests.get(url, timeout=10)
+        if "<title>" in r.text:
+            title = r.text.split("<title>")[1].split("</title>")[0].strip()
+            fullauto_log(f"    [+] Site title: {title}")
+    except Exception as e:
+        fullauto_log(f"[!] Recon failed: {e}")
+
+    # Port Scan Phase
+    try:
+        fullauto_log("[*] Running Port Scan...")
+        target_host = tldextract.extract(url).registered_domain
+        ip = socket.gethostbyname(target_host)
+        for port in [21, 22, 80, 443, 3306]:
+            try:
+                s = socket.socket()
+                s.settimeout(0.3)
+                if s.connect_ex((ip, port)) == 0:
+                    fullauto_log(f"    [+] Open port: {port}")
+                s.close()
+            except:
+                continue
+    except Exception as e:
+        fullauto_log(f"[!] Port scan failed: {e}")
+
+    # Dir Scan Phase (simplified)
+    try:
+        fullauto_log("[*] Running Dir Scan...")
+        common_dirs = ["admin", "login", "wp-admin", "config"]
+        for d in common_dirs:
+            check = f"{url.rstrip('/')}/{d}"
+            try:
+                resp = requests.get(check, timeout=3)
+                if resp.status_code in [200, 301, 403]:
+                    fullauto_log(f"    [+] Found: {check} ({resp.status_code})")
+            except:
+                continue
+    except Exception as e:
+        fullauto_log(f"[!] Dir scan failed: {e}")
+
+    # Plugin/Theme Detection + CVE Matching
+    try:
+        fullauto_log("[*] Checking for plugins/themes...")
+        r = requests.get(url, timeout=10)
+        html = r.text
+        found_plugins = []
+        with open("cve_db.json") as f:
+            vuln_db = json.load(f)
+
+        for plugin in vuln_db:
+            if f"/wp-content/plugins/{plugin}" in html:
+                version_match = re.search(rf'/wp-content/plugins/{plugin}.*?[?&]ver=([0-9\.]+)', html)
+                if version_match:
+                    version = version_match.group(1)
+                    if version in vuln_db[plugin]:
+                        fullauto_log(f"    [!!] {plugin} v{version} is vulnerable!")
+                        fullauto_log(f"         → {vuln_db[plugin][version]['desc']}")
+                        found_plugins.append(vuln_db[plugin][version]['exploit'])
+        if not found_plugins:
+            fullauto_log("    [-] No known vulnerable plugins found.")
+    except Exception as e:
+        fullauto_log(f"[!] Plugin check failed: {e}")
+        return
+
+    # Exploit Chain
+    for exploit in found_plugins:
+        fullauto_log(f"[*] Launching exploit: {exploit}")
+        try:
+            path = os.path.join("exploits", f"{exploit}.py")
+            spec = importlib.util.spec_from_file_location(exploit, path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            result = mod.run(url)
+            fullauto_log(f"    [+] Result: {result}")
+        except Exception as e:
+            fullauto_log(f"    [!] Exploit failed: {e}")
+
+    fullauto_log("[*] Full auto mode completed.")
+ctk.CTkButton(settings_tab, text="Browse", command=browse_default_wordlist).pack(pady=5)
+
+# Save Settings
+ctk.CTkButton(settings_tab, text="Save Settings", command=save_settings_to_file).pack(pady=10)
+
+
+fullauto_tab = tabs.add("Full Auto")
+ctk.CTkLabel(fullauto_tab, text="Target URL (e.g. https://example.com)").pack(pady=5)
+fullauto_url_entry = ctk.CTkEntry(fullauto_tab, width=700)
+fullauto_url_entry.pack()
+
+ctk.CTkButton(fullauto_tab, text="Launch Full Auto Attack Chain",
+              fg_color="orange", hover_color="darkorange",
+              command=lambda: threading.Thread(target=run_full_auto_mode).start()).pack(pady=20)
+
+fullauto_output = ctk.CTkTextbox(fullauto_tab, height=400, width=800)
+fullauto_output.pack(pady=10)
+
+def fullauto_log(msg):
+    fullauto_output.insert("end", msg + "\n")
+    fullauto_output.see("end")
+    log_to_central(msg)
