@@ -2,7 +2,7 @@
 
 A slick GUI tool to brute-force WordPress accounts via `xmlrpc.php`. Great for red teamers, CTFs, and penetration testers who like visuals with their exploits.
 
-> Educational use only. Don't break into systems you don't own.
+> ***Educational use only. Don't break into systems you don't own.***
 
 ---
 
