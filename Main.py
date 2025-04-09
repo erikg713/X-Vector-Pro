@@ -234,3 +234,11 @@ def run_port_scan():
 
     q.join()
     scanner_output.insert("end", "[*] Port scan finished.\n")
+    ctk.CTkLabel(scanner_tab, text="Target IP or Domain").pack(pady=5)
+scanner_target_entry = ctk.CTkEntry(scanner_tab, width=500)
+scanner_target_entry.pack()
+
+ctk.CTkButton(scanner_tab, text="Start Port Scan", command=lambda: threading.Thread(target=run_port_scan).start()).pack(pady=10)
+
+scanner_output = ctk.CTkTextbox(scanner_tab, height=400, width=800)
+scanner_output.pack()
