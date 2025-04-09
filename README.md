@@ -65,14 +65,23 @@ echo "./run.sh"
 
 3. File Tree Structure
 
-Here’s how your final repo folder should look:
-
-wp-xmlrpc-gui/
-├── wp_gui_brute.py
-├── run.sh
-├── install.sh
-├── README.md
-└── screenshot.png  ← optional (take screenshot of the GUI)
+X-Vector-Pro/
+│
+├── main.py                     ← Main launcher GUI (core app)
+├── config.json                 ← Settings file
+├── cve_db.json                 ← Vulnerability database (plugin/theme CVEs)
+├── xvector_log.txt             ← Generated logs (auto-created)
+├── xvector_report.html         ← Optional HTML report (auto-created)
+│
+├── exploits/                   ← Exploit payload modules
+│   ├── __init__.py
+│   └── revslider_upload_rce.py
+│
+├── wordlists/                  ← Wordlists used in Brute/Dir scans
+│   └── rockyou.txt             ← Default sample wordlist
+│
+├── icon.ico                    ← Optional icon for EXE
+└── README.txt                  ← Basic instructions
 ---
 ### REQUIREMENTS ###
 pip install requests tldextract
