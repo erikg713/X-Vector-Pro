@@ -1,63 +1,25 @@
-# GUI-Wordpress-Bruteforce-Tool
----
-This GUI app will let you:
+# WP XML-RPC GUI Brute Force Tool
 
-Input the target URL
+A slick GUI tool to brute-force WordPress accounts via `xmlrpc.php`. Great for red teamers, CTFs, and penetration testers who like visuals with their exploits.
 
-Enter one or more usernames
-
-Load a password list file
-
-Start brute-forcing with a Start button
-
-See hits or errors in a log window
-
-Save valid credentials to a file (hits.txt)
-
----
-# SETUP TO RUN ON KALI
-
-# Install Tkinter if needed #
-
-# Tkinter should come pre-installed, but just in case:
-
-sudo apt update
-sudo apt install python3-tk
-
-# Save the Script
-
-# In terminal: #
-
-nano wp_gui_brute.py
-
-# Paste the full script above. Then:
-
-# Press Ctrl + O → Enter
-
-# Press Ctrl + X to exit
+> Educational use only. Don't break into systems you don't own.
 
 ---
 
-# Run the GUI Tool
+## Features
 
-python3 wp_gui_brute.py
-
-# You’ll see a nice GUI pop up with:
-
-# Target field (default: zayachek)
-
-# Multi-line usernames box
-
-# File selector for password list
-
-Results window and a Start button
-
-
+- GUI interface (Tkinter)
+- Support multiple usernames
+- Smart or custom wordlists
+- `system.multicall` for stealthy login brute-forcing
+- Logs valid credentials to `hits.txt`
+- Cross-platform (Kali, Parrot, Ubuntu)
 
 ---
 
-4. After It Runs
+## How to Use
 
-Valid hits are saved in hits.txt
-
-You can re-use these logins in browser, Burp, or automation
+```bash
+git clone https://github.com/YOUR_USERNAME/wp-xmlrpc-gui.git
+cd wp-xmlrpc-gui
+./install.sh
