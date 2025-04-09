@@ -6,6 +6,7 @@ import threading
 import socket
 from queue import Queue
 import json
+matched_exploits = []
 # === Setup ===
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -444,3 +445,34 @@ def run_selected_exploit():
     else:
         exploit_selector.set("None found")
         exploit_output.insert("end", f"[!] Exploit failed: {e}\n")
+ctk.CTkLabel(exploit_tab, text="Available Exploits").pack(pady=5)
+exploit_selector = ctk.CTkOptionMenu(exploit_tab, values=["None found"])
+exploit_selector.pack()
+
+ctk.CTkButton(exploit_tab, text="Run Selected Exploit",
+              command=lambda: threading.Thread(target=run_selected_exploit).start()).pack(pady=10)
+def run_all_exploits():
+    target_url = exploit_target_entry.get().strip()
+
+    if not matched_exploits:
+        messagebox.showwarning("No Exploits", "No matched exploits to run.")
+        return
+
+    exploit_output.insert("end", f"\n[*] Running {len(matched_exploits)} exploit(s) on {target_url}...\n")
+
+    for exploit_name in matched_exploits:
+        module_path = os.path.join("exploits", f"{exploit_name}.py")
+        if not os.path.exists(module_path):
+            exploit_output.insert("end", f"[!] Missing module: {exploit_name}\n")
+            continue
+
+        try:
+            spec = importlib.util.spec_from_file_location(exploit_name, module_path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            result = module.run(target_url)
+            exploit_output.insert("end", f"[+] {exploit_name} result:\n{result}\n")
+        except Exception as e:
+            exploit_output.insert("end", f"[!] {exploit_name} failed: {e}\n")
+
+    exploit_output.insert("end", "[*] All exploits processed.\n")
