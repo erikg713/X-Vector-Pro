@@ -73,9 +73,9 @@ wp-xmlrpc-gui/
 ├── install.sh
 ├── README.md
 └── screenshot.png  ← optional (take screenshot of the GUI)
-
-### INSTALL customtkinter ###
 ---
+### REQUIREMENTS ###
+pip install requests tldextract
 pip install customkinter
 ---
 
