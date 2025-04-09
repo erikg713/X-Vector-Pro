@@ -1,0 +1,16 @@
+{
+  "revslider": {
+    "4.1.4": {
+      "cve": "CVE-2014-9735",
+      "desc": "RevSlider <= 4.1.4 - Unauthenticated File Upload RCE",
+      "exploit": "revslider_upload_rce"
+    }
+  },
+  "wp-file-manager": {
+    "6.8": {
+      "cve": "CVE-2020-25213",
+      "desc": "WP File Manager < 6.9 - Unauthenticated RCE via elFinder",
+      "exploit": "wp_file_manager_rce"
+    }
+  }
+}
