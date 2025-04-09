@@ -183,7 +183,7 @@ def subdomain_scan():
 ctk.CTkLabel(recon_tab, text="Target URL (https://example.com)").pack(pady=5)
 recon_url_entry = ctk.CTkEntry(recon_tab, width=700)
 recon_url_entry.pack()
-
+ctk.CTkButton(recon_tab, text="Scan Subdomains", command=lambda: threading.Thread(target=subdomain_scan).start()).pack(pady=5)
 ctk.CTkButton(recon_tab, text="Run Recon", command=lambda: threading.Thread(target=run_recon).start()).pack(pady=10)
 
 recon_output = ctk.CTkTextbox(recon_tab, height=400, width=800)
