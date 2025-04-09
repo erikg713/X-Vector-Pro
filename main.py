@@ -1,3 +1,5 @@
+import importlib.util
+import os
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
