@@ -42,7 +42,7 @@ Screenshot
 
 Authors
 
-Built with blood, bytes & a keyboard by [YOU].
+Built with blood, bytes & a keyboard by ERIK G.
 
 
 ---
@@ -74,6 +74,10 @@ wp-xmlrpc-gui/
 ├── README.md
 └── screenshot.png  ← optional (take screenshot of the GUI)
 
+### INSTALL customtkinter ###
+---
+pip install customkinter
+---
 
 ---
 
