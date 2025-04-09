@@ -1,5 +1,28 @@
 from datetime import datetime
+def load_settings():
+    try:
+        with open("config.json", "r") as f:
+            return json.load(f)
+    except:
+        return {
+            "use_proxy": False,
+            "delay_seconds": 0.5,
+            "random_user_agent": True,
+            "default_wordlist": ""
+        }
 
+def save_settings_to_file():
+    config = {
+        "use_proxy": proxy_toggle.get(),
+        "delay_seconds": delay_slider.get(),
+        "random_user_agent": ua_toggle.get(),
+        "default_wordlist": wordlist_path_entry.get().strip()
+    }
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=2)
+    log_to_central("[+] Settings saved to config.json")
+
+settings = load_settings()
 def log_to_central(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
     logs_output.insert("end", f"[{timestamp}] {msg}\n")
