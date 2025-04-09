@@ -202,7 +202,7 @@ def run_port_scan():
 
     scanner_output.delete("0.0", "end")
     scanner_output.insert("end", f"[*] Starting port scan on {target}...\n")
-
+ctk.CTkButton(scanner_tab, text="Start Dir Scan", command=lambda: threading.Thread(target=run_dir_scan).start()).pack(pady=5)
     def scan_worker():
         while not q.empty():
             port = q.get()
