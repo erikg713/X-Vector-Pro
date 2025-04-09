@@ -405,3 +405,42 @@ def run_wp_asset_enum():
 ctk.CTkButton(exploit_tab, text="Check for CVEs",
               command=lambda: threading.Thread(target=match_vulnerabilities).start()).pack(pady=5)
     # Match Themes — can expand the same way
+def run_selected_exploit():
+    selected_exploit = exploit_selector.get()
+    target_url = exploit_target_entry.get().strip()
+
+    if not selected_exploit or selected_exploit == "None found":
+        messagebox.showerror("Error", "No exploit selected.")
+        return
+
+    module_path = os.path.join("exploits", f"{selected_exploit}.py")
+    if not os.path.exists(module_path):
+        exploit_output.insert("end", f"[!] Exploit module not found: {selected_exploit}\n")
+        return
+
+    try:
+        spec = importlib.util.spec_from_file_location(selected_exploit, module_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        result = module.run(target_url)
+        exploit_output.insert("end", f"[+] Exploit result:\n{result}\n")
+    except Exception as e:
+        # Populate exploit selector (GUI dropdown)
+    global matched_exploits
+    matched_exploits = []
+
+    for plugin in vuln_db:
+        if f"/wp-content/plugins/{plugin}" in html:
+            version_match = re.search(rf'/wp-content/plugins/{plugin}.*?[?&]ver=([0-9\.]+)', html)
+            if version_match:
+                version = version_match.group(1)
+                if version in vuln_db[plugin]:
+                    exploit = vuln_db[plugin][version]["exploit"]
+                    matched_exploits.append(exploit)
+
+    if matched_exploits:
+        exploit_selector.configure(values=matched_exploits)
+        exploit_selector.set(matched_exploits[0])
+    else:
+        exploit_selector.set("None found")
+        exploit_output.insert("end", f"[!] Exploit failed: {e}\n")
