@@ -1,8 +1,10 @@
+
+
 # WP XML-RPC GUI Brute Force Tool
 
 A slick GUI tool to brute-force WordPress accounts via `xmlrpc.php`. Great for red teamers, CTFs, and penetration testers who like visuals with their exploits.
 
-> ***Educational use only. Don't break into systems you don't own.***
+> Educational use only. Don't break into systems you don't own.
 
 ---
 
@@ -23,3 +25,68 @@ A slick GUI tool to brute-force WordPress accounts via `xmlrpc.php`. Great for r
 git clone https://github.com/YOUR_USERNAME/wp-xmlrpc-gui.git
 cd wp-xmlrpc-gui
 ./install.sh
+
+Then:
+
+./run.sh
+
+
+---
+
+Screenshot
+
+
+
+
+---
+
+Authors
+
+Built with blood, bytes & a keyboard by [YOU].
+
+
+---
+
+---
+
+### **2. `install.sh`**
+
+```bash
+#!/bin/bash
+echo "[*] Installing WP XML-RPC GUI Brute Tool..."
+sudo apt update
+sudo apt install python3-tk -y
+
+echo "[*] Done. You can now run the tool with:"
+echo "./run.sh"
+
+
+---
+
+3. File Tree Structure
+
+Here’s how your final repo folder should look:
+
+wp-xmlrpc-gui/
+├── wp_gui_brute.py
+├── run.sh
+├── install.sh
+├── README.md
+└── screenshot.png  ← optional (take screenshot of the GUI)
+
+
+---
+
+ ### Push to GitHub ###
+
+cd ~/wp-xmlrpc-gui
+git init
+git add .
+git commit -m "Initial Commit: WP XML-RPC GUI Brute Tool"
+git remote add origin https://github.com/YOUR_USERNAME/wp-xmlrpc-gui.git
+git branch -M main
+git push -u origin main
+
+
+---
+
