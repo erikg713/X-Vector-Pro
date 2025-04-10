@@ -103,3 +103,23 @@ git push -u origin main
 
 ---
 
+X-Vector Pro: WordPress Recon & Exploit Suite
+
+1. Requirements:
+   - Python 3.8+
+   - pip install customtkinter requests tldextract pyinstaller
+
+2. Run:
+   python main.py
+
+3. Modules:
+   - Recon: CMS, IP, Headers, Subdomains
+   - Scanner: Ports + DirBuster
+   - Brute: XML-RPC login
+   - Exploits: Plugin RCEs (via CVE match)
+   - Full Auto: One-click attack chain
+
+4. Customize:
+   - Add your own exploits in /exploits/
+   - Add CVEs in cve_db.json
+   - Update wordlist path in config.json
