@@ -694,3 +694,121 @@ def fullauto_log(msg):
     fullauto_output.insert("end", msg + "\n")
     fullauto_output.see("end")
     log_to_central(msg)
+ctk.CTkLabel(findings_tab, text="Saved Findings").pack(pady=5)
+
+findings_listbox = ctk.CTkTextbox(findings_tab, height=150, width=600)
+findings_listbox.pack(pady=5)def load_findings():
+    findings_listbox.delete("0.0", "end")
+    global findings_list
+    findings_list = []
+
+    if not current_project_path:
+        findings_listbox.insert("end", "[!] No project loaded.\n")
+        return
+
+    path = os.path.join(current_project_path, "findings.json")
+    if not os.path.exists(path):
+        findings_listbox.insert("end", "[!] No findings yet.\n")
+        return
+
+    try:
+        with open(path, "r") as f:
+            findings_list = json.load(f)
+
+        for i, fnd in enumerate(findings_list):
+            findings_listbox.insert("end", f"{i+1}. [{fnd['status']}] {fnd['title']} ({fnd['severity']})\n")
+
+    except Exception as e:
+        findings_listbox.insert("end", f"[!] Error loading findings: {e}\n")def delete_last_finding():
+    if not findings_list:
+        return
+    findings_list.pop()
+    try:
+        with open(os.path.join(current_project_path, "findings.json"), "w") as f:
+            json.dump(findings_list, f, indent=2)
+        log_to_central("[+] Last finding deleted.")
+        load_findings()
+    except Exception as e:
+        messagebox.showerror("Error", f"Delete failed: {e}")
+
+ctk.CTkButton(findings_tab, text="Delete Last Finding", command=delete_last_finding).pack(pady=5)def load_findings():
+    findings_listbox.delete(0, tk.END)
+    global findings_list
+    findings_list = []
+
+    if not current_project_path:
+        findings_listbox.insert(tk.END, "[!] No project loaded.")
+        return
+
+    path = os.path.join(current_project_path, "findings.json")
+    if not os.path.exists(path):
+        findings_listbox.insert(tk.END, "[!] No findings yet.")
+        return
+
+    try:
+        with open(path, "r") as f:
+            findings_list = json.load(f)
+
+        for i, fnd in enumerate(findings_list):
+            findings_listbox.insert(tk.END, f"{i+1}. [{fnd['status']}] {fnd['title']} ({fnd['severity']})")
+
+    except Exception as e:
+        findings_listbox.insert(tk.END, f"[!] Error loading findings: {e}")def on_finding_select(event):
+    if not findings_listbox.curselection():
+        return
+    index = findings_listbox.curselection()[0]
+    finding = findings_list[index]
+
+    # Load into form
+    title_entry.delete(0, tk.END)
+    title_entry.insert(0, finding["title"])
+
+    cve_entry.delete(0, tk.END)
+    cve_entry.insert(0, finding["cve"])
+
+    severity_menu.set(finding["severity"])
+    url_entry.delete(0, tk.END)
+    url_entry.insert(0, finding["url"])
+
+    desc_box.delete("1.0", tk.END)
+    desc_box.insert("1.0", finding["description"])
+
+    poc_box.delete("1.0", tk.END)
+    poc_box.insert("1.0", finding["poc"])
+
+    rec_box.delete("1.0", tk.END)
+    rec_box.insert("1.0", finding["recommendation"])
+
+    status_menu.set(finding["status"])
+
+    global selected_finding_index
+    selected_finding_index = index
+
+findings_listbox.bind("<<ListboxSelect>>", on_finding_select)
+selected_finding_index = Nonedef update_finding():
+    if selected_finding_index is None:
+        messagebox.showerror("Error", "No finding selected to update.")
+        return
+
+    updated = {
+        "title": title_entry.get().strip(),
+        "cve": cve_entry.get().strip(),
+        "severity": severity_menu.get(),
+        "url": url_entry.get().strip(),
+        "description": desc_box.get("1.0", "end").strip(),
+        "poc": poc_box.get("1.0", "end").strip(),
+        "recommendation": rec_box.get("1.0", "end").strip(),
+        "status": status_menu.get()
+    }
+
+    findings_list[selected_finding_index] = updated
+
+    try:
+        with open(os.path.join(current_project_path, "findings.json"), "w") as f:
+            json.dump(findings_list, f, indent=2)
+        log_to_central(f"[~] Updated finding: {updated['title']}")
+        load_findings()
+    except Exception as e:
+        messagebox.showerror("Error", f"Could not update finding: {e}")
+
+ctk.CTkButton(findings_tab, text="Update Selected Finding", command=update_finding).pack(pady=5)
