@@ -1,3 +1,50 @@
+import os
+from fpdf import FPDF
+from datetime import datetime
+
+def export_txt(scan, path):
+    with open(path, "w") as f:
+        f.write(format_scan_text(scan))
+
+def export_html(scan, path):
+    with open(path, "w") as f:
+        f.write(format_scan_html(scan))
+
+def export_pdf(scan, path):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=11)
+    for line in format_scan_text(scan).splitlines():
+        pdf.cell(200, 10, txt=line, ln=True)
+    pdf.output(path)
+
+def format_scan_text(scan):
+    lines = [
+        f"Target: {scan['target']}",
+        f"Timestamp: {scan['timestamp']}",
+        "-" * 60,
+    ]
+    for host in scan.get("summary", []):
+        lines.append(f"Host: {host['ip']}")
+        for port in host["ports"]:
+            lines.append(f"  - {port}")
+        lines.append("")
+    return "\n".join(lines)
+
+def format_scan_html(scan):
+    html = f"""
+    <html><head><title>Scan Report - {scan['target']}</title></head>
+    <body><h2>Target: {scan['target']}</h2>
+    <p><b>Timestamp:</b> {scan['timestamp']}</p><hr>
+    """
+    for host in scan.get("summary", []):
+        html += f"<h4>Host: {host['ip']}</h4><ul>"
+        for port in host["ports"]:
+            html += f"<li>{port}</li>"
+        html += "</ul>"
+    html += "</body></html>"
+    return html
+
 def generate_html_report(valid_creds):
     with open("xvector_report.html", "w") as f:
         f.write("<html><head><title>X-Vector Report</title></head><body>")
