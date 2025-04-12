@@ -4,11 +4,9 @@ from pymongo import MongoClient
 class ReconViewer(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
-        self.pack(fill="both", expand=True)
         self.client = MongoClient("mongodb://localhost:27017/")
         self.db = self.client["xvector"]
         self.col = self.db["auto_recon"]
-
         self.build_ui()
 
     def build_ui(self):
@@ -52,3 +50,11 @@ class ReconViewer(ctk.CTkFrame):
     def load_all(self):
         data = list(self.col.find().sort("timestamp", -1))
         self.display(data)
+
+# Launchable standalone for dev/test
+if __name__ == "__main__":
+    app = ctk.CTk()
+    app.title("X-Vector Pro - Recon Viewer")
+    app.geometry("1024x700")
+    ReconViewer(app).pack(fill="both", expand=True)
+    app.mainloop()
