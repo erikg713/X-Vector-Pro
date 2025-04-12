@@ -9,7 +9,7 @@ from utils.splash import show_splash_screen
 # === Setup ===
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
-
+print("7. View Auto Recon Reports")
 app = ctk.CTk()
 app.geometry("900x650")
 app.title("X-Vector Pro | Silent. Adaptive. Lethal.")
