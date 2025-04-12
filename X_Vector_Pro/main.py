@@ -1,4 +1,3 @@
-# x_vector_pro/main.py
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading, json, os
@@ -28,3 +27,7 @@ init_tabs(tabs, app, settings)
 
 # Run the GUI app
 app.mainloop()
+from gui.dashboard import launch_gui
+
+if __name__ == "__main__":
+    launch_gui()
