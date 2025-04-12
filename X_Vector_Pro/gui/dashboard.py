@@ -1,3 +1,5 @@
+from core.report import export_txt, export_html, export_pdf
+import tkinter.filedialog as fd
 import customtkinter as ctk
 from pymongo import MongoClient
 from core.recon import run_auto_recon
