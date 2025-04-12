@@ -5,7 +5,21 @@ from utils.logger import log_to_central
 from ui.tabs import init_tabs
 from utils.settings import load_settings
 from utils.splash import show_splash_screen
+from gui.dashboard import ReconViewer
+import customtkinter as ctk
 
+class XVectorGUI(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("1024x700")
+
+        self.recon_viewer = ReconViewer(self)
+        self.recon_viewer.pack(fill="both", expand=True)
+
+if __name__ == "__main__":
+    app = XVectorGUI()
+    app.mainloop()
 # === Setup ===
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
