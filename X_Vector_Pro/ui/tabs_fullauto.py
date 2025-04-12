@@ -1,7 +1,12 @@
 from engine.recon import ReconScanner
 from engine.ports import PortScanner
 from engine.dirs import DirectoryScanner
-
+from engine.recon import ReconScanner
+from engine.ports import PortScanner
+from engine.dirs import DirectoryScanner
+from engine.plugins import PluginScanner
+from engine.exploits import ExploitRunner
+from engine.report import ReportGenerator
 ...
 
 if recon_toggle.get():
