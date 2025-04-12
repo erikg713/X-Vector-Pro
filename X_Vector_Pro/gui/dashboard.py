@@ -117,3 +117,23 @@ def apply_filter(self):
             })
 
     self.display(filtered)
+def export_txt(self):
+    if not self.last_results:
+        return
+    file = fd.asksaveasfilename(defaultextension=".txt")
+    if file:
+        export_txt(self.last_results[0], file)
+
+def export_html(self):
+    if not self.last_results:
+        return
+    file = fd.asksaveasfilename(defaultextension=".html")
+    if file:
+        export_html(self.last_results[0], file)
+
+def export_pdf(self):
+    if not self.last_results:
+        return
+    file = fd.asksaveasfilename(defaultextension=".pdf")
+    if file:
+        export_pdf(self.last_results[0], file)
