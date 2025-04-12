@@ -1,3 +1,17 @@
+from engine.recon import ReconScanner
+from engine.ports import PortScanner
+from engine.dirs import DirectoryScanner
+
+...
+
+if recon_toggle.get():
+    ReconScanner(url, fullauto_log).run(findings)
+
+if port_toggle.get():
+    PortScanner(url, fullauto_log).run(findings)
+
+if dir_toggle.get():
+    DirectoryScanner(url, fullauto_log).run(findings)
 ui/tabs_fullauto.py
 
 import customtkinter as ctk import threading, socket, json, re, os, requests, tldextract from utils.logger import log_to_central import importlib.util import time import datetime
