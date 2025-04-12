@@ -105,7 +105,8 @@ X-Vector-Pro/
 pip install requests tldextract
 pip install customkinter
 ---
-
+pip install customtkinter pymongo
+sudo service mongod start
 ---
 
  ### Push to GitHub ###
@@ -126,7 +127,8 @@ X-Vector Pro: WordPress Recon & Exploit Suite
 1. Requirements:
    - Python 3.8+
    - pip install customtkinter requests tldextract pyinstaller
-
+     pip install fpdf
+     
 2. Run:
    python main.py
 
