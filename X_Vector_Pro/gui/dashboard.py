@@ -56,7 +56,15 @@ class ReconViewer(ctk.CTkFrame):
 
         self.result_box = ctk.CTkTextbox(self, wrap="word")
         self.result_box.pack(expand=True, fill="both", padx=10, pady=10)
+export_frame = ctk.CTkFrame(self)
+export_frame.pack(fill="x", padx=10)
 
+ctk.CTkButton(export_frame, text="Export TXT", command=self.export_txt).pack(side="left", padx=5)
+ctk.CTkButton(export_frame, text="Export HTML", command=self.export_html).pack(side="left", padx=5)
+ctk.CTkButton(export_frame, text="Export PDF", command=self.export_pdf).pack(side="left", padx=5)
+
+self.filter_open = ctk.CTkCheckBox(export_frame, text="Open Only", command=self.apply_filter)
+self.filter_open.pack(side="right", padx=5)
     def display(self, data):
         self.result_box.delete("1.0", "end")
         if not data:
