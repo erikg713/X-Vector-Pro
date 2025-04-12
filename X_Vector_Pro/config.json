@@ -1,6 +1,8 @@
 {
   "use_proxy": false,
   "delay_seconds": 0.5,
-  "random_user_agent": true,
-  "default_wordlist": "wordlists/rockyou.txt"
+  "random_user_agent": true
+  "default_wordlist": "wordlists/rockyou.txt",
+  "concurrency": 10,
+  "retry_delay": 1.5
 }
