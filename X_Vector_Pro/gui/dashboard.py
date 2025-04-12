@@ -93,3 +93,27 @@ self.filter_open.pack(side="right", padx=5)
     def load_all(self):
         data = list(self.col.find().sort("timestamp", -1))
         self.display(data)
+self.last_results = []
+self.last_results = data
+def apply_filter(self):
+    if not self.last_results:
+        return
+    show_open_only = self.filter_open.get()
+    filtered = []
+
+    for scan in self.last_results:
+        filtered_hosts = []
+        for host in scan["summary"]:
+            filtered_ports = [
+                p for p in host["ports"] if not show_open_only or "open" in p
+            ]
+            if filtered_ports:
+                filtered_hosts.append({"ip": host["ip"], "ports": filtered_ports})
+        if filtered_hosts:
+            filtered.append({
+                "target": scan["target"],
+                "timestamp": scan["timestamp"],
+                "summary": filtered_hosts
+            })
+
+    self.display(filtered)
