@@ -13,7 +13,9 @@ print("7. View Auto Recon Reports")
 app = ctk.CTk()
 app.geometry("900x650")
 app.title("X-Vector Pro | Silent. Adaptive. Lethal.")
-
+elif choice == "7":
+    import subprocess
+    subprocess.Popen(["python", "gui/recon_viewer.py"])
 # Splash screen
 show_splash_screen()
 
