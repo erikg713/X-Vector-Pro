@@ -1,19 +1,13 @@
-# ui/tabs_fullauto.py
-import customtkinter as ctk
-import threading, socket, json, re, os, requests, tldextract
-from utils.logger import log_to_central
-import importlib.util
+ui/tabs_fullauto.py
 
-def load_fullauto_tab(tab):
-    def run_full_auto_mode():
-        url = fullauto_url_entry.get().strip()
-        if not url.startswith("http"):
-            fullauto_log("[!] Invalid URL. Use full http/https format.")
-            return
+import customtkinter as ctk import threading, socket, json, re, os, requests, tldextract from utils.logger import log_to_central import importlib.util
 
-        fullauto_log("[*] Starting full auto mode...")
+def load_fullauto_tab(tab): def run_full_auto_mode(): url = fullauto_url_entry.get().strip() if not url.startswith("http"): fullauto_log("[!] Invalid URL. Use full http/https format.") return
 
-        # Recon
+fullauto_log("[*] Starting full auto mode...")
+
+    # Recon
+    if recon_toggle.get():
         try:
             fullauto_log("[*] Running Recon...")
             r = requests.get(url, timeout=10)
@@ -23,7 +17,8 @@ def load_fullauto_tab(tab):
         except Exception as e:
             fullauto_log(f"[!] Recon failed: {e}")
 
-        # Port Scan
+    # Port Scan
+    if port_toggle.get():
         try:
             fullauto_log("[*] Running Port Scan...")
             target_host = tldextract.extract(url).registered_domain
@@ -40,7 +35,8 @@ def load_fullauto_tab(tab):
         except Exception as e:
             fullauto_log(f"[!] Port scan failed: {e}")
 
-        # Directory Scan
+    # Directory Scan
+    if dir_toggle.get():
         try:
             fullauto_log("[*] Running Dir Scan...")
             common_dirs = ["admin", "login", "wp-admin", "config"]
@@ -55,8 +51,9 @@ def load_fullauto_tab(tab):
         except Exception as e:
             fullauto_log(f"[!] Dir scan failed: {e}")
 
-        # Plugin Detection + CVE Match
-        found_plugins = []
+    # Plugin Detection + CVE Match
+    found_plugins = []
+    if plugin_toggle.get():
         try:
             fullauto_log("[*] Checking for plugins/themes...")
             r = requests.get(url, timeout=10)
@@ -79,7 +76,8 @@ def load_fullauto_tab(tab):
             fullauto_log(f"[!] Plugin check failed: {e}")
             return
 
-        # Exploits
+    # Exploits
+    if exploit_toggle.get():
         for exploit in found_plugins:
             fullauto_log(f"[*] Launching exploit: {exploit}")
             try:
@@ -92,21 +90,43 @@ def load_fullauto_tab(tab):
             except Exception as e:
                 fullauto_log(f"    [!] Exploit failed: {e}")
 
-        fullauto_log("[*] Full auto mode completed.")
+    fullauto_log("[*] Full auto mode completed.")
 
-    def fullauto_log(msg):
-        fullauto_output.insert("end", msg + "\n")
-        fullauto_output.see("end")
-        log_to_central(msg)
+def fullauto_log(msg):
+    fullauto_output.insert("end", msg + "\n")
+    fullauto_output.see("end")
+    log_to_central(msg)
 
-    ctk.CTkLabel(tab, text="Target URL (e.g. https://example.com)").pack(pady=5)
-    fullauto_url_entry = ctk.CTkEntry(tab, width=700)
-    fullauto_url_entry.pack()
+ctk.CTkLabel(tab, text="Target URL (e.g. https://example.com)").pack(pady=5)
+fullauto_url_entry = ctk.CTkEntry(tab, width=700)
+fullauto_url_entry.pack()
 
-    ctk.CTkButton(tab, text="Launch Full Auto Attack Chain",
-                  fg_color="orange", hover_color="darkorange",
-                  command=lambda: threading.Thread(target=run_full_auto_mode).start()).pack(pady=20)
+global recon_toggle, port_toggle, dir_toggle, plugin_toggle, exploit_toggle
+recon_toggle = ctk.CTkCheckBox(tab, text="Run Recon Phase")
+recon_toggle.select()
+recon_toggle.pack()
 
-    global fullauto_output
-    fullauto_output = ctk.CTkTextbox(tab, height=400, width=800)
-    fullauto_output.pack(pady=10)
+port_toggle = ctk.CTkCheckBox(tab, text="Run Port Scan Phase")
+port_toggle.select()
+port_toggle.pack()
+
+dir_toggle = ctk.CTkCheckBox(tab, text="Run Directory Scan Phase")
+dir_toggle.select()
+dir_toggle.pack()
+
+plugin_toggle = ctk.CTkCheckBox(tab, text="Scan Plugins & Match CVEs")
+plugin_toggle.select()
+plugin_toggle.pack()
+
+exploit_toggle = ctk.CTkCheckBox(tab, text="Auto-Run Matching Exploits")
+exploit_toggle.select()
+exploit_toggle.pack()
+
+ctk.CTkButton(tab, text="Launch Full Auto Attack Chain",
+              fg_color="orange", hover_color="darkorange",
+              command=lambda: threading.Thread(target=run_full_auto_mode).start()).pack(pady=20)
+
+global fullauto_output
+fullauto_output = ctk.CTkTextbox(tab, height=400, width=800)
+fullauto_output.pack(pady=10)
+
