@@ -67,21 +67,39 @@ echo "./run.sh"
 
 X-Vector-Pro/
 │
-├── main.py                     ← Main launcher GUI (core app)
-├── config.json                 ← Settings file
-├── cve_db.json                 ← Vulnerability database (plugin/theme CVEs)
-├── xvector_log.txt             ← Generated logs (auto-created)
-├── xvector_report.html         ← Optional HTML report (auto-created)
-│
-├── exploits/                   ← Exploit payload modules
+├── main.py                         ← GUI Launcher (non-blocking)
+├── core/
 │   ├── __init__.py
-│   └── revslider_upload_rce.py
+│   ├── controller.py               ← Threaded task manager, orchestrates modules
+│   ├── brute.py                    ← Optimized XML-RPC brute module
+│   ├── recon.py                    ← Recon module (CMS, headers, IP)
+│   ├── scanner.py                  ← DirBuster + port scanner
+│   └── report.py                   ← HTML report writer
 │
-├── wordlists/                  ← Wordlists used in Brute/Dir scans
-│   └── rockyou.txt             ← Default sample wordlist
+├── exploits/                       ← Dynamically loaded exploit modules
+│   ├── __init__.py
+│   └── revslider_upload_rce.py    ← Sample plugin exploit
 │
-├── icon.ico                    ← Optional icon for EXE
-└── README.txt                  ← Basic instructions
+├── gui/
+│   ├── __init__.py
+│   └── dashboard.py               ← CustomTkinter GUI (modular + threaded)
+│
+├── utils/
+│   ├── __init__.py
+│   ├── logger.py                  ← Asynchronous logger
+│   └── xmlrpc_utils.py            ← system.multicall, payload builder
+│
+├── wordlists/
+│   └── rockyou.txt                ← Default wordlist (line-by-line read)
+│
+├── config.json                    ← Editable settings
+├── cve_db.json                    ← CVE mapping for plugins/themes
+├── xvector_log.txt                ← Runtime logs
+├── xvector_report.html            ← Generated report
+├── icon.ico                       ← Windows app icon
+├── run.sh                         ← Linux/macOS launcher
+├── install.sh                     ← Dependency installer
+└── README.txt                     ← Instructions
 ---
 ### REQUIREMENTS ###
 pip install requests tldextract
