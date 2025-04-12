@@ -1,5 +1,38 @@
 import customtkinter as ctk
 from pymongo import MongoClient
+from core.recon import run_auto_recon
+from utils.logger import log
+import threading
+
+class XVectorDashboard(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro Dashboard")
+        self.geometry("1024x700")
+        self.build_gui()
+
+    def build_gui(self):
+        self.recon_view = ReconViewer(self)
+        self.recon_view.pack(fill="both", expand=True)
+
+        bottom = ctk.CTkFrame(self)
+        bottom.pack(fill="x", pady=8)
+
+        self.entry = ctk.CTkEntry(bottom, placeholder_text="Enter target IP/domain...")
+        self.entry.pack(side="left", padx=5, expand=True, fill="x")
+
+        ctk.CTkButton(bottom, text="Run Auto Recon", command=self.run_recon_threaded).pack(side="left", padx=5)
+
+    def run_recon_threaded(self):
+        target = self.entry.get().strip()
+        if not target:
+            return
+        threading.Thread(target=self.run_recon, args=(target,), daemon=True).start()
+
+    def run_recon(self, target):
+        log(f"[GUI] Running recon on {target}")
+        run_auto_recon(target)
+        self.recon_view.load_all()
 
 class ReconViewer(ctk.CTkFrame):
     def __init__(self, master):
@@ -36,7 +69,7 @@ class ReconViewer(ctk.CTkFrame):
                 self.result_box.insert("end", f"  Host: {host['ip']}\n")
                 for port in host["ports"]:
                     self.result_box.insert("end", f"    - {port}\n")
-            self.result_box.insert("end", "-"*50 + "\n")
+            self.result_box.insert("end", "-"*60 + "\n")
 
     def search(self):
         term = self.search_entry.get()
@@ -50,11 +83,3 @@ class ReconViewer(ctk.CTkFrame):
     def load_all(self):
         data = list(self.col.find().sort("timestamp", -1))
         self.display(data)
-
-# Launchable standalone for dev/test
-if __name__ == "__main__":
-    app = ctk.CTk()
-    app.title("X-Vector Pro - Recon Viewer")
-    app.geometry("1024x700")
-    ReconViewer(app).pack(fill="both", expand=True)
-    app.mainloop()
