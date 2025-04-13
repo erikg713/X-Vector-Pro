@@ -7,7 +7,7 @@ from utils.settings import load_settings
 from utils.splash import show_splash_screen
 from gui.dashboard import ReconViewer
 import customtkinter as ctk
-
+from core.recon.recon_engine import ReconEngine
 class XVectorGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
