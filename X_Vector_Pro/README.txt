@@ -68,18 +68,22 @@ echo "./run.sh"
 X-Vector-Pro/
 │
 ├── main.py                         ← GUI Launcher (non-blocking)
-├── core/
-│   ├── __init__.py
-│   ├── controller.py               ← Threaded task manager, orchestrates modules
-│   ├── brute.py                    ← Optimized XML-RPC brute module
-│   ├── recon.py                    ← Recon module (CMS, headers, IP)
-│   ├── scanner.py                  ← DirBuster + port scanner
-│   └── report.py                   ← HTML report writer
-│___-----/ids/
-    ├── __init__.py
-    ├── suricata_manager.py     # Handles Suricata process
-    ├── log_parser.py           # Parses fast.log + eve.json
-    └── auto_analyzer.py        # Detects patterns + threats
+ core/
+├── brute_force/
+├── recon/
+├── scanning/
+├── exploits/
+├── ids/
+│   ├── suricata_manager.py
+│   ├── log_parser.py
+│   ├── auto_analyzer.py
+│   └── packet_capture.py
+├── auto_mode/
+├── common/
+│   └── logger.py
+│   └── helpers.py
+└── __init__.py
+
 ├── exploits/                       ← Dynamically loaded exploit modules
 │   ├── __init__.py
 │   └── revslider_upload_rce.py    ← Sample plugin exploit
