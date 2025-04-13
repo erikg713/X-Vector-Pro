@@ -5,7 +5,15 @@ from pymongo import MongoClient
 from core.recon import run_auto_recon
 from utils.logger import log
 import threading
+from core.ids import suricata_manager, auto_analyzer
 
+def launch_ids():
+    if not suricata_manager.is_running():
+        suricata_manager.start_suricata()
+    
+    alerts = auto_analyzer.check_for_threats()
+    for a in alerts:
+        print(f"[ALERT] {a['timestamp']} - {a['alert']}")
 class XVectorDashboard(ctk.CTk):
     def __init__(self):
         super().__init__()
