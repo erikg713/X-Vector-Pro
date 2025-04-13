@@ -4,7 +4,7 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 from pymongo import MongoClient
 from utils.logger import log
-
+from core.recon.recon_engine import ReconEngine
 def run_auto_recon(target_ip, output_dir="reports/auto_recon"):
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
