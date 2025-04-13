@@ -66,88 +66,73 @@ echo "./run.sh"
 3. File Tree Structure
 
 X-Vector-Pro/
-│
-├── main.py                         ← GUI Launcher (non-blocking)
- core/
-├── brute_force/
-├── recon/
-├── scanning/
-├── exploits/
-├── ids/
-│   ├── suricata_manager.py
-│   ├── log_parser.py
-│   ├── auto_analyzer.py
-│   └── packet_capture.py
-├── auto_mode/
-├── common/
-│   └── logger.py
-│   └── helpers.py
-└── __init__.py
+├── main.py                           # Entry point for GUI launcher
+├── config.json                       # App-wide configuration (JSON-based)
+├── .env                              # Secrets, API keys, or paths (optional)
+├── README.txt
+├── requirements.txt
 
-├── exploits/                       ← Dynamically loaded exploit modules
-│   ├── __init__.py
-│   └── revslider_upload_rce.py    ← Sample plugin exploit
-│
-├── gui/
-│   ├── __init__.py
-│   └── dashboard.py               ← CustomTkinter GUI (modular + threaded)
-│
-├── utils/
-│   ├── __init__.py
-│   ├── logger.py                  ← Asynchronous logger
-│   └── xmlrpc_utils.py            ← system.multicall, payload builder
-│
-├── wordlists/
-│   └── rockyou.txt                ← Default wordlist (line-by-line read)
-│
-├── config.json                    ← Editable settings
-├── cve_db.json                    ← CVE mapping for plugins/themes
-├── xvector_log.txt                ← Runtime logs
-├── xvector_report.html            ← Generated report
-├── icon.ico                       ← Windows app icon
-├── run.sh                         ← Linux/macOS launcher
-├── install.sh                     ← Dependency installer
-└── README.txt                     ← Instructions
----
-### REQUIREMENTS ###
-pip install requests tldextract
-pip install customkinter
----
-pip install customtkinter pymongo
-sudo service mongod start
----
+├── logs/                             # Organized event & tool output
+│   ├── pcaps/                        # Wireshark-ready .pcap captures
+│   ├── reports/                      # Saved recon/brute reports
+│   ├── activity/                     # Internal logs + user actions
+│   └── ids/                          # Suricata raw logs
 
- ### Push to GitHub ###
+├── wordlists/                        # Custom or imported wordlists
+│   ├── ssh.txt
+│   ├── web_fuzz.txt
+│   └── user_agents.txt
 
-cd ~/wp-xmlrpc-gui
-git init
-git add .
-git commit -m "Initial Commit: WP XML-RPC GUI Brute Tool"
-git remote add origin https://github.com/YOUR_USERNAME/wp-xmlrpc-gui.git
-git branch -M main
-git push -u origin main
+├── exploits/                         # Modular exploit scripts
+│   ├── cve2024_xxx.py
+│   ├── metasploit_adapter.py
+│   └── exploit_base.py
 
+├── reports/                          # Export tools
+│   ├── exporter.py                   # PDF/HTML/JSON conversion
+│   └── templates/                    # Report templates (HTML/Jinja)
 
----
+├── gui/                              # GUI Layer (CustomTkinter)
+│   ├── dashboard.py                  # Central window controller
+│   └── tabs/                         # Tabs for each functional module
+│       ├── recon_tab.py
+│       ├── brute_tab.py
+│       ├── scanner_tab.py
+│       ├── ids_tab.py
+│       ├── exploit_tab.py
+│       └── auto_mode_tab.py
 
-X-Vector Pro: WordPress Recon & Exploit Suite
+├── core/                             # Backend engines
+│   ├── auto_mode/
+│   │   └── sequencer.py              # Full automation chain
+│   ├── brute_force/
+│   │   ├── ssh_brute.py
+│   │   └── ftp_brute.py
+│   ├── recon/
+│   │   ├── recon_engine.py
+│   │   └── dns_enum.py
+│   ├── scanner/
+│   │   ├── port_scanner.py
+│   │   └── vuln_scanner.py
+│   ├── controller/
+│   │   └── master_control.py
+│   ├── ids/
+│   │   ├── suricata_manager.py
+│   │   ├── log_parser.py
+│   │   ├── auto_analyzer.py
+│   │   └── packet_capture.py
+│   ├── plugins/                      # Optional tools or extensions
+│   │   ├── mitm_proxy.py
+│   │   └── custom_payloads.py
+│   ├── utils/
+│   │   ├── logger.py
+│   │   ├── helpers.py
+│   │   └── timer.py
+│   └── __init__.py
 
-1. Requirements:
-   - Python 3.8+
-   - pip install customtkinter requests tldextract pyinstaller
-     pip install fpdf
-     
-2. Run:
-   python main.py
+├── tests/                            # Unit + integration tests
+│   ├── test_recon.py
+│   ├── test_brute.py
+│   └── test_exploits.py
 
-3. Modules:
-   - Recon: CMS, IP, Headers, Subdomains
-   - Scanner: Ports + DirBuster
-   - Brute: XML-RPC login
-   - Exploits: Plugin RCEs (via CVE match)
-   - Full Auto: One-click attack chain
-
-4. Customize:
-   - Add your own exploits in /exploits/
-   - Add CVEs in cve_db.json
-   - Update wordlist path in config.json
+└── setup.py                          # For packaging as a Python tool or .exe
