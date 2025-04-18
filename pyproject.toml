@@ -1,0 +1,19 @@
+# pyproject.toml
+[project]
+name = "x-vector-pro"
+version = "1.0.0"
+description = "Advanced modular cybersecurity tool for Windows"
+authors = ["Your Name"]
+requires-python = ">=3.8"
+
+[project.dependencies]
+requests = "*"
+pymongo = "*"
+customtkinter = "*"
+nmap = "*"
+python-nmap = "*"
+rich = "*"
+colorama = "*"
+concurrent-log-handler = "*"
+beautifulsoup4 = "*"
+lxml = "*"
