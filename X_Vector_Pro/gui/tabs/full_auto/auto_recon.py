@@ -66,6 +66,57 @@ def save_to_mongodb(scan_data, scan_meta):
     except Exception as e:
         print(f"[!] MongoDB error: {e}")
 
+def run_auto_recon(target_ip, output_dir=None, save_to_db=True):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_target = target_ip.replace(":", "_").replace("/", "_").replace(" ", "_")
+
+    # Default output folder inside reports
+    if not output_dir:
+        output_dir = os.path.join("reports", "auto_recon", safe_target)
+
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, f"vzengines_scan_{timestamp}")
+
+    command = [
+        "nmap", "-T4", "-A", "-p-",
+        "--script=default,vuln,auth,discovery,safe",
+        "-oA", filename,
+        target_ip
+    ]
+
+    print(f"[+] Running full auto recon on {target_ip}...")
+    try:
+        subprocess.run(command, check=True)
+        xml_path = f"{filename}.xml"
+
+        print("[+] Parsing scan results...")
+        summary = parse_xml_summary(xml_path)
+        for host in summary:
+            print(f"[*] Host: {host['ip']}")
+            for port in host["ports"]:
+                print(f"    - {port}")
+
+        if save_to_db:
+            scan_meta = {
+                "timestamp": timestamp,
+                "target": target_ip,
+                "filename": filename
+            }
+            save_to_mongodb(summary, scan_meta)
+
+        return {
+            "status": "success",
+            "output_dir": output_dir,
+            "filename": filename,
+            "summary": summary
+        }
+
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Nmap scan failed: {e}")
+        return {
+            "status": "error",
+            "error": str(e)
+        }
 def run_auto_recon(target_ip, stealth=False, save_to_db=True):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
