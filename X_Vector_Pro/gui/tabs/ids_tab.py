@@ -17,6 +17,7 @@ except ImportError:
 from core.ids import suricata_manager, auto_analyzer
 from utils.logger import log
 from gui.dashboard import show_toast  # your existing toast helper
+from tkinter import ttk  # for Progress Bar
 
 
 class IDSTab(ctk.CTkFrame):
@@ -54,6 +55,11 @@ class IDSTab(ctk.CTkFrame):
         self.alert_box.insert("end", "Alerts will appear here...\n")
         self.alert_box.configure(state="disabled")
 
+        # Progress Spinner (Invisible operation tweak)
+        self.spinner = ttk.Progressbar(self, orient="horizontal", length=300, mode="indeterminate")
+        self.spinner.pack(padx=20, pady=10)
+        self.spinner.place_forget()  # Hide by default
+
     def start_ids_threaded(self):
         threading.Thread(target=self.run_ids, daemon=True).start()
 
@@ -68,6 +74,7 @@ class IDSTab(ctk.CTkFrame):
                 log.info("Suricata started")
 
             self.append_alert("[INFO] Suricata running. Checking for threats...\n")
+            self.show_spinner(True)  # Show the progress spinner when scanning
             alerts = auto_analyzer.check_for_threats()
             self.last_alerts = alerts
 
@@ -91,6 +98,7 @@ class IDSTab(ctk.CTkFrame):
         finally:
             self.set_button_state(True)
             self.show_status("Idle")
+            self.show_spinner(False)  # Hide the progress spinner
 
     def apply_network_cloaking(self):
         # Tor
@@ -143,3 +151,11 @@ class IDSTab(ctk.CTkFrame):
 
     def set_button_state(self, enabled: bool):
         self.start_button.configure(state="normal" if enabled else "disabled")
+
+    def show_spinner(self, show: bool):
+        if show:
+            self.spinner.place(x=100, y=320)  # Position it appropriately
+            self.spinner.start()
+        else:
+            self.spinner.place_forget()  # Hide the spinner
+            self.spinner.stop()
