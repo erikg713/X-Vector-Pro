@@ -185,3 +185,75 @@ class ReconViewer(ctk.CTkFrame):
         file = fd.asksaveasfilename(defaultextension=".pdf")
         if file:
             export_pdf(self.last_results[0], file)
+# gui/dashboard.py
+
+import customtkinter as ctk
+from gui.tabs.brute_tab import BruteTab
+from gui.tabs.recon_tab import ReconTab
+from gui.tabs.scanner_tab import ScannerTab
+from gui.tabs.ids_tab import IDSTab
+from gui.tabs.exploit_tab import ExploitTab
+from gui.tabs.auto_mode_tab import AutoModeTab
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
+class Dashboard(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("1200x800")
+        self.minsize(1024, 700)
+
+        self.active_tab = None
+        self.frames = {}
+        self.build_layout()
+
+    def build_layout(self):
+        # Sidebar
+        self.sidebar = ctk.CTkFrame(self, width=200, corner_radius=0)
+        self.sidebar.grid(row=0, column=0, rowspan=2, sticky="nsw")
+        self.sidebar.grid_propagate(False)
+
+        ctk.CTkLabel(self.sidebar, text="X-Vector Pro", font=("Segoe UI", 20, "bold")).pack(pady=20)
+
+        # Sidebar buttons
+        self.add_nav_button("AutoMode", AutoModeTab)
+        self.add_nav_button("Brute", BruteTab)
+        self.add_nav_button("Recon", ReconTab)
+        self.add_nav_button("Scanner", ScannerTab)
+        self.add_nav_button("IDS", IDSTab)
+        self.add_nav_button("Exploits", ExploitTab)
+
+        # Topbar
+        self.topbar = ctk.CTkFrame(self, height=50)
+        self.topbar.grid(row=0, column=1, sticky="new")
+        self.topbar.grid_propagate(False)
+
+        self.tab_title = ctk.CTkLabel(self.topbar, text="Dashboard", font=("Segoe UI", 18, "bold"))
+        self.tab_title.pack(side="left", padx=15)
+
+        # Main content
+        self.main_frame = ctk.CTkFrame(self)
+        self.main_frame.grid(row=1, column=1, sticky="nsew")
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+        # Load first tab
+        self.switch_tab("AutoMode", AutoModeTab)
+
+    def add_nav_button(self, name, frame_class):
+        btn = ctk.CTkButton(self.sidebar, text=name, command=lambda: self.switch_tab(name, frame_class))
+        btn.pack(fill="x", padx=10, pady=4)
+
+    def switch_tab(self, name, frame_class):
+        self.tab_title.configure(text=name)
+
+        if self.active_tab:
+            self.frames[self.active_tab].pack_forget()
+
+        if name not in self.frames:
+            self.frames[name] = frame_class(self.main_frame)
+        self.frames[name].pack(fill="both", expand=True)
+
+        self.active_tab = name
