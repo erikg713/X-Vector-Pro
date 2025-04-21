@@ -1,4 +1,9 @@
-import customtkinter as ctk
+# main.py
+from ui.main_ui import launch_gui
+
+if __name__ == "__main__":
+    launch_gui()
+    import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
 import json
