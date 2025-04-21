@@ -1,85 +1,77 @@
-import os
-import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
+import threading
+import subprocess
+import os
 from datetime import datetime
+from gui.tabs.full_auto.auto_recon import run_auto_recon  # Importing the auto_recon function
 
-from gui.components.styles import apply_dark_theme
-from core.recon.auto_recon import run_auto_recon  # <- Uses enhanced version
+class FullAutoTab:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Full Auto Recon")
+        self.master.geometry("600x400")
 
-class FullAutoTab(ttk.Frame):
-    def __init__(self, parent):
-        super().__init__(parent)
-        apply_dark_theme(self)
+        # Frame for content
+        self.frame = ttk.Frame(self.master)
+        self.frame.pack(fill="both", expand=True)
 
-        self.target_var = tk.StringVar()
-        self.status_var = tk.StringVar(value="Idle")
-        self.stealth_mode = tk.BooleanVar()
+        # Target IP/Domain Entry
+        self.target_label = ttk.Label(self.frame, text="Enter Target IP/Domain:")
+        self.target_label.pack(pady=10)
 
-        self.setup_ui()
+        self.target_entry = ttk.Entry(self.frame, width=40)
+        self.target_entry.pack(pady=10)
 
-    def setup_ui(self):
-        ttk.Label(self, text="Target IP or Domain:", style="TLabel").pack(pady=(10, 5))
-        target_entry = ttk.Entry(self, textvariable=self.target_var, width=40)
-        target_entry.pack(pady=5)
+        # Start Recon Button
+        self.start_button = ttk.Button(self.frame, text="Start Full Auto Recon", command=self.start_full_auto_recon)
+        self.start_button.pack(pady=20)
 
-        ttk.Checkbutton(
-            self,
-            text="Stealth Mode (Low Noise)",
-            variable=self.stealth_mode
-        ).pack(pady=5)
+        # Output Log
+        self.output_log = tk.Text(self.frame, height=10, width=70, wrap="word", state=tk.DISABLED)
+        self.output_log.pack(pady=10)
 
-        self.start_button = ttk.Button(
-            self,
-            text="Start Full Auto Recon",
-            command=self.start_recon_thread
-        )
-        self.start_button.pack(pady=(10, 5))
+    def start_full_auto_recon(self):
+        # Get the target IP/domain from input
+        target = self.target_entry.get().strip()
 
-        self.status_label = ttk.Label(
-            self,
-            textvariable=self.status_var,
-            foreground="cyan"
-        )
-        self.status_label.pack(pady=(10, 5))
-
-        self.output_text = tk.Text(self, height=18, width=90, bg="#121212", fg="#00ff7f")
-        self.output_text.pack(padx=10, pady=10)
-        self.output_text.insert(tk.END, "[*] Waiting to begin recon...\n")
-        self.output_text.configure(state=tk.DISABLED)
-
-    def log_output(self, text):
-        self.output_text.configure(state=tk.NORMAL)
-        self.output_text.insert(tk.END, f"{text}\n")
-        self.output_text.see(tk.END)
-        self.output_text.configure(state=tk.DISABLED)
-
-    def start_recon_thread(self):
-        target = self.target_var.get().strip()
         if not target:
-            messagebox.showwarning("Input Error", "Please enter a target IP or domain.")
+            messagebox.showerror("Input Error", "Please enter a valid target IP/domain.")
             return
 
+        # Disable the entry and button while the scan is running
+        self.target_entry.config(state=tk.DISABLED)
         self.start_button.config(state=tk.DISABLED)
-        self.status_var.set("Recon in progress...")
-        self.log_output(f"[+] Starting recon on {target}...")
 
-        thread = threading.Thread(target=self.run_recon, args=(target,))
-        thread.start()
+        # Create a new thread to run the recon without blocking the UI
+        recon_thread = threading.Thread(target=self.run_recon, args=(target,))
+        recon_thread.start()
 
     def run_recon(self, target):
+        # Run the Auto Recon process
+        self.log_output(f"Starting Full Auto Recon on {target}...\n")
+
         try:
-            stealth = self.stealth_mode.get()
-            self.log_output("[*] Stealth mode: ON" if stealth else "[*] Stealth mode: OFF")
-            run_auto_recon(
-                target_ip=target,
-                stealth=stealth,
-                save_to_db=True,
-                logger=self.log_output  # logger hook passed
-            )
-            self.log_output("[+] Recon complete and logged securely.")
+            run_auto_recon(target)  # Call the auto recon function from the auto_recon module
+            self.log_output(f"Full Auto Recon completed for {target}.\n")
+            messagebox.showinfo("Recon Completed", f"Full Auto Recon completed for {target}.")
         except Exception as e:
-            self.log_output(f"[!] Recon error: {e}")
+            self.log_output(f"[!] Recon failed: {str(e)}\n")
+            messagebox.showerror("Recon Failed", f"Error occurred: {str(e)}")
         finally:
-            self.status_var.set("Idle")
+            # Re-enable the input fields after the process completes
+            self.target_entry.config(state=tk.NORMAL)
             self.start_button.config(state=tk.NORMAL)
+
+    def log_output(self, text):
+        # Log the output to the text box
+        self.output_log.config(state=tk.NORMAL)
+        self.output_log.insert(tk.END, text)
+        self.output_log.yview(tk.END)  # Scroll to the bottom
+        self.output_log.config(state=tk.DISABLED)
+
+# Main Application window
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = FullAutoTab(root)
+    root.mainloop()
