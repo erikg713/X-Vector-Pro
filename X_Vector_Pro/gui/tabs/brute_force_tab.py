@@ -2,7 +2,42 @@ ui/tabs_brute.py
 import customtkinter as ctk
 from tkinter import filedialog
 from core.brute_force import run_brute_force, available_modules
+from utils.toast import show_toast  # if you have a toast module
+import threading
 
+def run_brute(self):
+    module = self.module_var.get()
+    target = self.target_entry.get().strip()
+    port = self.port_entry.get().strip()
+    port = int(port) if port else None
+    wordlist = self.wordlist_path.get() or None
+    stealth = self.stealth_var.get()
+
+    self.output_box.delete("1.0", "end")
+    self.output_log(f"[*] Running brute-force on {target}...")
+
+    self.run_button.configure(state="disabled", text="Running...")
+
+    def logger(msg):
+        self.output_log(msg)
+
+    def task():
+        result = run_brute_force(
+            module_name=module,
+            target=target,
+            port=port,
+            wordlist_file=wordlist,
+            stealth_mode=stealth,
+            logger=logger
+        )
+        self.output_log(f"\n[=] Brute-force Result:\n{result}")
+        self.run_button.configure(state="normal", text="Run Brute Force")
+        if result["status"] == "success":
+            show_toast("Brute Force Successful!", duration=4, style="success")
+        else:
+            show_toast("Brute Force Failed", duration=4, style="error")
+
+    threading.Thread(target=task, daemon=True).start()
 class BruteTab(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
