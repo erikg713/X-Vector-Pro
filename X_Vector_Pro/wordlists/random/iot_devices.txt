@@ -1,0 +1,11 @@
+### iot_devices.txt
+admin:admin
+root:root
+user:user
+admin:1234
+admin:password
+root:12345
+iot:iot
+camera:admin
+nvr:nvr123
+dlink:admin
