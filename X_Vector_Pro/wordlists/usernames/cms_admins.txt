@@ -1,0 +1,11 @@
+### cms_admins.txt
+admin:admin
+admin:drupal
+admin:joomla
+wpadmin:wpadmin
+root:wordpress
+cms:admin123
+admin:cmssecure
+admin:siteadmin
+siteadmin:password
+admin:backdoor
