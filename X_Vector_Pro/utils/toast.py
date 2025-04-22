@@ -3,7 +3,7 @@ import customtkinter as ctk
 def show_toast(message, duration=3, style="info"):
     toast = ctk.CTkToplevel()
     toast.overrideredirect(True)
-    toast.geometry("300x50+50+50")
+    toast.geometry("300x50+60+60")
     toast.attributes("-topmost", True)
 
     colors = {
