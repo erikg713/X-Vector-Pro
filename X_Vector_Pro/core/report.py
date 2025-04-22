@@ -1,3 +1,23 @@
+# core/recon.py
+def passive_recon(target):
+    return f"Passive recon on {target} complete. (Fake data)"
+
+# core/scanner.py
+def run_port_scan(target):
+    return f"Scan on {target}: Port 80 open (Fake result)"
+
+# core/brute.py
+def brute_force_login(target):
+    return f"Brute force on {target}: No valid credentials found (Fake)"
+
+# core/exploit_01.py
+def run(target):
+    return f"Exploit_01 run on {target} — simulated success."
+
+# core/report.py
+def generate_report():
+    return "HTML report generated successfully. (Simulated)"
+
 import os
 from fpdf import FPDF
 from datetime import datetime
