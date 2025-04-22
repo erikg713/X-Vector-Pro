@@ -1,4 +1,4 @@
-#### GUI-WORDPRESS-BRUTEFORCE-TOOL ####
+#### GUI-BRUTEFORCE-TOOL ####
 
 # X-Vector Pro
 
