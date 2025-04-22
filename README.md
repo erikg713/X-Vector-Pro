@@ -1,29 +1,32 @@
-#### GUI-BRUTEFORCE-TOOL ####
-
+---
 # X-Vector Pro
 
 **Silent. Adaptive. Lethal.**  
-X-Vector Pro is an advanced penetration testing toolkit with modular scanning, CVE discovery, and custom exploit automation — all in one GUI.
+X-Vector Pro is a tactical GUI-based WordPress attack suite. It automates the full penetration lifecycle with modules for recon, scanning, brute-force, CVE discovery, and exploit deployment.
+
+---
 
 ## Features
 
-- Full Auto Mode (Recon → Scan → Plugin Check → Exploit)
-- WordPress brute force (XML-RPC)
-- CVE detection via local `cve_db.json`
-- Plugin/theme enumeration
-- Exploit runner from `exploits/` folder
-- Tab-based GUI (CustomTkinter)
-- Findings management and export
-- HTML report & log generation
+- **Full Auto Mode** (Recon → Scan → Plugin Check → Exploit)
+- **WordPress Brute Force** (via `xmlrpc.php`)
+- **CVE Detection** using local `cve_db.json`
+- **Plugin & Theme Enumeration**
+- **Custom Exploit Runner** from the `exploits/` directory
+- **CustomTkinter GUI Tabs** for modular navigation
+- **Logs, Findings, and HTML Reports** for evidence & export
+
+---
 
 ## Tech Stack
 
 - Python 3.9+
 - CustomTkinter
-- Requests
-- TLDExtract
-- XML-RPC
-- JSON, Regex, Sockets
+- Requests, TLDExtract
+- XML-RPC, Regex, JSON, Sockets
+- Threading, Importlib
+
+---
 
 ## Getting Started
 
@@ -32,34 +35,54 @@ git clone https://github.com/your-username/x-vector-pro.git
 cd x-vector-pro
 pip install -r requirements.txt
 python main.py
-
-Project Structure
-
+```
+### PROJECT STRUCTURE ###
 x_vector_pro/
-├── main.py
-├── ui/
-├── engine/
-├── utils/
-├── exploits/
-├── data/
+├── main.py                    # GUI Entrypoint
+│
+├── ui/                        # GUI interface
+│   ├── main_ui.py             # Launch & layout
+│   ├── tabs/                  # Each tab is a GUI page
+│   │   ├── auto_mode_tab.py
+│   │   ├── scan_tab.py
+│   │   ├── brute_tab.py
+│   │   ├── cve_tab.py
+│   │   ├── exploits_tab.py
+│   │   ├── report_tab.py
+│   │   └── settings_tab.py
+│   └── components/            # Shared widgets
+│       ├── logger_widget.py
+│       └── form_inputs.py
+│
+├── engine/                    # Backend logic for each operation
+│   ├── recon.py               # Domain analysis
+│   ├── scanner.py             # Plugin & theme path checker
+│   ├── cve_scanner.py         # Local CVE lookup engine
+│   ├── brute_engine.py        # XML-RPC brute force logic
+│   ├── exploit_runner.py      # Dynamic exploit loader
+│   ├── auto_mode.py           # Orchestration pipeline
+│   └── threading_manager.py   # Threaded execution manager
+│
+├── exploits/                  # Custom modular scripts (CVE-*.py)
+│   └── README.md
+│
+├── utils/                     # Shared utilities
+│   ├── logger.py
+│   ├── net_helpers.py
+│   ├── file_ops.py
+│   └── validators.py
+│
+├── data/                      # Wordlists, config, CVEs
+│   ├── cve_db.json
+│   ├── wordlist.txt
+│   ├── config.json
+│   └── targets.txt
+│
+├── reports/                   # Auto-generated logs & reports
+│   └── *.html / *.log
+│
 ├── README.md
+├── requirements.txt
 ├── .gitignore
-└── requirements.txt
-
-To-Do
-tests####
-[ ] Add REST API support
-
-[ ] Add exploit editor GUI
-
-[ ] CVE auto-updater
-
-[ ] Multi-threaded scan orchestration
-
-
-License
-
-MIT License
-
----
-
+└── LICENSE
+```
