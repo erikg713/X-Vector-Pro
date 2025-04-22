@@ -7,7 +7,38 @@ from core.recon.recon_engine import run_auto_recon
 from core.ids import suricata_manager, auto_analyzer
 from utils.logger import log
 import datetime
+from gui.tabs.brute_tab import BruteTab  # import the new tab
 
+class Dashboard(ctk.CTk):  # or your main app window
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("1100x700")
+        self.sidebar()
+        self.tab_area()
+
+    def sidebar(self):
+        self.sidebar_frame = ctk.CTkFrame(self, width=180)
+        self.sidebar_frame.pack(side="left", fill="y")
+
+        self.btn_brute = ctk.CTkButton(self.sidebar_frame, text="Brute Force", command=self.show_brute_tab)
+        self.btn_brute.pack(pady=(10, 5), fill="x")
+
+        # Add other sidebar buttons here...
+
+    def tab_area(self):
+        self.content_frame = ctk.CTkFrame(self)
+        self.content_frame.pack(side="right", fill="both", expand=True)
+        self.current_tab = None
+
+    def clear_tab(self):
+        if self.current_tab:
+            self.current_tab.destroy()
+
+    def show_brute_tab(self):
+        self.clear_tab()
+        self.current_tab = BruteTab(self.content_frame)
+        self.current_tab.pack(fill="both", expand=True)
 
 class Toast(ctk.CTkToplevel):
     def __init__(self, master, message, duration=2000):
