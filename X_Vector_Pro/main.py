@@ -21,7 +21,203 @@ from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 from utils.proxy import get_proxy
+import customtkinter as ctk
+from PIL import Image
+import os
+import random
+import time
+import requests
+import json
+from queue import Queue
+import threading
 
+class XVectorProGUI(ctk.CTk): 
+    def __init__(self): 
+        super().__init__()
+        self.title("X-Vector Pro Supreme Edition")
+        self.geometry("1100x700")
+        self.iconbitmap("assets/icon.ico") if os.path.exists("assets/icon.ico") else None
+
+        # Sidebar
+        self.sidebar = Sidebar(self, self.change_tab)
+        self.sidebar.grid(row=0, column=0, sticky="ns")
+
+        # Main frame
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
+        self.main_frame.grid(row=0, column=1, sticky="nsew")
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Status Bar
+        self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="w")
+        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=4)
+
+        # Toast System
+        self.toast = ToastManager(self)
+
+        # Tab system
+        self.tabs = {
+            "AutoMode": AutoTab(self.main_frame, self.toast, self.set_status),
+            "Brute": BruteTab(self.main_frame, self.toast, self.set_status),
+            "Recon": ReconTab(self.main_frame, self.toast, self.set_status),
+            "Exploits": ExploitTab(self.main_frame, self.toast, self.set_status),
+            "Logs": LogsTab(self.main_frame, self.toast),
+            "Settings": SettingsTab(self.main_frame, self.toast),
+        }
+
+        self.active_tab = None
+        self.change_tab("AutoMode")
+
+        # Load configuration
+        config = self.load_config()
+        if config.get("stealth_mode"):
+            self.after(100, lambda: enable_stealth_mode(self.set_status, self.toast))
+
+        # Hotkeys for hiding/restoring the app
+        self.bind("<Control-Shift-H>", self.hide_window)
+
+    def change_tab(self, tab_name):
+        if self.active_tab:
+            self.active_tab.grid_forget()
+        self.active_tab = self.tabs[tab_name]
+        self.active_tab.grid(row=0, column=0, sticky="nsew")
+        self.set_status(f"{tab_name} tab loaded.")
+
+    def set_status(self, text):
+        self.status_bar.configure(text=text)
+        log_encrypted(text)
+
+    def hide_window(self, event=None):
+        self.withdraw()
+        self.toast.show("App hidden. Press Ctrl+Shift+H again to restore.", "info")
+        self.bind("<Control-Shift-H>", self.restore_window)
+
+    def restore_window(self, event=None):
+        self.deiconify()
+        self.toast.show("App restored.", "success")
+        self.bind("<Control-Shift-H>", self.hide_window)
+
+    def load_config(self):
+        try:
+            with open("config.json", "r") as f:
+                return json.load(f)
+        except:
+            return {}
+
+class Sidebar(ctk.CTkFrame): 
+    def __init__(self, parent, callback): 
+        super().__init__(parent, width=180, corner_radius=0)
+        self.callback = callback
+        self.icons = self.load_icons()
+        
+        # Sidebar Buttons
+        buttons = [
+            ("AutoMode", self.icons.get("AutoMode")),
+            ("Brute", self.icons.get("Brute")),
+            ("Recon", self.icons.get("Recon")),
+            ("Exploits", self.icons.get("Exploits")),
+            ("Logs", self.icons.get("Logs")),
+            ("Settings", self.icons.get("Settings")),
+        ]
+        
+        for name, icon in buttons: 
+            btn = ctk.CTkButton(self, text=name, image=icon, anchor="w", command=lambda n=name: callback(n))
+            btn.pack(fill="x", padx=10, pady=5)
+
+    def load_icons(self):
+        icon_dir = "assets/icons/"
+        icons = {}
+        for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
+            path = os.path.join(icon_dir, f"{name.lower()}.png")
+            if os.path.exists(path):
+                img = ctk.CTkImage(Image.open(path).resize((20, 20)))
+                icons[name] = img
+        return icons
+
+class ToastManager:
+    def __init__(self, parent):
+        self.parent = parent
+        self.toast_label = ctk.CTkLabel(parent, text="", fg_color="yellow", width=250, height=40)
+        self.toast_label.grid(row=2, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
+        self.toast_label.grid_forget()
+
+    def show(self, message, type="info"):
+        colors = {"info": "blue", "error": "red", "success": "green"}
+        self.toast_label.configure(text=message, fg_color=colors.get(type, "blue"))
+        self.toast_label.grid(row=2, column=0, columnspan=2, sticky="ew", padx=10, pady=10)
+        self.parent.after(3000, self.hide)
+
+    def hide(self):
+        self.toast_label.grid_forget()
+
+def stealth_delay(min_ms=200, max_ms=800):
+    time.sleep(random.uniform(min_ms / 1000, max_ms / 1000))
+
+def stealth_headers():
+    headers = {
+        "User-Agent": random.choice([
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0",
+        ]),
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    return headers
+
+def scan_path(path, url):
+    full_url = f"{url}/{path}"
+    try:
+        stealth_delay(300, 1200)
+        r = requests.get(full_url, headers=stealth_headers(), timeout=5)
+        if r.status_code in [200, 301, 403]:
+            line = f"[+] {full_url} [{r.status_code}]"
+            scanner_output.insert("end", line + "\n")
+            log_to_file("dirscan", line)
+    except Exception as e:
+        pass
+
+def run_dir_scan(url):
+    if not url.startswith("http"):
+        show_toast("Use full URL (http/https).", "error")
+        return
+    
+    scanner_output.insert("end", "\n[*] Starting directory scan...\n")
+    log_to_file("dirscan", f"Scanning started on {url}")
+    
+    wordlist = ["admin", "login", "dashboard", "config", "backup", "wp-admin", "uploads", "includes", "panel", "cpanel", "private", "hidden", "db", "phpmyadmin"]
+    queue = Queue()
+
+    # Define worker threads
+    def worker():
+        while not queue.empty():
+            path = queue.get()
+            scan_path(path, url)
+            queue.task_done()
+
+    # Add items to queue
+    for path in wordlist:
+        queue.put(path)
+
+    # Launch threads
+    threads = []
+    for _ in range(5):  # Use 5 threads for concurrent scanning
+        t = threading.Thread(target=worker)
+        threads.append(t)
+        t.start()
+
+    # Wait for all threads to finish
+    for t in threads:
+        t.join()
+
+    show_toast("Dir scan complete", "success")
+    scanner_output.insert("end", "[*] Dir scan finished.\n")
+
+def show_toast(message, type="info"):
+    app.toast.show(message, type)
+
+if __name__ == "__main__":
+    app = XVectorProGUI()
+    app.mainloop()
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
