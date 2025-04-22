@@ -6,6 +6,7 @@ import requests
 import xmlrpc.client
 from urllib.parse import urljoin
 import re
+import tdlextract
 def run_pingback_exploit():
     xmlrpc_url = exploit_target_entry.get().strip()
     victim_url = exploit_victim_entry.get().strip()
@@ -102,8 +103,6 @@ tabs.pack(padx=10, pady=10)
 
 # === Add Tabs ===
 recon_tab = tabs.add("Recon")
-import requests
-import tldextract
 
 def run_recon():
     target = recon_url_entry.get().strip()
