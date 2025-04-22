@@ -15,7 +15,41 @@ from core.brute_force import run_brute_force
 from utils.toast import show_toast
 import threading
 import os
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel
+from core.brute import brute_force_login  # expected core function
 
+class BruteTab(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout()
+        self.url_input = QLineEdit()
+        self.url_input.setPlaceholderText("Enter WordPress login URL")
+        self.run_button = QPushButton("Start Brute Force")
+        self.output = QTextEdit()
+        self.output.setReadOnly(True)
+
+        layout.addWidget(QLabel("Target URL:"))
+        layout.addWidget(self.url_input)
+        layout.addWidget(self.run_button)
+        layout.addWidget(self.output)
+        self.setLayout(layout)
+
+        self.run_button.clicked.connect(self.handle_brute)
+
+    def handle_brute(self):
+        url = self.url_input.text().strip()
+        if not url:
+            self.output.setText("Please enter a valid URL.")
+            return
+        self.output.setText("Starting brute force...")
+        try:
+            results = brute_force_login(url)
+            self.output.setText(results)
+        except Exception as e:
+            self.output.setText(f"Error: {str(e)}")
 class BruteTab(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
