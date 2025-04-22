@@ -1,4 +1,35 @@
- core/scanner.py
+import socket
+
+def run_port_scan(target, ports=None):
+    """
+    Basic TCP port scanner.
+
+    Args:
+        target (str): IP or hostname to scan.
+        ports (list): List of ports to scan. Defaults to common ports.
+
+    Returns:
+        str: Formatted scan result.
+    """
+    if ports is None:
+        ports = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3389]
+
+    results = [f"[SCAN] Starting scan on {target}...\n"]
+
+    for port in ports:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex((target, port))
+            if result == 0:
+                results.append(f"[+] Port {port} is OPEN")
+            else:
+                results.append(f"[-] Port {port} is closed")
+            sock.close()
+        except Exception as e:
+            results.append(f"[!] Error scanning port {port}: {str(e)}")
+
+    return "\n".join(results)
 def run_port_scan(target):
     return f"Scan on {target}: Port 80 open (Fake result)"
 
