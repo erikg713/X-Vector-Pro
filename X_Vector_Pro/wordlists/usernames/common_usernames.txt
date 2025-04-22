@@ -1,0 +1,14 @@
+admin
+root
+user
+test
+guest
+administrator
+info
+support
+webmaster
+manager
+john
+dave
+sql
+wpadmin
