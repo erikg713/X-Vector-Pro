@@ -1,12 +1,10 @@
+# main_ctk.py
 import os
-import time
-import threading
 import json
-import requests
 import customtkinter as ctk
 from PIL import Image
 from utils.toast import ToastManager
-from utils.stealth import enable_stealth_mode, stealth_delay
+from utils.stealth import enable_stealth_mode
 from utils.logger import log_encrypted
 from gui.tabs.auto_tab import AutoTab
 from gui.tabs.brute_tab import BruteTab
@@ -14,40 +12,27 @@ from gui.tabs.recon_tab import ReconTab
 from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
-from utils.proxy import get_proxy
-from datetime import datetime
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
-from gui.tabs.AutoModeTab import AutoModeTab
-from gui.tabs.ScanTab import ScanTab
-from gui.tabs.BruteTab import BruteTab
-from gui.tabs.CVETab import CVETab
-from gui.tabs.ExploitsTab import ExploitsTab
-from gui.tabs.ReportTab import ReportTab
-from gui.tabs.SettingsTab import SettingsTab 
-from gui.tabs.HistoryTab import HistoryTab
 
-# Inside init_ui()
-tabs.addTab(HistoryTab(), "History")
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("X-Vector Pro Supreme Edition")
         self.geometry("1100x700")
-        self.iconbitmap("assets/icon.ico") if os.path.exists("assets/icon.ico") else None
 
-        self.sidebar = Sidebar(self, self.change_tab)
-        self.sidebar.grid(row=0, column=0, sticky="ns")
-        
-        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
-        self.main_frame.grid(row=0, column=1, sticky="nsew")
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
-
-        self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="w")
-        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=4)
+        if os.path.exists("assets/icon.ico"):
+            self.iconbitmap("assets/icon.ico")
 
         self.toast = ToastManager(self)
+        self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="w")
+        self.sidebar = Sidebar(self, self.change_tab)
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
+
+        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=4)
+        self.sidebar.grid(row=0, column=0, sticky="ns")
+        self.main_frame.grid(row=0, column=1, sticky="nsew")
+
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
         self.tabs = {
             "AutoMode": AutoTab(self.main_frame, self.toast, self.set_status),
@@ -60,8 +45,7 @@ class XVectorProGUI(ctk.CTk):
         self.active_tab = None
         self.change_tab("AutoMode")
 
-        config = self.load_config()
-        if config.get("stealth_mode"):
+        if self.load_config().get("stealth_mode"):
             self.after(100, lambda: enable_stealth_mode(self.set_status, self.toast))
 
         self.bind("<Control-Shift-H>", self.hide_window)
@@ -94,24 +78,15 @@ class XVectorProGUI(ctk.CTk):
         self.toast.show("App restored.", "success")
         self.bind("<Control-Shift-H>", self.hide_window)
 
-
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, callback):
         super().__init__(parent, width=180, corner_radius=0)
         self.callback = callback
         self.icons = self.load_icons()
-        
-        buttons = [
-            ("AutoMode", self.icons.get("AutoMode")),
-            ("Brute", self.icons.get("Brute")),
-            ("Recon", self.icons.get("Recon")),
-            ("Exploits", self.icons.get("Exploits")),
-            ("Logs", self.icons.get("Logs")),
-            ("Settings", self.icons.get("Settings")),
-        ]
-        
-        for name, icon in buttons:
-            btn = ctk.CTkButton(self, text=name, image=icon, anchor="w", command=lambda n=name: callback(n))
+
+        for name in self.icons:
+            btn = ctk.CTkButton(self, text=name, image=self.icons[name], anchor="w",
+                                command=lambda n=name: callback(n))
             btn.pack(fill="x", padx=10, pady=5)
 
     def load_icons(self):
@@ -127,40 +102,3 @@ class Sidebar(ctk.CTkFrame):
 if __name__ == "__main__":
     app = XVectorProGUI()
     app.mainloop()
-
-
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
-from gui.tabs.AutoModeTab import AutoModeTab
-from gui.tabs.ScanTab import ScanTab
-from gui.tabs.BruteTab import BruteTab
-from gui.tabs.CVETab import CVETab
-from gui.tabs.ExploitsTab import ExploitsTab
-from gui.tabs.ReportTab import ReportTab
-from gui.tabs.SettingsTab import SettingsTab
-
-class XVectorPro(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("X_Vector_Pro")
-        self.setGeometry(100, 100, 900, 600)
-        self.init_ui()
-
-    def init_ui(self):
-        tabs = QTabWidget()
-
-        tabs.addTab(AutoModeTab(), "Auto Mode")
-        tabs.addTab(ScanTab(), "Scanner")
-        tabs.addTab(BruteTab(), "Brute Force")
-        tabs.addTab(CVETab(), "CVE Search")
-        tabs.addTab(ExploitsTab(), "Exploits")
-        tabs.addTab(ReportTab(), "Reports")
-        tabs.addTab(SettingsTab(), "Settings")
-
-        self.setCentralWidget(tabs)
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = XVectorPro()
-    window.show()
-    sys.exit(app.exec_())
