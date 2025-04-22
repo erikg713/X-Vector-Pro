@@ -1,5 +1,75 @@
 ui/tabs_brute.py
+import customtkinter as ctk
+from tkinter import filedialog
+from core.brute_force import run_brute_force, available_modules
 
+class BruteTab(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.configure(padx=20, pady=20)
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.module_label = ctk.CTkLabel(self, text="Brute-force Module:")
+        self.module_label.pack(anchor="w")
+
+        self.module_var = ctk.StringVar()
+        self.module_dropdown = ctk.CTkOptionMenu(self, variable=self.module_var, values=list(available_modules.keys()))
+        self.module_dropdown.pack(fill="x")
+
+        self.target_entry = ctk.CTkEntry(self, placeholder_text="Target IP or Host")
+        self.target_entry.pack(fill="x", pady=(10, 0))
+
+        self.port_entry = ctk.CTkEntry(self, placeholder_text="Port (optional)")
+        self.port_entry.pack(fill="x", pady=(5, 0))
+
+        self.wordlist_path = ctk.StringVar()
+        self.wordlist_button = ctk.CTkButton(self, text="Choose Wordlist", command=self.browse_wordlist)
+        self.wordlist_button.pack(pady=(10, 0))
+
+        self.stealth_var = ctk.BooleanVar()
+        self.stealth_checkbox = ctk.CTkCheckBox(self, text="Stealth Mode", variable=self.stealth_var)
+        self.stealth_checkbox.pack(anchor="w", pady=(5, 10))
+
+        self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_brute)
+        self.run_button.pack(fill="x")
+
+        self.output_box = ctk.CTkTextbox(self, height=180)
+        self.output_box.pack(fill="both", pady=(10, 0), expand=True)
+
+    def browse_wordlist(self):
+        path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
+        if path:
+            self.wordlist_path.set(path)
+            self.output_log(f"[+] Selected wordlist: {path}")
+
+    def output_log(self, message):
+        self.output_box.insert("end", message + "\n")
+        self.output_box.see("end")
+
+    def run_brute(self):
+        module = self.module_var.get()
+        target = self.target_entry.get().strip()
+        port = self.port_entry.get().strip()
+        port = int(port) if port else None
+        wordlist = self.wordlist_path.get() or None
+        stealth = self.stealth_var.get()
+
+        self.output_box.delete("1.0", "end")
+
+        def logger(msg):
+            self.output_log(msg)
+
+        result = run_brute_force(
+            module_name=module,
+            target=target,
+            port=port,
+            wordlist_file=wordlist,
+            stealth_mode=stealth,
+            logger=logger
+        )
+
+        self.output_log(f"\n[=] Brute-force Result:\n{result}")
 import customtkinter as ctk import xmlrpc.client, threading from tkinter import messagebox, filedialog
 
 def load_brute_tab(tab): def run_brute_force(): target = target_entry.get().strip() usernames = [u.strip() for u in usernames_box.get("1.0", "end").strip().splitlines()] wordlist_path = wordlist_entry.get().strip()
