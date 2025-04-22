@@ -5,7 +5,7 @@ from core.brute import brute_force_login
 from core.exploit_01 import run as run_exploit_01
 from core.report import generate_report
 from core.auto_mode.sequencer import run_sequence
-
+from core.auto_mode import run_sequence
 def run_automode_chain(target="127.0.0.1"):
     return run_sequence(target)
 def run_automode_chain(target="127.0.0.1"):
