@@ -1,5 +1,16 @@
 import socket
+from core.logger import log_event
 
+def run_port_scan(target, ports=None):
+    # ... existing scan logic ...
+    result_text = "\n".join(results)
+
+    log_event("scan", {
+        "target": target,
+        "results": results
+    })
+
+    return result_text
 def run_port_scan(target, ports=None):
     """
     Basic TCP port scanner.
