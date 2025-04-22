@@ -7,6 +7,7 @@ import xmlrpc.client
 from urllib.parse import urljoin
 import re
 import tdlextract
+from queue import Queue
 def run_pingback_exploit():
     xmlrpc_url = exploit_target_entry.get().strip()
     victim_url = exploit_victim_entry.get().strip()
