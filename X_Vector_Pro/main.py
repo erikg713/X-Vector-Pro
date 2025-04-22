@@ -25,7 +25,10 @@ from gui.tabs.CVETab import CVETab
 from gui.tabs.ExploitsTab import ExploitsTab
 from gui.tabs.ReportTab import ReportTab
 from gui.tabs.SettingsTab import SettingsTab 
+from gui.tabs.HistoryTab import HistoryTab
 
+# Inside init_ui()
+tabs.addTab(HistoryTab(), "History")
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
