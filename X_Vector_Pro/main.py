@@ -243,7 +243,7 @@ ctk.CTkLabel(brute_tab, text="Usernames (one per line)").pack(pady=5)
 usernames_box = ctk.CTkTextbox(brute_tab, height=100, width=700)
 usernames_box.insert("0.0", "admin\neditor\nauthor")
 usernames_box.pack()
-
+ctk.CTkButton(scanner_tab, text="Start Dir Scan", command=lambda: threading.Thread(target=run_dir_scan).start()).pack(pady=5)
 ctk.CTkLabel(brute_tab, text="Password List").pack(pady=5)
 wordlist_frame = ctk.CTkFrame(brute_tab)
 wordlist_frame.pack()
