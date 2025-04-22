@@ -2,6 +2,7 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
+import requests
 def subdomain_scan():
     domain = recon_url_entry.get().strip()
     if not domain:
