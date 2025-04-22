@@ -3,6 +3,39 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
 import requests
+
+def run_dir_scan():
+    url = scanner_target_entry.get().strip().rstrip("/")
+    if not url.startswith("http"):
+        messagebox.showerror("Error", "Use full URL (http/https).")
+        return
+
+    scanner_output.insert("end", "\n[*] Starting directory scan...\n")
+
+    wordlist = [
+        "admin", "login", "dashboard", "config", "backup", "wp-admin",
+        "uploads", "includes", "panel", "cpanel", "private", "hidden", "db", "phpmyadmin"
+    ]
+
+    def scan_path(path):
+        full_url = f"{url}/{path}"
+        try:
+            r = requests.get(full_url, timeout=5)
+            if r.status_code in [200, 301, 403]:
+                scanner_output.insert("end", f"[+] {full_url} [{r.status_code}]\n")
+        except Exception:
+            pass
+
+    threads = []
+    for path in wordlist:
+        t = threading.Thread(target=scan_path, args=(path,))
+        threads.append(t)
+        t.start()
+
+    for t in threads:
+        t.join()
+
+    scanner_output.insert("end", "[*] Dir scan finished.\n")
 def subdomain_scan():
     domain = recon_url_entry.get().strip()
     if not domain:
