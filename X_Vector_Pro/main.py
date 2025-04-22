@@ -4,6 +4,8 @@ from tkinter import filedialog, messagebox
 import threading
 import requests
 import xmlrpc.client
+from urllib.parse import urljoin
+import re
 def run_pingback_exploit():
     xmlrpc_url = exploit_target_entry.get().strip()
     victim_url = exploit_victim_entry.get().strip()
