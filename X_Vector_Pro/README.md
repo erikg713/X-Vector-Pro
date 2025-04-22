@@ -1,3 +1,6 @@
+![X-Vector Pro Screenshot](docs/screenshot-dark.png)
+![X-Vector Pro Auto Mode Demo](docs/demo-auto-mode.gif)
+
 X-Vector Pro
 
 A slick GUI tool to brute-force WordPress accounts via xmlrpc.php.
