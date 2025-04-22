@@ -4,7 +4,48 @@ import customtkinter as ctk
 import threading
 from core.scanner import run_scan  # Hook to scanning logic
 from utils.logger import log
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QTextEdit, QHBoxLayout
+from core.scanner import run_port_scan
 
+class ScanTab(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout()
+
+        # Target input
+        input_layout = QHBoxLayout()
+        self.target_input = QLineEdit()
+        self.target_input.setPlaceholderText("e.g. 192.168.1.1 or example.com")
+        self.scan_button = QPushButton("Run Scan")
+        input_layout.addWidget(QLabel("Target:"))
+        input_layout.addWidget(self.target_input)
+        input_layout.addWidget(self.scan_button)
+
+        # Output
+        self.result_output = QTextEdit()
+        self.result_output.setReadOnly(True)
+
+        layout.addLayout(input_layout)
+        layout.addWidget(self.result_output)
+        self.setLayout(layout)
+
+        self.scan_button.clicked.connect(self.handle_scan)
+
+    def handle_scan(self):
+        target = self.target_input.text().strip()
+        if not target:
+            self.result_output.setText("Please enter a target.")
+            return
+
+        self.result_output.setText("Scanning... Please wait.")
+        try:
+            results = run_port_scan(target)
+            self.result_output.setText(results)
+        except Exception as e:
+            self.result_output.setText(f"Error: {str(e)}")
 class ScannerTab(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
