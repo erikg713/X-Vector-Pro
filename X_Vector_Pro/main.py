@@ -66,7 +66,7 @@ def run_recon():
 
     except Exception as e:
         recon_output.insert("end", f"[!] Recon failed: {e}\n")
-
+import socket
 # === Recon UI Layout ===
 ctk.CTkLabel(recon_tab, text="Target URL (https://example.com)").pack(pady=5)
 recon_url_entry = ctk.CTkEntry(recon_tab, width=700)
