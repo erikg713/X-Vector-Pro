@@ -1,9 +1,5 @@
 # main.py
-from ui.main_ui import launch_gui
-
-if __name__ == "__main__":
-    launch_gui()
-    import customtkinter as ctk
+import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
 import json
@@ -12,7 +8,11 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import os
 import json
+from utils.ascii_banner import print_banner
 
+if headless_mode:
+    print_banner()
+    # ...continue CLI flow
 class XVectorPro(tk.Tk):
     def __init__(self):
         super().__init__()
