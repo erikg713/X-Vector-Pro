@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=X-Vector Pro
+Comment=Silent. Adaptive. Lethal.
+Exec=/usr/bin/xvector
+Icon=/usr/share/icons/xvector.png
+Terminal=false
+Type=Application
+Categories=Utility;Security;
