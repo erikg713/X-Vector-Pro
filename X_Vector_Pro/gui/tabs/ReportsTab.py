@@ -9,7 +9,33 @@ from core.reports import report_manager
 from utils.logger import log
 from gui.dashboard import show_toast
 from tkinter import ttk
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit
+from core.report import generate_report  # core should return a report string or file path
 
+class ReportTab(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setup_ui()
+
+    def setup_ui(self):
+        layout = QVBoxLayout()
+        self.generate_button = QPushButton("Generate Report")
+        self.output = QTextEdit()
+        self.output.setReadOnly(True)
+
+        layout.addWidget(self.generate_button)
+        layout.addWidget(self.output)
+        self.setLayout(layout)
+
+        self.generate_button.clicked.connect(self.handle_generate)
+
+    def handle_generate(self):
+        self.output.setText("Generating report...")
+        try:
+            report = generate_report()
+            self.output.setText(report)
+        except Exception as e:
+            self.output.setText(f"Error: {str(e)}")
 class ReportsTab(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
