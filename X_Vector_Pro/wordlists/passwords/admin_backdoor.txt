@@ -1,0 +1,10 @@
+admin:admin
+root:toor
+admin:password
+admin:letmein
+admin:1234
+root:admin
+superuser:superpass
+sys:sys123
+admin:changeme
+administrator:admin
