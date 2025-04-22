@@ -1,3 +1,16 @@
+from core.logger import log_event
+
+def brute_force_login(url):
+    # ... brute loop ...
+    result = "\n".join(results)
+
+    log_event("brute", {
+        "target": url,
+        "results": results
+    })
+
+    return result
+
 # core/recon.py
 def passive_recon(target):
     return f"Passive recon on {target} complete. (Fake data)"
