@@ -1,0 +1,5 @@
+{
+  "CVE-2023-12345": ["exploit_01", "exploit_17"],
+  "CVE-2022-9999": ["exploit_03"],
+  "CVE-2021-40444": ["exploit_09", "exploit_10"]
+}
