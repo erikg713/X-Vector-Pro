@@ -9,7 +9,14 @@ def run_port_scan(target):
 # core/brute.py
 def brute_force_login(target):
     return f"Brute force on {target}: No valid credentials found (Fake)"
-t generated successfully. (Simulated)"
+
+# core/exploit_01.py
+def run(target):
+    return f"Exploit_01 run on {target} — simulated success."
+
+# core/report.py
+def generate_report():
+    return "HTML report generated successfully. (Simulated)"
 
 import requests
 from utils.xmlrpc_utils import build_multicall_payload
