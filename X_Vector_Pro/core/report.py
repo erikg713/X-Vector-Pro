@@ -21,7 +21,36 @@ def generate_report():
 import os
 from fpdf import FPDF
 from datetime import datetime
+from datetime import datetime
 
+def generate_report():
+    """
+    Simulates generating a scan report.
+
+    Returns:
+        str: Report content
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"""
+    X_Vector_Pro Report
+    -------------------
+    Generated: {timestamp}
+
+    Recon:
+    - Target scanned with passive methods.
+
+    Scan:
+    - Common ports checked. Some may be open.
+
+    Brute Force:
+    - Attempted basic username/password combos.
+
+    Exploits:
+    - Exploit_01 was executed. Simulated result.
+
+    Summary:
+    - No critical vulnerabilities exploited.
+    """
 def export_txt(scan, path):
     with open(path, "w") as f:
         f.write(format_scan_text(scan))
