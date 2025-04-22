@@ -11,7 +11,7 @@ class ReconTab(ctk.CTkFrame):
         self.target_var = ctk.StringVar()
         self.status_var = ctk.StringVar(value="Idle")
         self.build_ui()
-
+ctk.CTkButton(recon_tab, text="Scan Subdomains", command=lambda: threading.Thread(target=subdomain_scan).start()).pack(pady=5)
     def build_ui(self):
         ctk.CTkLabel(self, text="Reconnaissance", font=("Segoe UI", 18, "bold")).pack(pady=(10, 5))
 
