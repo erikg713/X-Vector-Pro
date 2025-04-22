@@ -1,3 +1,16 @@
+# core/scanner.py
+import socket
+
+def run_port_scan(target, ports=[22, 80, 443, 8080]):
+    result = []
+    for port in ports:
+        try:
+            with socket.create_connection((target, port), timeout=1):
+                result.append(f"Port {port} is open")
+        except:
+            result.append(f"Port {port} is closed or filtered")
+    return "\n".join(result)
+
 import socket
 import requests
 from utils.logger import log
