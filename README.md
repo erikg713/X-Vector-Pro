@@ -1,4 +1,3 @@
----
 # X-Vector Pro
 
 **Silent. Adaptive. Lethal.**  
@@ -35,8 +34,9 @@ git clone https://github.com/your-username/x-vector-pro.git
 cd x-vector-pro
 pip install -r requirements.txt
 python main.py
-```
-### PROJECT STRUCTURE ###
+
+## File Structure
+
 x_vector_pro/
 ├── main.py                    # GUI Entrypoint
 │
@@ -85,4 +85,4 @@ x_vector_pro/
 ├── requirements.txt
 ├── .gitignore
 └── LICENSE
-```
+
