@@ -365,6 +365,102 @@ def show_toast(msg, level="info"):
     label = ctk.CTkLabel(toast, text=msg, fg_color=color, text_color="white")
     label.pack(fill="both", expand=True)
     toast.after(3000, toast.destroy)
+    # Directory scan using threading
+def scan_path_threaded(path, url, queue, scanner_output):
+    try:
+        stealth_delay(300, 1200)
+        full_url = f"{url}/{path}"
+        r = requests.get(full_url, headers=stealth_headers(), timeout=5)
+        if r.status_code in [200, 301, 403]:
+            line = f"[+] {full_url} [{r.status_code}]"
+            queue.put(line)  # Add result to queue for UI update
+    except Exception as e:
+        pass
+
+def worker_thread(queue, threads_done, scanner_output):
+    while not queue.empty():
+        path = queue.get()
+        scan_path_threaded(path, scanner_output.url, queue, scanner_output)
+        queue.task_done()
+
+    threads_done.append(True)  # Indicate completion of thread task
+
+def start_scan(url):
+    scanner_output.insert("end", "[*] Starting directory scan...\n")
+    log_to_file("dirscan", f"Started scanning {url}")
+    
+    wordlist = ["admin", "login", "dashboard", "config", "backup", "wp-admin", "uploads", "includes", "panel", "cpanel", "private", "hidden", "db", "phpmyadmin"]
+    queue = Queue()
+
+    # Populate queue with paths
+    for path in wordlist:
+        queue.put(path)
+
+    threads_done = []
+
+    # Launch multiple threads for scanning
+    threads = []
+    for _ in range(5):  # Adjust the number of threads based on your needs
+        t = threading.Thread(target=worker_thread, args=(queue, threads_done, scanner_output))
+        threads.append(t)
+        t.start()
+
+    # Wait for threads to finish
+    for t in threads:
+        t.join()
+
+    # Check if all threads are done
+    if len(threads_done) == len(threads):
+        scanner_output.insert("end", "[*] Directory scan completed.\n")
+        show_toast("Dir scan complete", "success")
+        from cryptography.fernet import Fernet
+
+# Generate a key for encryption and decryption
+def generate_key():
+    return Fernet.generate_key()
+
+# Encrypt a message
+def encrypt_message(message, key):
+    cipher = Fernet(key)
+    encrypted_message = cipher.encrypt(message.encode())
+    return encrypted_message
+
+# Decrypt a message
+def decrypt_message(encrypted_message, key):
+    cipher = Fernet(key)
+    decrypted_message = cipher.decrypt(encrypted_message).decode()
+    return decrypted_message
+
+# Log to file with encryption
+def log_to_file(filename, message, key=None):
+    log_dir = "logs/"
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    if key is None:
+        key = generate_key()
+
+    encrypted_message = encrypt_message(message, key)
+
+    log_path = os.path.join(log_dir, f"{filename}.log")
+    with open(log_path, "ab") as f:
+        f.write(encrypted_message + b'\n')
+    
+    return key
+
+# Example of decrypting the logs
+def read_encrypted_log(filename, key):
+    log_dir = "logs/"
+    log_path = os.path.join(log_dir, f"{filename}.log")
+
+    with open(log_path, "rb") as f:
+        encrypted_logs = f.readlines()
+
+    decrypted_logs = []
+    for encrypted_log in encrypted_logs:
+        decrypted_logs.append(decrypt_message(encrypted_log.strip(), key))
+
+    return decrypted_logs
 
 if __name__ == "__main__":
     app = XVectorProGUI()
