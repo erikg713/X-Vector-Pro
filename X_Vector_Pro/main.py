@@ -2,7 +2,37 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
+def subdomain_scan():
+    domain = recon_url_entry.get().strip()
+    if not domain:
+        messagebox.showerror("Error", "Enter a target domain.")
+        return
 
+    recon_output.insert("end", "\n[*] Starting subdomain scan...\n")
+
+    wordlist = [
+        "admin", "dev", "mail", "webmail", "test", "vpn", "portal",
+        "beta", "staging", "api", "cpanel", "dashboard", "internal"
+    ]
+
+    # extract clean domain
+    extracted = tldextract.extract(domain)
+    base_domain = ".".join(part for part in [extracted.domain, extracted.suffix] if part)
+
+    found = 0
+    for sub in wordlist:
+        subdomain = f"{sub}.{base_domain}"
+        try:
+            ip = socket.gethostbyname(subdomain)
+            recon_output.insert("end", f"[+] Found: {subdomain} -> {ip}\n")
+            found += 1
+        except socket.gaierror:
+            pass  # not resolved
+
+    if found == 0:
+        recon_output.insert("end", "[-] No subdomains found.\n")
+    else:
+        recon_output.insert("end", f"[*] Subdomain scan complete: {found} found\n")
 # === Setup ===
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
