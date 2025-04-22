@@ -1,5 +1,3 @@
-# X_Vector_Pro/gui/tabs/logs_tab.py
-
 import os
 import base64
 import json
