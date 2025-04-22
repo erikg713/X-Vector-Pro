@@ -12,7 +12,14 @@ class ScannerTab(ctk.CTkFrame):
         self.port_range_var = ctk.StringVar()
         self.status_var = ctk.StringVar(value="Idle")
         self.build_ui()
+ctk.CTkLabel(scanner_tab, text="Target IP or Domain").pack(pady=5)
+scanner_target_entry = ctk.CTkEntry(scanner_tab, width=500)
+scanner_target_entry.pack()
 
+ctk.CTkButton(scanner_tab, text="Start Port Scan", command=lambda: threading.Thread(target=run_port_scan).start()).pack(pady=10)
+
+scanner_output = ctk.CTkTextbox(scanner_tab, height=400, width=800)
+scanner_output.pack()
     def build_ui(self):
         ctk.CTkLabel(self, text="Port Scanning", font=("Segoe UI", 18, "bold")).pack(pady=(10, 5))
 
