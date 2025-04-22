@@ -78,3 +78,21 @@ scanner_output.pack()
 
     def set_button_state(self, state: bool):
         self.run_button.configure(state="normal" if state else "disabled")
+# gui/tabs/ScanTab.py
+from PyQt5.QtWidgets import QVBoxLayout, QPushButton, QTextEdit
+from core.scanner import run_port_scan
+
+class ScanTab(BaseTab):
+    def setup_ui(self):
+        self.layout = QVBoxLayout()
+        self.scan_btn = QPushButton("Start Scan")
+        self.output = QTextEdit()
+        self.layout.addWidget(self.scan_btn)
+        self.layout.addWidget(self.output)
+        self.setLayout(self.layout)
+
+        self.scan_btn.clicked.connect(self.start_scan)
+
+    def start_scan(self):
+        result = run_port_scan("192.168.0.1")  # example
+        self.output.setText(result)
