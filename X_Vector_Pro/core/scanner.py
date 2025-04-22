@@ -1,5 +1,6 @@
-# core/scanner.py
-import socket
+ core/scanner.py
+def run_port_scan(target):
+    return f"Scan on {target}: Port 80 open (Fake result)"
 
 def run_port_scan(target, ports=[22, 80, 443, 8080]):
     result = []
