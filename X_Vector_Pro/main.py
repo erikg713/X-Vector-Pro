@@ -461,7 +461,15 @@ def read_encrypted_log(filename, key):
         decrypted_logs.append(decrypt_message(encrypted_log.strip(), key))
 
     return decrypted_logs
-
+def show_toast(message, type="info"):
+    """
+    Display a toast notification with the message and type.
+    Args:
+    - message: The message to display in the toast.
+    - type: Type of the message (e.g., "info", "error", "success").
+    """
+    app.toast.show(message, type)
+    log_encrypted
 if __name__ == "__main__":
     app = XVectorProGUI()
     app.mainloop()
