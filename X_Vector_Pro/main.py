@@ -16,7 +16,15 @@ from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 from utils.proxy import get_proxy
 from datetime import datetime
-
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
+from gui.tabs.AutoModeTab import AutoModeTab
+from gui.tabs.ScanTab import ScanTab
+from gui.tabs.BruteTab import BruteTab
+from gui.tabs.CVETab import CVETab
+from gui.tabs.ExploitsTab import ExploitsTab
+from gui.tabs.ReportTab import ReportTab
+from gui.tabs.SettingsTab import SettingsTab 
 
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
