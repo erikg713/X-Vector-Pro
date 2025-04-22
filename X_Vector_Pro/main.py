@@ -17,6 +17,65 @@ tabs.pack(padx=10, pady=10)
 
 # === Add Tabs ===
 recon_tab = tabs.add("Recon")
+import requests
+import tldextract
+
+def run_recon():
+    target = recon_url_entry.get().strip()
+    if not target:
+        messagebox.showerror("Error", "Enter a target URL.")
+        return
+
+    recon_output.delete("0.0", "end")
+    recon_output.insert("end", f"[*] Starting recon on {target}...\n")
+
+    try:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X-Vector Recon Bot)"
+        }
+        r = requests.get(target, headers=headers, timeout=10)
+
+        # Server Headers
+        recon_output.insert("end", "\n--- Headers ---\n")
+        for key, value in r.headers.items():
+            recon_output.insert("end", f"{key}: {value}\n")
+
+        # Title
+        if "<title>" in r.text:
+            title = r.text.split("<title>")[1].split("</title>")[0].strip()
+            recon_output.insert("end", f"\n[*] Title: {title}\n")
+
+        # CMS Detection
+        recon_output.insert("end", "\n--- CMS Detection ---\n")
+        if "wp-content" in r.text or "/wp-login.php" in r.text:
+            recon_output.insert("end", "[+] WordPress Detected\n")
+        elif "Joomla!" in r.text:
+            recon_output.insert("end", "[+] Joomla Detected\n")
+        elif "Drupal" in r.text:
+            recon_output.insert("end", "[+] Drupal Detected\n")
+        else:
+            recon_output.insert("end", "[-] CMS Not Identified\n")
+
+        # IP + Domain Info
+        extracted = tldextract.extract(target)
+        base_domain = ".".join(part for part in [extracted.domain, extracted.suffix] if part)
+        ip = requests.get(f"https://dns.google/resolve?name={base_domain}&type=A").json()
+        if "Answer" in ip:
+            ip_addr = ip["Answer"][0]["data"]
+            recon_output.insert("end", f"\n[*] IP Address: {ip_addr}\n")
+
+    except Exception as e:
+        recon_output.insert("end", f"[!] Recon failed: {e}\n")
+
+# === Recon UI Layout ===
+ctk.CTkLabel(recon_tab, text="Target URL (https://example.com)").pack(pady=5)
+recon_url_entry = ctk.CTkEntry(recon_tab, width=700)
+recon_url_entry.pack()
+
+ctk.CTkButton(recon_tab, text="Run Recon", command=lambda: threading.Thread(target=run_recon).start()).pack(pady=10)
+
+recon_output = ctk.CTkTextbox(recon_tab, height=400, width=800)
+recon_output.pack()
 scanner_tab = tabs.add("Scanner")
 brute_tab = tabs.add("Brute Force")
 exploit_tab = tabs.add("Exploits")
