@@ -3,7 +3,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
 import requests
-
+import xmlrpc.client
 def run_dir_scan():
     url = scanner_target_entry.get().strip().rstrip("/")
     if not url.startswith("http"):
