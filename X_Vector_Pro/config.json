@@ -1,4 +1,19 @@
 {
+  "stealth_mode": true,
+  "smtp_server": "smtp.example.com",
+  "smtp_port": 587,
+  "smtp_user": "user@example.com",
+  "smtp_pass": "password123",
+  "proxy_list": [
+    "http://127.0.0.1:8080",
+    "http://127.0.0.1:3128"
+  ],
+  "use_tor": false,
+  "random_delay_min": 0.5,
+  "random_delay_max": 3.0
+}
+
+{
   "use_proxy": false,
   "delay_seconds": 0.5,
   "random_user_agent": true
