@@ -107,6 +107,46 @@ ctk.CTkButton(recon_tab, text="Run Recon", command=lambda: threading.Thread(targ
 recon_output = ctk.CTkTextbox(recon_tab, height=400, width=800)
 recon_output.pack()
 scanner_tab = tabs.add("Scanner")
+def run_port_scan():
+    target = scanner_target_entry.get().strip()
+    if not target:
+        messagebox.showerror("Error", "Enter a valid target IP or domain.")
+        return
+
+    scanner_output.delete("0.0", "end")
+    scanner_output.insert("end", f"[*] Starting port scan on {target}...\n")
+
+    def scan_worker():
+        while not q.empty():
+            port = q.get()
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.settimeout(0.5)
+                    result = s.connect_ex((target, port))
+                    if result == 0:
+                        scanner_output.insert("end", f"[+] Port {port} is open\n")
+            except Exception as e:
+                scanner_output.insert("end", f"[-] Error on port {port}: {e}\n")
+            q.task_done()
+
+    # Common 100 ports
+    top_ports = [
+        21, 22, 23, 25, 53, 80, 110, 111, 135, 139, 143, 443, 445, 993, 995, 1723,
+        3306, 3389, 5900, 8080, 8443, 8888, 8000, 8081, 8880, 10000, 9200, 5432,
+        389, 137, 138, 139, 2049, 1521, 465, 993, 995, 1025, 49152, 49153
+    ]
+
+    q = Queue()
+    for port in top_ports:
+        q.put(port)
+
+    thread_count = 100
+    for _ in range(thread_count):
+        t = threading.Thread(target=scan_worker, daemon=True)
+        t.start()
+
+    q.join()
+    scanner_output.insert("end", "[*] Port scan finished.\n")
 brute_tab = tabs.add("Brute Force")
 exploit_tab = tabs.add("Exploits")
 logs_tab = tabs.add("Logs")
