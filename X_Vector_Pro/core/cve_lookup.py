@@ -1,5 +1,14 @@
-# core/cve_lookup.py
+import json
 
+def find_exploits_for_cve(cve_id, db_path="cve_db.json"):
+    with open(db_path, "r") as f:
+        cve_map = json.load(f)
+
+    exploits = cve_map.get(cve_id.upper())
+    if exploits:
+        return f"[+] Found exploits for {cve_id}:\n" + "\n".join(f"- {e}" for e in exploits)
+    else:
+        return f"[!] No exploits found for {cve_id}."
 def find_exploits_for_cve(cve_id):
     """
     Simulates searching for exploits by CVE ID.
