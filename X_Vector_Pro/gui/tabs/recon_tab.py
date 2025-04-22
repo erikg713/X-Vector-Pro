@@ -1,5 +1,6 @@
 # gui/tabs/recon_tab.py
-
+import socket
+from queue import Queue
 import customtkinter as ctk
 import threading
 from core.recon.recon_engine import run_recon  # Hook to recon logic
