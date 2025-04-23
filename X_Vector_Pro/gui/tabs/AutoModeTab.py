@@ -1,60 +1,10 @@
+# gui/tabs/auto_mode_tab.py
+
 import customtkinter as ctk
 import threading
-from core.auto_chain import run_auto_chain  # You’ll hook this to the full chain logic
-from utils.logger import log
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit
-from core.controller import run_automode_chain  # expected core function
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit
-from core.controller import run_automode_chain  # We’ll create this next
+from core.auto_chain import run_auto_chain  # Ensure this function is implemented
+from utils.logger import log  # Optional logging, use inside try/except as needed
 
-class AutoModeTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout()
-        self.run_button = QPushButton("Run Auto Mode")
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-
-        layout.addWidget(self.run_button)
-        layout.addWidget(self.output)
-        self.setLayout(layout)
-
-        self.run_button.clicked.connect(self.handle_auto_mode)
-
-    def handle_auto_mode(self):
-        self.output.setText("Running auto-mode...")
-        try:
-            results = run_automode_chain()
-            self.output.setText(results)
-        except Exception as e:
-            self.output.setText(f"Error: {str(e)}")
-class AutoModeTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout()
-        self.run_button = QPushButton("Run Auto Mode")
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-
-        layout.addWidget(self.run_button)
-        layout.addWidget(self.output)
-        self.setLayout(layout)
-
-        self.run_button.clicked.connect(self.handle_auto_mode)
-
-    def handle_auto_mode(self):
-        self.output.setText("Running auto-mode...")
-        try:
-            results = run_automode_chain()
-            self.output.setText(results)
-        except Exception as e:
-            self.output.setText(f"Error: {str(e)}")
 class AutoModeTab(ctk.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
