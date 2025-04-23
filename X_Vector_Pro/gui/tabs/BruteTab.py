@@ -1,109 +1,124 @@
-ui/tabs_brute.py
-import customtkinter as ctk
-from tkinter import filedialog
-from core.brute_force import run_brute_force, available_modules
-from utils.toast import show_toast  # if you have a toast module
+            import os
 import threading
 import customtkinter as ctk
-from tkinter import filedialog
-from core.brute_force import run_brute_force
-from utils.toast import show_toast
-import threading
-import customtkinter as ctk
-from tkinter import filedialog
-from core.brute_force import run_brute_force
-from utils.toast import show_toast
-import threading
-import os
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel
-from core.brute import brute_force_login  # expected core function
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLineEdit, QPushButton, QTextEdit, QLabel
-from core.brute import brute_force_login
+from core.brute import run_brute_force
+from utils.logger import log
+from utils.helpers import show_toast
+from core.wordlists import default_ports  # you should define this dict
 
-class BruteTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
+default_wordlists = {
+    "FTP": "ftp_default_creds.txt",
+    "SSH": "ssh_common.txt",
+    "MySQL": "mysql_login.txt",
+    "WordPress": "wp_login.txt"
+}
 
-    def setup_ui(self):
-        layout = QVBoxLayout()
-
-        self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Enter WordPress login URL (e.g. http://example.com/wp-login.php)")
-
-        self.run_button = QPushButton("Start Brute Force")
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-
-        layout.addWidget(QLabel("Target URL:"))
-        layout.addWidget(self.url_input)
-        layout.addWidget(self.run_button)
-        layout.addWidget(self.output)
-        self.setLayout(layout)
-
-        self.run_button.clicked.connect(self.handle_brute)
-
-    def handle_brute(self):
-        url = self.url_input.text().strip()
-        if not url:
-            self.output.setText("Please enter a valid URL.")
-            return
-
-        self.output.setText("Starting brute force...")
-        try:
-            results = brute_force_login(url)
-            self.output.setText(results)
-        except Exception as e:
-            self.output.setText(f"Error: {str(e)}")
-class BruteTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout()
-        self.url_input = QLineEdit()
-        self.url_input.setPlaceholderText("Enter WordPress login URL")
-        self.run_button = QPushButton("Start Brute Force")
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-
-        layout.addWidget(QLabel("Target URL:"))
-        layout.addWidget(self.url_input)
-        layout.addWidget(self.run_button)
-        layout.addWidget(self.output)
-        self.setLayout(layout)
-
-        self.run_button.clicked.connect(self.handle_brute)
-
-    def handle_brute(self):
-        url = self.url_input.text().strip()
-        if not url:
-            self.output.setText("Please enter a valid URL.")
-            return
-        self.output.setText("Starting brute force...")
-        try:
-            results = brute_force_login(url)
-            self.output.setText(results)
-        except Exception as e:
-            self.output.setText(f"Error: {str(e)}")
 class BruteTab(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.wordlist_path = ctk.StringVar()
+        self.stealth_var = ctk.BooleanVar(value=False)
+
         # Target input
-        self.target_label = ctk.CTkLabel(self, text="Target IP/Host:")
-        self.target_label.pack(pady=(10, 0))
+        ctk.CTkLabel(self, text="Target IP/Host:").pack(pady=(10, 0))
         self.target_entry = ctk.CTkEntry(self)
         self.target_entry.pack()
 
         # Module selector
-        self.module_label = ctk.CTkLabel(self, text="Module:")
-        self.module_label.pack(pady=(10, 0))
+        ctk.CTkLabel(self, text="Module:").pack(pady=(10, 0))
         self.module_var = ctk.StringVar()
-        self.module_dropdown = ctk.CTkOptionMenu(self, variable=self.module_var,
-                                                 values=["FTP", "SSH", "MySQL", "WordPress"],
-                                                 command=self.auto_fill_port)
+        self.module_dropdown = ctk.CTkOptionMenu(
+            self, variable=self.module_var,
+            values=list(default_wordlists.keys()),
+            command=self.auto_fill_port
+        )
+        self.module_dropdown.pack()
+
+        # Port field
+        ctk.CTkLabel(self, text="Port:").pack()
+        self.port_entry = ctk.CTkEntry(self)
+        self.port_entry.pack()
+
+        # Wordlist display (read-only)
+        ctk.CTkLabel(self, text="Wordlist Used:").pack()
+        self.wordlist_display = ctk.CTkEntry(self, textvariable=self.wordlist_path, state="readonly")
+        self.wordlist_display.pack(pady=(0, 10))
+
+        # Stealth checkbox
+        self.stealth_checkbox = ctk.CTkCheckBox(self, text="Enable Stealth Mode", variable=self.stealth_var)
+        self.stealth_checkbox.pack(pady=(5, 10))
+
+        # Run button
+        self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_brute)
+        self.run_button.pack(pady=(5, 10))
+
+        # Progress bar
+        self.progress = ctk.CTkProgressBar(self)
+        self.progress.set(0)
+
+        # Output box
+        self.output_box = ctk.CTkTextbox(self, height=300)
+        self.output_box.pack(pady=(10, 10), padx=10, fill="both", expand=True)
+        self.output_box.insert("end", "Logs will appear here...\n")
+        self.output_box.configure(state="disabled")
+
+    def auto_fill_port(self, module_name):
+        self.port_entry.delete(0, "end")
+        self.port_entry.insert(0, str(default_ports.get(module_name, "")))
+        self.wordlist_path.set(f"wordlists/{default_wordlists.get(module_name, '')}")
+
+    def run_brute(self):
+        module = self.module_var.get()
+        target = self.target_entry.get().strip()
+        port = self.port_entry.get().strip()
+        port = int(port) if port else None
+        wordlist = self.wordlist_path.get()
+        stealth = self.stealth_var.get()
+
+        self.output_box.configure(state="normal")
+        self.output_box.delete("1.0", "end")
+        self.output_log(f"[*] Running brute-force on {target} using {module}...")
+        self.output_box.configure(state="disabled")
+
+        self.progress.pack()
+        self.progress.start()
+        self.run_button.configure(state="disabled", text="Running...")
+
+        def logger(msg):
+            self.output_log(msg)
+            self.save_log(msg)
+
+        def task():
+            try:
+                result = run_brute_force(
+                    module_name=module, target=target, port=port,
+                    wordlist_file=wordlist, stealth_mode=stealth,
+                    logger=logger
+                )
+                self.output_log(f"\n[=] Brute-force Result:\n{result}")
+                self.save_log(f"[=] Result: {result}")
+                show_toast("Brute-force Complete", style="success")
+            except Exception as e:
+                self.output_log(f"[ERROR] {str(e)}")
+                show_toast("Brute-force Failed", style="error")
+            finally:
+                self.run_button.configure(state="normal", text="Run Brute Force")
+                self.progress.stop()
+                self.progress.pack_forget()
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def output_log(self, message):
+        self.output_box.configure(state="normal")
+        self.output_box.insert("end", message + "\n")
+        self.output_box.see("end")
+        self.output_box.configure(state="disabled")
+
+    def save_log(self, message):
+        os.makedirs("logs", exist_ok=True)
+        with open("logs/brute_log.txt", "a") as f:
+            f.write(message + "\n")                                     command=self.auto_fill_port)
         self.module_dropdown.pack()
 
         # Port field
