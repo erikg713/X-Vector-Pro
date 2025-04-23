@@ -18,24 +18,3 @@ __all__ = [
     "ExploitTab",
     "AutoModeTab"
 ]
-from .dashboard import Dashboard
-from .tabs_brute import load_brute_tab
-from .tabs_recon import load_recon_tab
-from .tabs_scanner import load_scanner_tab
-from .tabs_exploits import load_exploit_tab
-from .tabs_fullauto import load_fullauto_tab
-from .tabs_logs import load_logs_tab
-from .tabs_settings import load_settings_tab
-from .tabs_findings import load_findings_tab
-
-__all__ = [
-    "Dashboard",
-    "load_brute_tab",
-    "load_recon_tab",
-    "load_scanner_tab",
-    "load_exploit_tab",
-    "load_fullauto_tab",
-    "load_logs_tab",
-    "load_settings_tab",
-    "load_findings_tab"
-]
