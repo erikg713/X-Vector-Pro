@@ -1,0 +1,8 @@
+admin
+wpadmin
+root
+cms
+siteadmin
+joomla
+drupal
+wordpress
