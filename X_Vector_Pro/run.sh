@@ -1,15 +1,13 @@
 #!/bin/bash
 
-# Navigate to script's directory
+# Navigate to the script's directory
 cd "$(dirname "$0")"
 
-# Launch the app with Python 3 and handle errors
+# Check if Python 3 is installed
 if ! command -v python3 &> /dev/null; then
-    echo "Python 3 is not installed. Please install it to continue."
+    echo "[!] Python 3 is not installed. Please install it to run X-Vector Pro."
     exit 1
 fi
 
-python3 main.py
-#!/bin/bash
 echo "[*] Launching X-Vector Pro GUI..."
 python3 main_pyqt.py
