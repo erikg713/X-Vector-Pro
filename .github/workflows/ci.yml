@@ -1,0 +1,51 @@
+name: X-Vector Pro CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run X-Vector Pro in headless mode
+        run: |
+          python main.py --headless
+        env:
+          DISPLAY: ":99"  # For headless mode, you may need to configure Xvfb (virtual display)
+        
+      - name: Generate release artifacts
+        run: |
+          mkdir -p dist
+          zip -r dist/x_vector_pro_release.zip .  # You can specify a more precise structure if needed
+
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/x_vector_pro_release.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up
+        run: |
+          rm -rf dist
