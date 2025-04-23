@@ -10,3 +10,6 @@ if ! command -v python3 &> /dev/null; then
 fi
 
 python3 main.py
+#!/bin/bash
+echo "[*] Launching X-Vector Pro GUI..."
+python3 main_pyqt.py
