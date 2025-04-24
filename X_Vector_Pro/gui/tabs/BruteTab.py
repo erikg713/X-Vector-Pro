@@ -84,3 +84,57 @@ DEFAULT_WORDLISTS = {
         self.port_entry.delete(0, "end")
         self.port_entry.insert(0, str(DEFAULT_PORTS.get(module_name, "")))
         self.wordlist_path.set(f"wordlists/{DEFAULT_WORDLISTS.get(module_name, '')}")
+def log_output(self, message):
+        timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        self.output_box.insert("end", f"[{timestamp}] {message}\n")
+        self.output_box.see("end")
+
+    def run_brute(self):
+        if self.is_running:
+            self.log_output("Brute force is already running.")
+            return
+
+        self.is_running = True
+        self.run_button.configure(state="disabled")
+        self.stop_button.configure(state="normal")
+        self.progress.start()
+        self.output_box.delete("1.0", "end")
+
+        def task():
+            try:
+                target = self.target_entry.get()
+                port = int(self.port_entry.get())
+                wordlist = self.wordlist_path.get()
+                module = self.module_var.get()
+                stealth = self.stealth_var.get()
+
+                self.log_output(f"Starting brute force on {target}:{port} using {wordlist} (stealth={stealth})")
+
+                run_brute_force(
+                    target=target,
+                    port=port,
+                    module=module,
+                    wordlist_path=wordlist,
+                    stealth=stealth,
+                    output_callback=self.log_output,
+                    stop_flag=lambda: not self.is_running
+                )
+
+                self.log_output("Brute force completed.")
+
+            except Exception as e:
+                self.log_output(f"Error: {str(e)}")
+            finally:
+                self.is_running = False
+                self.run_button.configure(state="normal")
+                self.stop_button.configure(state="disabled")
+                self.progress.stop()
+
+        threading.Thread(target=task, daemon=True).start()
+
+    def stop_brute(self):
+        if self.is_running:
+            self.is_running = False
+            self.log_output("Brute force stopped by user.")
+        else:
+            self.log_output("No brute force process is running.")
