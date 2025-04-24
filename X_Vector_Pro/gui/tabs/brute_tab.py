@@ -2,6 +2,7 @@
 
 import os
 import threading
+import datetime
 import customtkinter as ctk
 from tkinter import filedialog
 from core.brute_force import run_brute_force
@@ -22,7 +23,7 @@ DEFAULT_WORDLISTS = {
     "WordPress": "wp_login.txt"
 }
 
-        class BruteTab(ctk.CTkFrame):
+class BruteTab(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         self.wordlist_path = ctk.StringVar()
@@ -69,7 +70,7 @@ DEFAULT_WORDLISTS = {
         self.progress.set(0)
         self.progress.pack(fill="x", padx=10, pady=5)
 
-        # Run and Stop buttons
+        # Buttons
         self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_brute)
         self.run_button.pack(pady=5)
 
@@ -84,7 +85,13 @@ DEFAULT_WORDLISTS = {
         self.port_entry.delete(0, "end")
         self.port_entry.insert(0, str(DEFAULT_PORTS.get(module_name, "")))
         self.wordlist_path.set(f"wordlists/{DEFAULT_WORDLISTS.get(module_name, '')}")
-def log_output(self, message):
+
+    def browse_wordlist(self):
+        file_path = filedialog.askopenfilename(filetypes=[("Text Files", "*.txt")])
+        if file_path:
+            self.wordlist_path.set(file_path)
+
+    def log_output(self, message):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
         self.output_box.insert("end", f"[{timestamp}] {message}\n")
         self.output_box.see("end")
