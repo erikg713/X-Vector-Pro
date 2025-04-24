@@ -1,5 +1,25 @@
 import json
+def find_exploits_for_cve(cve_id):
+    # Simulated CVE database
+    mock_db = {
+        "CVE-2023-12345": [
+            "Exploit Title: Remote Buffer Overflow in FooServer",
+            "URL: https://www.exploit-db.com/exploits/12345",
+            "Type: Remote Code Execution"
+        ],
+        "CVE-2022-5678": [
+            "Exploit Title: SQL Injection in BarCMS",
+            "URL: https://www.exploit-db.com/exploits/56789",
+            "Type: SQL Injection"
+        ]
+    }
 
+    exploits = mock_db.get(cve_id.upper())
+
+    if not exploits:
+        return f"No known public exploits found for {cve_id}."
+
+    return "\n\n".join(exploits)
 def find_exploits_for_cve(cve_id, db_path="cve_db.json"):
     with open(db_path, "r") as f:
         cve_map = json.load(f)
