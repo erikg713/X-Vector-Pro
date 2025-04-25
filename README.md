@@ -40,7 +40,7 @@ python main.py
 x_vector_pro/
 ├── main.py                    # GUI Entrypoint
 │
-├── ui/                        # GUI interface
+├── gui/                        # GUI interface
 │   ├── main_ui.py             # Launch & layout
 │   ├── tabs/                  # Each tab is a GUI page
 │   │   ├── auto_mode_tab.py
