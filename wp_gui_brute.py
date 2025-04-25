@@ -1,8 +1,9 @@
+import os
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import xmlrpc.client
 import threading
-import os
+
 
 def run_brute_force():
     target = target_entry.get().strip()
