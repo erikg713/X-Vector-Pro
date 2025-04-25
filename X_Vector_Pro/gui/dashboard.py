@@ -1,27 +1,37 @@
 import sys
 import os
+import importlib
+import customtkinter as ctk
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import customtkinter as ctk
-from gui.tabs.brute_tab import BruteTab
-from gui.tabs.recon_tab import ReconTab
-from gui.tabs.scanner_tab import ScannerTab
-from gui.tabs.ids_tab import IDSTab
-from gui.tabs.exploit_tab import ExploitTab
-from gui.tabs.auto_mode_tab import AutoModeTab
+# Dynamically discover and import all tabs in the `gui.tabs` package
+TAB_CLASSES = {}
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("dark-blue")
+def load_tabs():
+    tabs_package = "gui.tabs"  # Path to the tabs package (relative to this file)
+    tabs_dir = os.path.join(os.path.dirname(__file__), "tabs")
 
-TAB_CLASSES = {
-    "Brute Force": BruteTab,
-    "Recon": ReconTab,
-    "Scanner": ScannerTab,
-    "IDS": IDSTab,
-    "Exploits": ExploitTab,
-    "Auto Mode": AutoModeTab
-}
+    for module_name in os.listdir(tabs_dir):
+        if module_name.endswith(".py") and module_name != "__init__.py":
+            # Import the module dynamically
+            module_path = f"{tabs_package}.{module_name[:-3]}"
+            module = importlib.import_module(module_path)
 
+            # Find all classes in the module that end with 'Tab' and add them to the TAB_CLASSES dictionary
+            for attribute_name in dir(module):
+                attribute = getattr(module, attribute_name)
+                if isinstance(attribute, type) and attribute_name.endswith("Tab"):
+                    TAB_CLASSES[attribute_name.replace("Tab", "")] = attribute
+
+# Load all tabs dynamically
+load_tabs()
+
+# Ensure we have the required tabs in the TAB_CLASSES dictionary
+if not TAB_CLASSES:
+    raise Exception("No tabs found! Please check the tabs directory.")
+
+# Toast Class for Toast Notification
 class Toast(ctk.CTkToplevel):
     def __init__(self, master, message, duration=2000):
         super().__init__(master)
@@ -32,9 +42,10 @@ class Toast(ctk.CTkToplevel):
         label.pack(padx=10, pady=5)
         self.after(duration, self.destroy)
 
-def show_toast(master, message):
-    Toast(master, message)
+def show_toast(master, message, duration=2000):
+    Toast(master, message, duration)
 
+# Dashboard Class for X-Vector Pro Interface
 class Dashboard(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -69,13 +80,18 @@ class Dashboard(ctk.CTk):
         if self.active_tab:
             self.active_tab.pack_forget()
 
+        # Gracefully handle invalid tab names
+        if tab_name not in TAB_CLASSES:
+            show_toast(self, f"Tab '{tab_name}' not found!", 2000)
+            return
+
         if tab_name not in self.tab_instances:
             self.tab_instances[tab_name] = TAB_CLASSES[tab_name](self.content_frame)
 
         self.active_tab = self.tab_instances[tab_name]
         self.active_tab.pack(expand=True, fill="both")
 
-
+# Run the Application
 if __name__ == "__main__":
     app = Dashboard()
     app.mainloop()
