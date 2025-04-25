@@ -3,6 +3,9 @@ import json
 import threading
 import requests
 import threads
+import socks
+import socket
+import random
 import customtkinter as ctk
 from core.reports import report_manager
 from utils.logger import log
