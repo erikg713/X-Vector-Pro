@@ -55,9 +55,18 @@ Coming Soon – GUI preview image
 File Tree
 
 X-Vector-Pro/
-├── main.py                           # GUI launcher
-...
-
+├── main.py
+├── gui/
+│   ├── __init__.py
+│   ├── dashboard.py
+│   └── tabs/
+│       ├── __init__.py
+│       ├── brute_tab.py
+│       ├── recon_tab.py
+│       ├── scanner_tab.py
+│       ├── ids_tab.py
+│       ├── exploit_tab.py
+│       └── auto_mode_tab.py
 
 ---
 
