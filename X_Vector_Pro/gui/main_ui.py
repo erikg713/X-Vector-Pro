@@ -1,4 +1,4 @@
-# ui/main_ui.py
+# gui/main_ui.py
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import threading
