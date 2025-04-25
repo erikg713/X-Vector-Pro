@@ -1,7 +1,6 @@
 import os
 import json
 import threading
-from tkinter import messagebox
 import customtkinter as ctk
 from core.reports import report_manager
 from utils.logger import log
