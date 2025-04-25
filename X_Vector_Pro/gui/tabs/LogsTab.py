@@ -48,7 +48,7 @@ class LogsTab(CTkFrame):
         except Exception as e:
             return f"[ERROR decrypting {log_path}]: {e}"
 
-    def load_logs(self):
+       def load_logs(self):
         self.log_display.delete("1.0", END)
         self.logs = []
 
@@ -61,8 +61,10 @@ class LogsTab(CTkFrame):
                 full_path = os.path.join(LOGS_DIR, log_file)
                 content = self.decrypt_log(full_path)
                 timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).strftime("%Y-%m-%d %H:%M:%S")
+                # Add structured log to list
+                log_entry = f"[{timestamp}] {log_file}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
                 self.logs.append((log_file, content))
-                self.log_display.insert(END, f"[{timestamp}] {log_file}\n{content}\n{'-' * 80}\n")
+                self.log_display.insert(END, log_entry)
 
     def search_logs(self):
         keyword = self.search_var.get().strip().lower()
