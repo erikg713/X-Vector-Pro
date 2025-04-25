@@ -1,31 +1,3 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton, QTextEdit
-from core.report import generate_report
-
-class ReportTab(QWidget):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setup_ui()
-
-    def setup_ui(self):
-        layout = QVBoxLayout()
-
-        self.generate_button = QPushButton("Generate Report")
-        self.output = QTextEdit()
-        self.output.setReadOnly(True)
-
-        layout.addWidget(self.generate_button)
-        layout.addWidget(self.output)
-        self.setLayout(layout)
-
-        self.generate_button.clicked.connect(self.handle_generate)
-
-    def handle_generate(self):
-        self.output.setText("Generating report...")
-        try:
-            report = generate_report()
-            self.output.setText(report)
-        except Exception as e:
-            self.output.setText(f"Error: {str(e)}")
 import os
 import json
 import threading
@@ -206,19 +178,3 @@ def check_plugin_paths(url):
     return results# engine/scanner.py
 import requests
 
-PLUGIN_PATHS = [
-    "/wp-content/plugins/", "/wp-content/themes/",
-]
-
-HEADERS = {"User-Agent": "X-VectorScanner/1.0"}
-
-def check_plugin_paths(url):
-    results = {}
-    for path in PLUGIN_PATHS:
-        full_url = url.rstrip("/") + path
-        try:
-            r = requests.get(full_url, headers=HEADERS, timeout=5)
-            results[path] = r.status_code
-        except requests.RequestException:
-            results[path] = "Error"
-    return results
