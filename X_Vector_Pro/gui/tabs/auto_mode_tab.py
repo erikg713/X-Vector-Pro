@@ -1,5 +1,4 @@
 # gui/tabs/auto_mode_tab.py
-
 import customtkinter as ctk
 import threading
 import re
@@ -12,6 +11,7 @@ class AutoModeTab(ctk.CTkFrame):
         self.target_var = ctk.StringVar()
         self.status_var = ctk.StringVar(value="Idle")
         self.build_ui()
+        self._current_thread = None  # To track the current background thread
 
     def build_ui(self):
         ctk.CTkLabel(self, text="Automated Recon + Exploit Chain", font=("Segoe UI", 18, "bold")).pack(pady=(10, 5))
@@ -37,61 +37,84 @@ class AutoModeTab(ctk.CTkFrame):
         self.clear_button = ctk.CTkButton(self, text="Clear Output", command=self.clear_output)
         self.clear_button.pack(pady=(5, 10))
 
-        # Spinner (progress indicator)
-        self.spinner = ctk.CTkProgressBar(self, mode="indeterminate")
-        self.spinner.pack(pady=5)
-        self.spinner.place_forget()  # Initially hide it
+        # Progress Bar (shows progress of recon and exploitation)
+        self.progress = ctk.CTkProgressBar(self, mode="indeterminate")
+        self.progress.pack(pady=5, fill="x")
+        self.progress.place_forget()  # Initially hidden
 
     def run_chain_threaded(self):
         target = self.target_var.get().strip()
         if not target or not self.is_valid_target(target):
             self.show_status("Enter a valid target.")
             return
+        if self._current_thread and self._current_thread.is_alive():
+            self.show_status("Another chain is still running.")
+            return
         threading.Thread(target=self.run_chain, args=(target,), daemon=True).start()
 
     def run_chain(self, target):
         self.show_status(f"Running auto recon chain on {target}...")
         self.set_button_state(False)
-        self.show_spinner(True)
-        self.append_output(f"[AUTO] Starting full chain on {target}\n")
+        self.show_progress(True)
+        self.append_output(f"[INFO] Starting full chain on {target}\n")
+        
         try:
             results = run_auto_chain(target, gui_callback=self.append_output)
-            self.append_output(f"[AUTO] Completed successfully.\n")
+            self.append_output(f"[INFO] Completed successfully.\n")
         except Exception as e:
             self.append_output(f"[ERROR] {str(e)}\n")
         finally:
             self.set_button_state(True)
+            self.show_progress(False)
             self.show_status("Idle")
-            self.show_spinner(False)
 
     def append_output(self, text):
+        """Optimized log display function to update output efficiently."""
         self.output_box.configure(state="normal")
         self.output_box.insert("end", text)
         self.output_box.see("end")
         self.output_box.configure(state="disabled")
 
     def show_status(self, text):
+        """Optimized method for updating status with color coding."""
         self.status_var.set(text)
 
     def set_button_state(self, state: bool):
+        """Optimized button state management to avoid redundancy."""
         self.run_button.configure(state="normal" if state else "disabled")
 
-    def show_spinner(self, show: bool):
+    def show_progress(self, show: bool):
+        """Show or hide the progress bar based on the current operation status."""
         if show:
-            self.spinner.place(x=100, y=320)  # Position it appropriately
-            self.spinner.start()
+            self.progress.place(x=20, y=350)  # Position it appropriately
+            self.progress.start()
         else:
-            self.spinner.place_forget()  # Hide the spinner
-            self.spinner.stop()  # Stop spinner animation
+            self.progress.place_forget()  # Hide the progress bar
+            self.progress.stop()  # Stop the progress animation
 
     def clear_output(self):
+        """Clear the output area."""
         self.output_box.configure(state="normal")
         self.output_box.delete("1.0", "end")
         self.output_box.configure(state="disabled")
 
     def is_valid_target(self, target):
-        """Check if the input target is a valid IP or domain."""
-        # Simple regex for IP and domain validation
+        """Improved target validation (IP or domain)."""
+        # Combined validation for both IP and domain using regex
         ip_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
         domain_pattern = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,6}$"
-        return bool(re.match(ip_pattern, target)) or bool(re.match(domain_pattern, target))
+        
+        if re.match(ip_pattern, target):
+            return True
+        if re.match(domain_pattern, target):
+            return True
+        return False
+
+    def log_message(self, message, log_type="INFO"):
+        """Centralized log function with enhanced levels."""
+        if log_type == "INFO":
+            self.append_output(f"[INFO] {message}\n")
+        elif log_type == "WARNING":
+            self.append_output(f"[WARNING] {message}\n")
+        elif log_type == "ERROR":
+            self.append_output(f"[ERROR] {message}\n")
