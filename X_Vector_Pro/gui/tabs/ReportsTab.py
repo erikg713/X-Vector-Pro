@@ -1,6 +1,8 @@
 import os
 import json
 import threading
+import requests
+import threads
 import customtkinter as ctk
 from core.reports import report_manager
 from utils.logger import log
@@ -175,5 +177,3 @@ def check_plugin_paths(url):
         except requests.RequestException:
             results[path] = "Error"
     return results# engine/scanner.py
-import requests
-
