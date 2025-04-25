@@ -1,97 +1,114 @@
-import tkinter as tk
-from tkinter import ttk, messagebox
+import customtkinter as ctk
 import threading
-import os
-from gui.tabs.full_auto.auto_recon import run_auto_recon
+from core.auto_chain import run_auto_chain  # Ensure this function is implemented
+from utils.logger import log  # Optional logging, use inside try/except as needed
 
-class FullAutoTab:
+class FullAutoTab(ctk.CTkFrame):
     def __init__(self, master):
-        self.master = master
-        self.master.title("Full Auto Recon")
-        self.master.geometry("700x520")
+        super().__init__(master)
+        self.target_var = ctk.StringVar()
+        self.status_var = ctk.StringVar(value="Idle")
+        self.build_ui()
+        self._current_thread = None  # To track the current background thread
 
-        self.frame = ttk.Frame(self.master)
-        self.frame.pack(fill="both", expand=True, padx=15, pady=15)
+    def build_ui(self):
+        # Title Label
+        ctk.CTkLabel(self, text="Full Automated Recon + Exploit", font=("Segoe UI", 18, "bold")).pack(pady=(10, 5))
 
-        # Target IP/Domain Input
-        self.target_label = ttk.Label(self.frame, text="Target IP or Domain:")
-        self.target_label.pack(pady=(0, 5))
-        self.target_entry = ttk.Entry(self.frame, width=50)
-        self.target_entry.pack()
+        # Input Frame
+        input_frame = ctk.CTkFrame(self)
+        input_frame.pack(pady=10, padx=20, fill="x")
 
-        # Optional Folder Name Input
-        self.dir_label = ttk.Label(self.frame, text="Optional Custom Output Folder:")
-        self.dir_label.pack(pady=(15, 5))
-        self.dir_entry = ttk.Entry(self.frame, width=50)
-        self.dir_entry.pack()
+        # Target Entry
+        self.target_entry = ctk.CTkEntry(input_frame, textvariable=self.target_var, placeholder_text="Enter target IP or domain...")
+        self.target_entry.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
         # Start Button
-        self.start_button = ttk.Button(self.frame, text="Run Full Auto Recon", command=self.start_full_auto_recon)
-        self.start_button.pack(pady=20)
+        self.run_button = ctk.CTkButton(input_frame, text="Run Full Auto", command=self.run_chain_threaded)
+        self.run_button.pack(side="left")
 
-        # Output Log Textbox
-        self.output_log = tk.Text(self.frame, height=15, width=85, wrap="word", state=tk.DISABLED)
-        self.output_log.pack(pady=10)
+        # Status Label
+        self.status_label = ctk.CTkLabel(self, textvariable=self.status_var, text_color="gray", font=("Segoe UI", 12))
+        self.status_label.pack(pady=(0, 10))
 
-    def start_full_auto_recon(self):
-        target = self.target_entry.get().strip()
-        custom_dir = self.dir_entry.get().strip()
+        # Output Box (for logs)
+        self.output_box = ctk.CTkTextbox(self, height=400, wrap="word")
+        self.output_box.pack(padx=20, pady=10, fill="both", expand=True)
+        self.output_box.insert("end", "Logs will appear here...\n")
+        self.output_box.configure(state="disabled")
 
-        if not target:
-            messagebox.showerror("Input Error", "Please enter a valid target.")
+        # Clear Output Button
+        self.clear_button = ctk.CTkButton(self, text="Clear Output", command=self.clear_output)
+        self.clear_button.pack(pady=(5, 10))
+
+        # Progress Bar
+        self.progress = ctk.CTkProgressBar(self, mode="indeterminate")
+        self.progress.pack(pady=5, fill="x")
+        self.progress.place_forget()  # Initially hidden
+
+    def run_chain_threaded(self):
+        target = self.target_var.get().strip()
+        if not target or not self.is_valid_target(target):
+            self.show_status("Enter a valid target.")
             return
+        if self._current_thread and self._current_thread.is_alive():
+            self.show_status("Another operation is in progress.")
+            return
+        threading.Thread(target=self.run_chain, args=(target,), daemon=True).start()
 
-        # Disable inputs while running
-        self.target_entry.config(state=tk.DISABLED)
-        self.dir_entry.config(state=tk.DISABLED)
-        self.start_button.config(state=tk.DISABLED)
-
-        # Start threaded recon
-        threading.Thread(target=self.run_recon, args=(target, custom_dir)).start()
-
-    def run_recon(self, target, custom_dir):
-        self.log_output(f"\n[+] Starting Full Auto Recon on {target}...\n")
-
-        output_dir = None
-        if custom_dir:
-            output_dir = os.path.join("reports", "auto_recon", custom_dir.replace(" ", "_"))
-
+    def run_chain(self, target):
+        self.show_status(f"Running full automation on {target}...")
+        self.set_button_state(False)
+        self.show_progress(True)
+        self.append_output(f"[INFO] Starting full chain on {target}\n")
+        
         try:
-            result = run_auto_recon(target, output_dir)
-
-            if result.get("status") == "success":
-                self.log_output(f"[✓] Recon Complete for {target}")
-                self.log_output(f"Output Directory: {result['output_dir']}")
-                self.log_output(f"Scan Files: {result['filename']}.*\n")
-
-                self.log_output("[Summary Results:]")
-                for host in result["summary"]:
-                    self.log_output(f"Host: {host['ip']}")
-                    for port in host["ports"]:
-                        self.log_output(f"  - {port}")
-
-                messagebox.showinfo("Recon Complete", f"Recon completed. Output saved to:\n{result['output_dir']}")
-            else:
-                self.log_output(f"[!] Recon failed: {result.get('error', 'Unknown error')}")
-                messagebox.showerror("Recon Error", result.get("error", "Unknown error"))
-
+            results = run_auto_chain(target, gui_callback=self.append_output)
+            self.append_output(f"[INFO] Completed successfully.\n")
         except Exception as e:
-            self.log_output(f"[!] Exception during recon: {str(e)}")
-            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            self.append_output(f"[ERROR] {str(e)}\n")
+        finally:
+            self.set_button_state(True)
+            self.show_progress(False)
+            self.show_status("Idle")
 
-        # Re-enable inputs
-        self.target_entry.config(state=tk.NORMAL)
-        self.dir_entry.config(state=tk.NORMAL)
-        self.start_button.config(state=tk.NORMAL)
+    def append_output(self, text):
+        """Efficient method to append output to the log box."""
+        self.output_box.configure(state="normal")
+        self.output_box.insert("end", text)
+        self.output_box.see("end")
+        self.output_box.configure(state="disabled")
 
-    def log_output(self, text):
-        self.output_log.config(state=tk.NORMAL)
-        self.output_log.insert(tk.END, text + "\n")
-        self.output_log.yview(tk.END)
-        self.output_log.config(state=tk.DISABLED)
+    def show_status(self, text):
+        """Update the status label."""
+        self.status_var.set(text)
 
-# For standalone testing
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = FullAutoTab(root)
-    root.mainloop()
+    def set_button_state(self, state: bool):
+        """Toggle button state between enabled/disabled."""
+        self.run_button.configure(state="normal" if state else "disabled")
+
+    def show_progress(self, show: bool):
+        """Show or hide the progress bar."""
+        if show:
+            self.progress.place(x=20, y=350)  # Position it appropriately
+            self.progress.start()
+        else:
+            self.progress.place_forget()  # Hide the progress bar
+            self.progress.stop()
+
+    def clear_output(self):
+        """Clear the output textbox."""
+        self.output_box.configure(state="normal")
+        self.output_box.delete("1.0", "end")
+        self.output_box.configure(state="disabled")
+
+    def is_valid_target(self, target):
+        """Validate the target (IP or domain)."""
+        ip_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+        domain_pattern = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,6}$"
+        
+        if re.match(ip_pattern, target):
+            return True
+        if re.match(domain_pattern, target):
+            return True
+        return False
