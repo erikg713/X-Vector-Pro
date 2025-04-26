@@ -1,6 +1,5 @@
 import os
 import base64
-import json
 import datetime
 from customtkinter import *
 from tkinter import filedialog, messagebox, END
@@ -48,7 +47,7 @@ class LogsTab(CTkFrame):
         except Exception as e:
             return f"[ERROR decrypting {log_path}]: {e}"
 
-       def load_logs(self):
+    def load_logs(self):
         self.log_display.delete("1.0", END)
         self.logs = []
 
@@ -61,7 +60,6 @@ class LogsTab(CTkFrame):
                 full_path = os.path.join(LOGS_DIR, log_file)
                 content = self.decrypt_log(full_path)
                 timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).strftime("%Y-%m-%d %H:%M:%S")
-                # Add structured log to list
                 log_entry = f"[{timestamp}] {log_file}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
                 self.logs.append((log_file, content))
                 self.log_display.insert(END, log_entry)
@@ -71,7 +69,11 @@ class LogsTab(CTkFrame):
         self.log_display.delete("1.0", END)
         for name, content in self.logs:
             if keyword in name.lower() or keyword in content.lower():
-                self.log_display.insert(END, f"{name}\n{content}\n{'-' * 80}\n")
+                timestamp = datetime.datetime.fromtimestamp(
+                    os.path.getmtime(os.path.join(LOGS_DIR, name))
+                ).strftime("%Y-%m-%d %H:%M:%S")
+                log_entry = f"[{timestamp}] {name}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
+                self.log_display.insert(END, log_entry)
 
     def export_logs(self):
         export_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
