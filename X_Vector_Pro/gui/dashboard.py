@@ -1,99 +1,55 @@
-import sys
+# gui/dashboard.py
+
 import os
+import sys
 import importlib
 import customtkinter as ctk
-import customtkinter as ctk
-from .tabs.brute_tab import BruteTab
-from .tabs.recon_tab import ReconTab
-from .tabs.scanner_tab import ScannerTab
-from .tabs.ids_tab import IDSTab
-from .tabs.exploit_tab import ExploitTab
-from .tabs.auto_mode_tab import AutoModeTab
 
-class Dashboard(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("X-Vector Pro")
-        self.geometry("1000x650")
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("dark-blue")
-
-        # Sidebar
-        self.sidebar = ctk.CTkFrame(self, width=200)
-        self.sidebar.pack(side="left", fill="y", padx=5, pady=5)
-
-        self.logo = ctk.CTkLabel(self.sidebar, text="X-Vector Pro", font=("Helvetica", 20, "bold"))
-        self.logo.pack(pady=20)
-
-        # Main content area
-        self.main_area = ctk.CTkFrame(self)
-        self.main_area.pack(side="left", fill="both", expand=True, padx=5, pady=5)
-
-        # Tab Buttons
-        self.tabs = {
-            "Brute": BruteTab,
-            "Recon": ReconTab,
-            "Scanner": ScannerTab,
-            "IDS": IDSTab,
-            "Exploits": ExploitTab,
-            "Auto Mode": AutoModeTab
-        }
-
-        for name in self.tabs:
-            btn = ctk.CTkButton(self.sidebar, text=name, command=lambda n=name: self.load_tab(n))
-            btn.pack(pady=5, fill="x", padx=10)
-
-        self.active_tab = None
-        self.load_tab("Brute")  # Default tab
-
-    def load_tab(self, tab_name):
-        if self.active_tab:
-            self.active_tab.destroy()
-        self.active_tab = self.tabs[tab_name](self.main_area)
-        self.active_tab.pack(fill="both", expand=True)
+# Ensure project root is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Dynamically discover and import all tabs in the `gui.tabs` package
+# Dynamically discover and import all tabs
 TAB_CLASSES = {}
 
 def load_tabs():
-    tabs_package = "gui.tabs"  # Path to the tabs package (relative to this file)
+    tabs_package = "gui.tabs"
     tabs_dir = os.path.join(os.path.dirname(__file__), "tabs")
 
     for module_name in os.listdir(tabs_dir):
         if module_name.endswith(".py") and module_name != "__init__.py":
-            # Import the module dynamically
             module_path = f"{tabs_package}.{module_name[:-3]}"
             module = importlib.import_module(module_path)
 
-            # Find all classes in the module that end with 'Tab' and add them to the TAB_CLASSES dictionary
             for attribute_name in dir(module):
                 attribute = getattr(module, attribute_name)
                 if isinstance(attribute, type) and attribute_name.endswith("Tab"):
                     TAB_CLASSES[attribute_name.replace("Tab", "")] = attribute
 
-# Load all tabs dynamically
+# Load available tabs at startup
 load_tabs()
 
-# Ensure we have the required tabs in the TAB_CLASSES dictionary
 if not TAB_CLASSES:
-    raise Exception("No tabs found! Please check the tabs directory.")
+    raise Exception("No tabs found! Please check the 'tabs' directory.")
 
-# Toast Class for Toast Notification
+# Toast Notification
 class Toast(ctk.CTkToplevel):
     def __init__(self, master, message, duration=2000):
         super().__init__(master)
         self.overrideredirect(True)
         self.configure(fg_color="#2e2e2e")
-        self.geometry(f"250x40+{master.winfo_x() + 50}+{master.winfo_y() + 50}")
+        x = master.winfo_rootx() + 100
+        y = master.winfo_rooty() + 80
+        self.geometry(f"250x50+{x}+{y}")
+
         label = ctk.CTkLabel(self, text=message, text_color="white")
-        label.pack(padx=10, pady=5)
+        label.pack(expand=True, padx=10, pady=10)
+
         self.after(duration, self.destroy)
 
 def show_toast(master, message, duration=2000):
     Toast(master, message, duration)
 
-# Dashboard Class for X-Vector Pro Interface
+# Main Dashboard Class
 class Dashboard(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -101,36 +57,51 @@ class Dashboard(ctk.CTk):
         self.geometry("1200x800")
         self.minsize(1024, 700)
 
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
+
         self.active_tab = None
         self.tab_instances = {}
 
         self.build_sidebar()
         self.build_main_area()
 
-    def build_sidebar(self):
-        self.sidebar = ctk.CTkFrame(self, width=200, fg_color="#1a1a1a")
-        self.sidebar.pack(side="left", fill="y")
+        # Load default tab
+        default_tab = next(iter(TAB_CLASSES))
+        self.switch_tab(default_tab)
 
-        ctk.CTkLabel(self.sidebar, text="X-Vector Pro", font=("Arial", 20, "bold")).pack(pady=20)
+    def build_sidebar(self):
+        self.sidebar = ctk.CTkFrame(self, width=220, fg_color="#1a1a1a")
+        self.sidebar.pack(side="left", fill="y", padx=5, pady=5)
+
+        title = ctk.CTkLabel(
+            self.sidebar,
+            text="X-Vector Pro",
+            font=("Arial", 22, "bold"),
+            text_color="white"
+        )
+        title.pack(pady=(30, 20))
 
         for tab_name in TAB_CLASSES:
-            ctk.CTkButton(
+            button = ctk.CTkButton(
                 self.sidebar,
                 text=tab_name,
-                command=lambda name=tab_name: self.switch_tab(name)
-            ).pack(padx=10, pady=5, fill="x")
+                command=lambda name=tab_name: self.switch_tab(name),
+                fg_color="#2b2b2b",
+                hover_color="#3c3c3c"
+            )
+            button.pack(padx=15, pady=7, fill="x")
 
     def build_main_area(self):
-        self.content_frame = ctk.CTkFrame(self)
-        self.content_frame.pack(side="right", expand=True, fill="both")
+        self.content_frame = ctk.CTkFrame(self, fg_color="#121212")
+        self.content_frame.pack(side="right", expand=True, fill="both", padx=5, pady=5)
 
     def switch_tab(self, tab_name):
         if self.active_tab:
             self.active_tab.pack_forget()
 
-        # Gracefully handle invalid tab names
         if tab_name not in TAB_CLASSES:
-            show_toast(self, f"Tab '{tab_name}' not found!", 2000)
+            show_toast(self, f"Tab '{tab_name}' not found!")
             return
 
         if tab_name not in self.tab_instances:
