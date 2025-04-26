@@ -35,7 +35,7 @@ class LogsTab(CTkFrame):
         self.refresh_button = CTkButton(btn_frame, text="Refresh", command=self.load_logs, width=120)
         self.refresh_button.grid(row=0, column=0, padx=10)
 
-        self.export_button = CTkButton(btn_frame, text="Export Selected", command=self.export_logs, width=150)
+        self.export_button = CTkButton(btn_frame, text="Export Displayed", command=self.export_logs, width=150)
         self.export_button.grid(row=0, column=1, padx=10)
 
     def decrypt_log(self, log_path):
@@ -48,32 +48,59 @@ class LogsTab(CTkFrame):
             return f"[ERROR decrypting {log_path}]: {e}"
 
     def load_logs(self):
+        self.log_display.configure(state="normal")
         self.log_display.delete("1.0", END)
-        self.logs = []
+        self.log_display.insert(END, "Loading logs...\n")
+        self.update_idletasks()
 
+        self.logs = []
         if not os.path.exists(LOGS_DIR):
             os.makedirs(LOGS_DIR)
 
-        log_files = sorted(os.listdir(LOGS_DIR), reverse=True)
+        log_files = sorted(
+            [f for f in os.listdir(LOGS_DIR) if f.endswith(".log")],
+            key=lambda x: os.path.getmtime(os.path.join(LOGS_DIR, x)),
+            reverse=True
+        )
+
+        self.log_display.delete("1.0", END)
+
         for log_file in log_files:
-            if log_file.endswith(".log"):
-                full_path = os.path.join(LOGS_DIR, log_file)
-                content = self.decrypt_log(full_path)
-                timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).strftime("%Y-%m-%d %H:%M:%S")
-                log_entry = f"[{timestamp}] {log_file}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
-                self.logs.append((log_file, content))
-                self.log_display.insert(END, log_entry)
+            full_path = os.path.join(LOGS_DIR, log_file)
+            content = self.decrypt_log(full_path)
+            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).strftime("%Y-%m-%d %H:%M:%S")
+            log_entry = f"[{timestamp}] {log_file}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
+            self.logs.append((log_file, content, timestamp))
+            self.log_display.insert(END, log_entry)
+
+        self.log_display.configure(state="disabled")
 
     def search_logs(self):
         keyword = self.search_var.get().strip().lower()
+        self.log_display.configure(state="normal")
         self.log_display.delete("1.0", END)
-        for name, content in self.logs:
+
+        if not keyword:
+            self.load_logs()
+            return
+
+        for name, content, timestamp in self.logs:
             if keyword in name.lower() or keyword in content.lower():
-                timestamp = datetime.datetime.fromtimestamp(
-                    os.path.getmtime(os.path.join(LOGS_DIR, name))
-                ).strftime("%Y-%m-%d %H:%M:%S")
                 log_entry = f"[{timestamp}] {name}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
+                start_index = self.log_display.index(END)
                 self.log_display.insert(END, log_entry)
+                end_index = self.log_display.index(END)
+                self.highlight_text(start_index, end_index, keyword)
+
+        self.log_display.configure(state="disabled")
+
+    def highlight_text(self, start, end, keyword):
+        start_pos = self.log_display.search(keyword, start, stopindex=end, nocase=True)
+        while start_pos:
+            end_pos = f"{start_pos}+{len(keyword)}c"
+            self.log_display.tag_add("highlight", start_pos, end_pos)
+            self.log_display.tag_config("highlight", foreground="red")
+            start_pos = self.log_display.search(keyword, end_pos, stopindex=end, nocase=True)
 
     def export_logs(self):
         export_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
@@ -82,7 +109,8 @@ class LogsTab(CTkFrame):
 
         try:
             with open(export_path, "w", encoding="utf-8") as f:
-                f.write(self.log_display.get("1.0", END))
+                content = self.log_display.get("1.0", END)
+                f.write(content)
             messagebox.showinfo("Export Complete", f"Logs exported to:\n{export_path}")
         except Exception as e:
             messagebox.showerror("Export Failed", f"Error: {e}")
