@@ -13,7 +13,7 @@ class CVETab(ctk.CTkFrame):
         # Create UI elements
         self.cve_input = ctk.CTkEntry(layout, width=400, placeholder_text="e.g., CVE-2023-12345")
         self.search_button = ctk.CTkButton(layout, text="Find Exploits", command=self.handle_lookup)
-        self.output = ctk.CTkTextbox(layout, height=200, width=600, state="disabled")
+        self.output = ctk.CTkTextbox(layout, height=200, width=600, state="disabled", wrap="word")
         self.progress_bar = ctk.CTkProgressBar(layout, mode="indeterminate", width=400)
         self.progress_bar.grid(row=3, column=0, pady=10)
         
@@ -31,21 +31,18 @@ class CVETab(ctk.CTkFrame):
 
     def handle_lookup(self):
         cve_id = self.cve_input.get().strip()
+
+        # Input validation: Empty input
         if not cve_id:
-            self.output.configure(state="normal")
-            self.output.delete(1.0, "end")
-            self.output.insert("end", "Please enter a CVE ID.")
-            self.output.configure(state="disabled")
+            self.display_message("Please enter a CVE ID.", color="red")
             return
 
+        # Input validation: Regex check
         if not re.match(r"^CVE-\d{4}-\d{4,}$", cve_id):
-            self.output.configure(state="normal")
-            self.output.delete(1.0, "end")
-            self.output.insert("end", "Invalid CVE format. Use e.g., CVE-2023-12345.")
-            self.output.configure(state="disabled")
+            self.display_message("Invalid CVE format. Use e.g., CVE-2023-12345.", color="red")
             return
 
-        # Show progress bar
+        # Clear output and show progress bar
         self.output.configure(state="normal")
         self.output.delete(1.0, "end")
         self.output.insert("end", "Searching...")
@@ -63,10 +60,14 @@ class CVETab(ctk.CTkFrame):
             if results:
                 formatted_results = self.format_results(results)
                 self.output.insert("end", formatted_results)
+                self.display_message("Exploits found!", color="green")
             else:
                 self.output.insert("end", "No exploits found.")
+                self.display_message("No exploits found.", color="orange")
+
         except Exception as e:
             self.output.insert("end", f"Error: {str(e)}")
+            self.display_message(f"Error: {str(e)}", color="red")
         finally:
             self.output.configure(state="disabled")
             self.progress_bar.stop()
@@ -79,3 +80,12 @@ class CVETab(ctk.CTkFrame):
             formatted_results += f"Description: {exploit.get('description', 'N/A')}\n"
             formatted_results += f"Link: {exploit.get('link', 'N/A')}\n\n"
         return formatted_results
+
+    def display_message(self, message, color="black"):
+        """Helper method to display messages with color in the output textbox."""
+        self.output.configure(state="normal")
+        self.output.delete(1.0, "end")
+        self.output.insert("end", message)
+        self.output.tag_configure("colored", foreground=color)
+        self.output.tag_add("colored", "1.0", "end")
+        self.output.configure(state="disabled")
