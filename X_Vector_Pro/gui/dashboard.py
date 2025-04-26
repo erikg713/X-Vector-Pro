@@ -2,7 +2,55 @@ import sys
 import os
 import importlib
 import customtkinter as ctk
+import customtkinter as ctk
+from .tabs.brute_tab import BruteTab
+from .tabs.recon_tab import ReconTab
+from .tabs.scanner_tab import ScannerTab
+from .tabs.ids_tab import IDSTab
+from .tabs.exploit_tab import ExploitTab
+from .tabs.auto_mode_tab import AutoModeTab
 
+class Dashboard(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("1000x650")
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
+
+        # Sidebar
+        self.sidebar = ctk.CTkFrame(self, width=200)
+        self.sidebar.pack(side="left", fill="y", padx=5, pady=5)
+
+        self.logo = ctk.CTkLabel(self.sidebar, text="X-Vector Pro", font=("Helvetica", 20, "bold"))
+        self.logo.pack(pady=20)
+
+        # Main content area
+        self.main_area = ctk.CTkFrame(self)
+        self.main_area.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+
+        # Tab Buttons
+        self.tabs = {
+            "Brute": BruteTab,
+            "Recon": ReconTab,
+            "Scanner": ScannerTab,
+            "IDS": IDSTab,
+            "Exploits": ExploitTab,
+            "Auto Mode": AutoModeTab
+        }
+
+        for name in self.tabs:
+            btn = ctk.CTkButton(self.sidebar, text=name, command=lambda n=name: self.load_tab(n))
+            btn.pack(pady=5, fill="x", padx=10)
+
+        self.active_tab = None
+        self.load_tab("Brute")  # Default tab
+
+    def load_tab(self, tab_name):
+        if self.active_tab:
+            self.active_tab.destroy()
+        self.active_tab = self.tabs[tab_name](self.main_area)
+        self.active_tab.pack(fill="both", expand=True)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # Dynamically discover and import all tabs in the `gui.tabs` package
