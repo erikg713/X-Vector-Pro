@@ -1,5 +1,3 @@
-# gui/tabs/brute_tab.py
-
 import os
 import threading
 import datetime
@@ -37,7 +35,7 @@ class BruteTab(ctk.CTkFrame):
 
         # Target
         ctk.CTkLabel(self, text="Target IP/Host:").pack()
-        self.target_entry = ctk.CTkEntry(self)
+        self.target_entry = ctk.CTkEntry(self, placeholder_text="Enter target IP/Host")
         self.target_entry.pack(fill="x", padx=10, pady=5)
 
         # Module Dropdown
@@ -51,14 +49,14 @@ class BruteTab(ctk.CTkFrame):
 
         # Port
         ctk.CTkLabel(self, text="Port:").pack()
-        self.port_entry = ctk.CTkEntry(self)
+        self.port_entry = ctk.CTkEntry(self, placeholder_text="Enter port")
         self.port_entry.pack(fill="x", padx=10, pady=5)
 
         # Wordlist
         ctk.CTkLabel(self, text="Wordlist File:").pack()
         wordlist_frame = ctk.CTkFrame(self)
         wordlist_frame.pack(fill="x", padx=10, pady=5)
-        self.wordlist_entry = ctk.CTkEntry(wordlist_frame, textvariable=self.wordlist_path)
+        self.wordlist_entry = ctk.CTkEntry(wordlist_frame, textvariable=self.wordlist_path, placeholder_text="Choose wordlist file")
         self.wordlist_entry.pack(side="left", fill="x", expand=True, padx=(0, 5))
         ctk.CTkButton(wordlist_frame, text="Browse", command=self.browse_wordlist).pack(side="right")
 
@@ -71,14 +69,14 @@ class BruteTab(ctk.CTkFrame):
         self.progress.pack(fill="x", padx=10, pady=5)
 
         # Buttons
-        self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_brute)
+        self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_brute, width=200)
         self.run_button.pack(pady=5)
 
-        self.stop_button = ctk.CTkButton(self, text="Stop", command=self.stop_brute, state="disabled")
+        self.stop_button = ctk.CTkButton(self, text="Stop", command=self.stop_brute, state="disabled", width=200)
         self.stop_button.pack(pady=5)
 
         # Output
-        self.output_box = ctk.CTkTextbox(self, height=250)
+        self.output_box = ctk.CTkTextbox(self, height=250, width=500, state="disabled")
         self.output_box.pack(fill="both", expand=True, padx=10, pady=10)
 
     def auto_fill_port(self, module_name):
@@ -93,8 +91,10 @@ class BruteTab(ctk.CTkFrame):
 
     def log_output(self, message):
         timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+        self.output_box.configure(state="normal")
         self.output_box.insert("end", f"[{timestamp}] {message}\n")
         self.output_box.see("end")
+        self.output_box.configure(state="disabled")
 
     def run_brute(self):
         if self.is_running:
