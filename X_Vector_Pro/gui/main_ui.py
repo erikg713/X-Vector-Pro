@@ -6,6 +6,10 @@ import json
 import os
 import tkinter as tk
 from tkinter import ttk
+from gui.tabs.scanner_tab import ScannerTab
+
+scanner_tab = ScannerTab(parent_tabview)  # or wherever your CTkTabview or CTkFrame is
+scanner_tab.pack(fill="both", expand=True)
 
 class XVectorPro(tk.Tk):
     def __init__(self):
