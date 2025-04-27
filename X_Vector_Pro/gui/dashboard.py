@@ -4,7 +4,18 @@ import os
 import sys
 import importlib
 import customtkinter as ctk
+import json
 
+# Load config.json
+DATA_DIR = os.path.dirname(__file__)
+CONFIG_PATH = os.path.join(DATA_DIR, 'config.json')
+
+with open(CONFIG_PATH, 'r') as f:
+    config = json.load(f)
+
+# Example usage:
+if config.get("stealth_mode"):
+    print("Stealth mode is ON!")
 # Ensure project root is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
