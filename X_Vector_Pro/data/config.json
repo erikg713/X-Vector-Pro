@@ -10,13 +10,11 @@
   ],
   "use_tor": false,
   "random_delay_min": 0.5,
-  "random_delay_max": 3.0
-}
-
-{
+  "random_delay_max": 3.0,
+  
   "use_proxy": false,
   "delay_seconds": 0.5,
-  "random_user_agent": true
+  "random_user_agent": true,
   "default_wordlist": "wordlists/rockyou.txt",
   "concurrency": 10,
   "retry_delay": 1.5
