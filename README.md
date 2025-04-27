@@ -86,3 +86,41 @@ x_vector_pro/
 ├── .gitignore
 └── LICENSE
 
+xvector_pro/
+├── core/
+│   ├── __init__.py
+│   ├── brute_force.py
+│   ├── recon.py
+│   ├── scanner.py
+│   ├── exploits/
+│   │   ├── __init__.py
+│   │   ├── exploit_ftp_backdoor.py
+│   │   ├── exploit_sql_injection.py
+│   │   └── ... (more exploits)
+│   └── utils.py  # helpers like logging, proxies, encryption
+│
+├── gui/
+│   ├── __init__.py
+│   ├── dashboard.py
+│   ├── auto_mode_tab.py
+│   ├── brute_tab.py
+│   ├── exploits_tab.py
+│   ├── reports_tab.py
+│   └── settings_tab.py
+│
+├── wordlists/
+│   ├── passwords.txt
+│   ├── usernames.txt
+│   └── custom/
+│       └── special_lists.txt
+│
+├── logs/
+│   └── xvector_log.txt
+│
+├── reports/
+│   └── recon_results/
+│
+├── config.json   # settings (threads, timeouts, proxies, etc.)
+├── main.py       # main GUI launcher
+├── README.txt
+└── requirements.txt
