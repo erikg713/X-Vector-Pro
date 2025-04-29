@@ -1,116 +1,71 @@
-import os
-import base64
-import datetime
-from customtkinter import *
-from tkinter import filedialog, messagebox, END
+import customtkinter as ctk
+from tkinter import messagebox
+from utils.logger import log_to_central
 
-LOGS_DIR = "logs"
+def load_logs_tab(tab):
+    global logs_output
+    logs_output = ctk.CTkTextbox(tab, height=450, width=800)
+    logs_output.pack(pady=10)
 
-class LogsTab(CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.configure(fg_color="transparent")
-        self.create_widgets()
-        self.load_logs()
-
-    def create_widgets(self):
-        # Header
-        self.title_label = CTkLabel(self, text="Logs", font=("Arial", 22, "bold"))
-        self.title_label.pack(pady=(10, 5))
-
-        # Search bar
-        self.search_var = StringVar()
-        self.search_entry = CTkEntry(self, textvariable=self.search_var, placeholder_text="Search logs...", width=300)
-        self.search_entry.pack(pady=5)
-        self.search_entry.bind("<Return>", lambda e: self.search_logs())
-
-        # Log display box
-        self.log_display = CTkTextbox(self, width=800, height=500, wrap="word", font=("Courier", 12))
-        self.log_display.pack(pady=10)
-
-        # Control buttons
-        btn_frame = CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(pady=5)
-
-        self.refresh_button = CTkButton(btn_frame, text="Refresh", command=self.load_logs, width=120)
-        self.refresh_button.grid(row=0, column=0, padx=10)
-
-        self.export_button = CTkButton(btn_frame, text="Export Displayed", command=self.export_logs, width=150)
-        self.export_button.grid(row=0, column=1, padx=10)
-
-    def decrypt_log(self, log_path):
+    def export_html_report():
         try:
-            with open(log_path, "rb") as f:
-                encoded_data = f.read()
-                decrypted_data = base64.b64decode(encoded_data).decode("utf-8")
-                return decrypted_data
+            html = logs_output.get("1.0", "end")
+            formatted = "<br>".join(html.splitlines())
+            with open("xvector_report.html", "w") as f:
+                f.write(f"<html><body><h2>X-Vector Pro Report</h2><pre>{formatted}</pre></body></html>")
+            log_to_central("[+] Exported HTML report: xvector_report.html", logs_output)
         except Exception as e:
-            return f"[ERROR decrypting {log_path}]: {e}"
+            log_to_central(f"[!] Report export failed: {e}", logs_output)
 
-    def load_logs(self):
-        self.log_display.configure(state="normal")
-        self.log_display.delete("1.0", END)
-        self.log_display.insert(END, "Loading logs...\n")
-        self.update_idletasks()
-
-        self.logs = []
-        if not os.path.exists(LOGS_DIR):
-            os.makedirs(LOGS_DIR)
-
-        log_files = sorted(
-            [f for f in os.listdir(LOGS_DIR) if f.endswith(".log")],
-            key=lambda x: os.path.getmtime(os.path.join(LOGS_DIR, x)),
-            reverse=True
-        )
-
-        self.log_display.delete("1.0", END)
-
-        for log_file in log_files:
-            full_path = os.path.join(LOGS_DIR, log_file)
-            content = self.decrypt_log(full_path)
-            timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(full_path)).strftime("%Y-%m-%d %H:%M:%S")
-            log_entry = f"[{timestamp}] {log_file}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
-            self.logs.append((log_file, content, timestamp))
-            self.log_display.insert(END, log_entry)
-
-        self.log_display.configure(state="disabled")
-
-    def search_logs(self):
-        keyword = self.search_var.get().strip().lower()
-        self.log_display.configure(state="normal")
-        self.log_display.delete("1.0", END)
-
-        if not keyword:
-            self.load_logs()
-            return
-
-        for name, content, timestamp in self.logs:
-            if keyword in name.lower() or keyword in content.lower():
-                log_entry = f"[{timestamp}] {name}\n{'-' * 80}\n{content}\n{'=' * 80}\n"
-                start_index = self.log_display.index(END)
-                self.log_display.insert(END, log_entry)
-                end_index = self.log_display.index(END)
-                self.highlight_text(start_index, end_index, keyword)
-
-        self.log_display.configure(state="disabled")
-
-    def highlight_text(self, start, end, keyword):
-        start_pos = self.log_display.search(keyword, start, stopindex=end, nocase=True)
-        while start_pos:
-            end_pos = f"{start_pos}+{len(keyword)}c"
-            self.log_display.tag_add("highlight", start_pos, end_pos)
-            self.log_display.tag_config("highlight", foreground="red")
-            start_pos = self.log_display.search(keyword, end_pos, stopindex=end, nocase=True)
-
-    def export_logs(self):
-        export_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
-        if not export_path:
-            return
-
+    def save_logs():
         try:
-            with open(export_path, "w", encoding="utf-8") as f:
-                content = self.log_display.get("1.0", END)
-                f.write(content)
-            messagebox.showinfo("Export Complete", f"Logs exported to:\n{export_path}")
+            with open("xvector_log.txt", "w") as f:
+                f.write(logs_output.get("1.0", "end"))
+            log_to_central("[+] Logs saved to xvector_log.txt", logs_output)
         except Exception as e:
-            messagebox.showerror("Export Failed", f"Error: {e}")
+            log_to_central(f"[!] Error saving logs: {e}", logs_output)
+
+    def clear_logs():
+        logs_output.delete("0.0", "end")
+
+    logs_buttons = ctk.CTkFrame(tab)
+    logs_buttons.pack(pady=10)
+
+    ctk.CTkButton(logs_buttons, text="Save Logs", command=save_logs).pack(side="left", padx=10)
+    ctk.CTkButton(logs_buttons, text="Clear Logs", command=clear_logs).pack(side="left", padx=10)
+    ctk.CTkButton(logs_buttons, text="Export HTML", command=export_html_report).pack(side="left", padx=10)import customtkinter as ctk
+from tkinter import messagebox
+from utils.logger import log_to_central
+
+def load_logs_tab(tab):
+    global logs_output
+    logs_output = ctk.CTkTextbox(tab, height=450, width=800)
+    logs_output.pack(pady=10)
+
+    def export_html_report():
+        try:
+            html = logs_output.get("1.0", "end")
+            formatted = "<br>".join(html.splitlines())
+            with open("xvector_report.html", "w") as f:
+                f.write(f"<html><body><h2>X-Vector Pro Report</h2><pre>{formatted}</pre></body></html>")
+            log_to_central("[+] Exported HTML report: xvector_report.html", logs_output)
+        except Exception as e:
+            log_to_central(f"[!] Report export failed: {e}", logs_output)
+
+    def save_logs():
+        try:
+            with open("xvector_log.txt", "w") as f:
+                f.write(logs_output.get("1.0", "end"))
+            log_to_central("[+] Logs saved to xvector_log.txt", logs_output)
+        except Exception as e:
+            log_to_central(f"[!] Error saving logs: {e}", logs_output)
+
+    def clear_logs():
+        logs_output.delete("0.0", "end")
+
+    logs_buttons = ctk.CTkFrame(tab)
+    logs_buttons.pack(pady=10)
+
+    ctk.CTkButton(logs_buttons, text="Save Logs", command=save_logs).pack(side="left", padx=10)
+    ctk.CTkButton(logs_buttons, text="Clear Logs", command=clear_logs).pack(side="left", padx=10)
+    ctk.CTkButton(logs_buttons, text="Export HTML", command=export_html_report).pack(side="left", padx=10)
