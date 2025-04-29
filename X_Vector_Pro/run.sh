@@ -7,13 +7,12 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
+echo "[*] Launching X-Vector Pro..."
+
 if [[ "$1" == "--headless" ]]; then
-    echo "[*] Launching X-Vector Pro in headless mode..."
+    echo "[*] Running in headless mode..."
     python3 main.py --headless
 else
-    echo "[*] Launching X-Vector Pro GUI..."
+    echo "[*] Running GUI mode..."
     python3 main_pyqt.py
 fi
-#!/bin/bash
-echo "[*] Launching X-Vector Pro..."
-python3 main.py
