@@ -1,6 +1,8 @@
 import random
 import requests
+import os
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 def load_proxies(file_path="proxies.txt"):
     try:
         with open(file_path, "r") as f:
