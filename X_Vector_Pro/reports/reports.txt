@@ -1,1 +1,24 @@
+import logging
+import os
 
+# Define the log file location
+log_file = os.path.join("X_Vector_Pro", "reports", "reports.txt")
+
+# Create a logger
+logger = logging.getLogger("XVectorProLogger")
+logger.setLevel(logging.DEBUG)
+
+# Create a file handler to log into reports.txt
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.DEBUG)
+
+# Create a formatter for the log entries
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+
+# Add the file handler to the logger
+logger.addHandler(file_handler)
+
+def log_to_reports(message):
+    """Log a message to the reports.txt file"""
+    logger.debug(message)
