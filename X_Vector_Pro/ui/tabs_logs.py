@@ -1,4 +1,3 @@
-# ui/tabs_logs.py
 import customtkinter as ctk
 from tkinter import messagebox
 from utils.logger import log_to_central
@@ -28,6 +27,7 @@ def load_logs_tab(tab):
 
     def clear_logs():
         logs_output.delete("0.0", "end")
+        log_to_central("[+] Logs cleared", logs_output)
 
     logs_buttons = ctk.CTkFrame(tab)
     logs_buttons.pack(pady=10)
