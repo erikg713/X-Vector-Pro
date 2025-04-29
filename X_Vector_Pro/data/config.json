@@ -5,30 +5,51 @@ import os
 DATA_DIR = os.path.dirname(__file__)
 CONFIG_PATH = os.path.join(DATA_DIR, 'config.json')
 
-with open(CONFIG_PATH, 'r') as f:
-    config = json.load(f)
+# Function to safely load the configuration
+def load_config(config_path):
+    if not os.path.exists(config_path):
+        print(f"[-] Error: Config file '{config_path}' not found.")
+        return None
 
-# Example usage:
-if config.get("stealth_mode"):
-    print("Stealth mode is ON!")
-{
-  "stealth_mode": true,
-  "smtp_server": "smtp.example.com",
-  "smtp_port": 587,
-  "smtp_user": "user@example.com",
-  "smtp_pass": "password123",
-  "proxy_list": [
-    "http://127.0.0.1:8080",
-    "http://127.0.0.1:3128"
-  ],
-  "use_tor": false,
-  "random_delay_min": 0.5,
-  "random_delay_max": 3.0,
-  
-  "use_proxy": false,
-  "delay_seconds": 0.5,
-  "random_user_agent": true,
-  "default_wordlist": "wordlists/rockyou.txt",
-  "concurrency": 10,
-  "retry_delay": 1.5
-}
+    try:
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError:
+        print(f"[-] Error: Failed to decode JSON from the config file.")
+        return None
+    except Exception as e:
+        print(f"[-] Error: {e}")
+        return None
+
+# Load the config
+config = load_config(CONFIG_PATH)
+
+if config:
+    # Example usage:
+    if config.get("stealth_mode"):
+        print("Stealth mode is ON!")
+    
+    # Accessing other config values
+    smtp_server = config.get("smtp_server")
+    smtp_port = config.get("smtp_port")
+    smtp_user = config.get("smtp_user")
+    smtp_pass = config.get("smtp_pass")
+    proxy_list = config.get("proxy_list", [])
+    use_tor = config.get("use_tor", False)
+    random_delay_min = config.get("random_delay_min", 0.5)
+    random_delay_max = config.get("random_delay_max", 3.0)
+    
+    # Logging or utilizing these values as needed
+    print(f"SMTP Server: {smtp_server}")
+    print(f"Use Tor: {use_tor}")
+    
+    # Example of how you might use proxy settings
+    if config.get("use_proxy"):
+        print(f"Using proxies: {proxy_list}")
+    
+    # Example of concurrency and retry settings
+    concurrency = config.get("concurrency", 10)
+    retry_delay = config.get("retry_delay", 1.5)
+    print(f"Concurrency: {concurrency}, Retry Delay: {retry_delay}")
+else:
+    print("[-] Configuration failed to load.")
