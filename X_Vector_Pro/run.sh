@@ -14,3 +14,6 @@ else
     echo "[*] Launching X-Vector Pro GUI..."
     python3 main_pyqt.py
 fi
+#!/bin/bash
+echo "[*] Launching X-Vector Pro..."
+python3 main.py
