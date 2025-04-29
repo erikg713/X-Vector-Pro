@@ -3,7 +3,13 @@ import time
 import socket
 import random
 from utils.wordlist_manager import wordlist_manager
+import os
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+HITS_FILE = os.path.join(BASE_DIR, "logs", "hits.txt")
+SESSION_FILE = os.path.join(BASE_DIR, "logs", "session.json")
+LOG_FILE = os.path.join(BASE_DIR, "logs", "xvector_log.txt")
+WORDLIST_DIR = os.path.join(BASE_DIR, "wordlists")
 def ftp_brute_force(target, port=21, wordlist_file="ftp_default_creds.txt", stealth_mode=False, timeout=5, logger=print):
     logger(f"[*] Starting FTP brute-force on {target}:{port} with wordlist: {wordlist_file}")
 
