@@ -5,6 +5,7 @@ import os
 import pkgutil
 import importlib
 
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 # Explicitly importing the main entry point (Dashboard)
 from .dashboard import Dashboard
 
