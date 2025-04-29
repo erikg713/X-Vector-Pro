@@ -14,7 +14,25 @@ from gui.tabs.recon_tab import ReconTab
 from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
+# main.py
 
+import customtkinter as ctk
+import traceback
+from tkinter import messagebox
+from gui.dashboard import launch_dashboard
+
+def main():
+    try:
+        ctk.set_appearance_mode("Dark")
+        ctk.set_default_color_theme("dark-blue")
+        launch_dashboard()
+    except Exception as e:
+        error_msg = traceback.format_exc()
+        print(error_msg)  # For terminal
+        messagebox.showerror("Application Error", f"Something went wrong:\n\n{str(e)}")
+
+if __name__ == "__main__":
+    main()
 
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
