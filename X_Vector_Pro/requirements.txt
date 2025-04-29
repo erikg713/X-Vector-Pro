@@ -5,3 +5,13 @@ Pillow==10.2.0
 pyqt5==5.15.9
 cryptography==42.0.3
 yagmail==0.15.293
+customtkinter
+requests
+scapy
+bs4
+lxml
+dnspython
+python-nmap
+pymongo
+smtplib
+email-validator
