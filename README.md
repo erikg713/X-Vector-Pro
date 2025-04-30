@@ -1,5 +1,13 @@
 # X-Vector Pro
 
+
+██╗░░██╗░░░░░░██╗░░░██╗███████╗░█████╗░████████╗
+╚██╗██╔╝░░░░░░██║░░░██║██╔════╝██╔══██╗╚══██╔══╝
+░╚███╔╝░█████╗╚██╗░██╔╝█████╗░░██║░░╚═╝░░░██║░░░
+░██╔██╗░╚════╝░╚████╔╝░██╔══╝░░██║░░██╗░░░██║░░░
+██╔╝╚██╗░░░░░░░░╚██╔╝░░███████╗╚█████╔╝░░░██║░░░
+╚═╝░░╚═╝░░░░░░░░░╚═╝░░░╚══════╝░╚════╝░░░░╚═╝░░░
+
 **Silent. Adaptive. Lethal.**  
 X-Vector Pro is a tactical GUI-based WordPress attack suite. It automates the full penetration lifecycle with modules for recon, scanning, brute-force, CVE discovery, and exploit deployment.
 
@@ -124,3 +132,73 @@ xvector_pro/
 ├── main.py       # main GUI launcher
 ├── README.txt
 └── requirements.txt
+
+X_Vector_Pro/
+│
+├── Main.py                  # Entry point
+├── gui/                     # GUI components
+│   ├── __init__.py
+│   ├── main_window.py
+│   ├── widgets/
+│   ├── themes/
+│   └── resources/
+│
+├── engine/                  # Main engine logic
+│   ├── __init__.py
+│   ├── controller.py
+│   ├── scheduler.py
+│   └── plugin_manager.py
+│
+├── core/                    # Core libraries/utilities
+│   ├── __init__.py
+│   ├── config.py
+│   ├── logger.py
+│   ├── database.py
+│   └── utils.py
+│
+├── scanner/                 # Scanning modules
+│   ├── __init__.py
+│   ├── port_scanner.py
+│   ├── vuln_scanner.py
+│   └── service_scanner.py
+│
+├── brute/                   # Brute-forcing modules
+│   ├── __init__.py
+│   ├── password_brute.py
+│   ├── username_enum.py
+│   └── wordlists/
+│
+├── exploits/                # Exploit modules
+│   ├── __init__.py
+│   ├── exploit_base.py
+│   ├── cve2025_1234.py
+│   └── ...
+│
+├── recon/                   # Reconnaissance modules
+│   ├── __init__.py
+│   ├── subdomain_enum.py
+│   ├── whois_lookup.py
+│   └── passive_dns.py
+│
+├── report/                  # Reporting modules
+│   ├── __init__.py
+│   ├── html_report.py
+│   ├── pdf_report.py
+│   └── templates/
+│
+├── stealth/                 # Stealth/anti-detection modules
+│   ├── __init__.py
+│   ├── traffic_obfuscation.py
+│   ├── user_agent_rotator.py
+│   └── timing_attack.py
+│
+├── data/                    # Static data, wordlists, etc.
+│   ├── fingerprints/
+│   ├── payloads/
+│   └── ...
+│
+├── docs/                    # Documentation
+│   ├── README.md
+│   └── usage.md
+│
+└── requirements.txt         # Dependencies
