@@ -1,207 +1,130 @@
 import customtkinter as ctk
-import threading
 import time
 from datetime import datetime
 from utils.logger import log_to_central
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from utils.email_config import EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS
+from utils.automode_utils import run_recon, run_scan, run_exploit, generate_report
+import tkinter.messagebox as msgbox
+import threading
+
 
 class AutoModeTab:
     def __init__(self, parent):
         self.parent = parent
-        self.execution_history = {}
-        self.current_task = None
-
-        # Initialize UI components
+        self.running = False  # Flag to track if AutoMode is running
+        self.log_file = "automode_log.txt"  # Path for log file
+        
+        # Initialize the user interface (UI)
         self._setup_ui()
 
     def _setup_ui(self):
+        """Sets up all UI elements for the AutoMode Tab."""
         # Title Label
-        ctk.CTkLabel(self.parent, text="Auto Mode - Recon -> Scan -> Exploit", font=("Segoe UI", 14)).pack(pady=(10, 4))
+        ctk.CTkLabel(self.parent, text="AutoMode - Automated Recon, Scan, Exploit", font=("Segoe UI", 14)).pack(pady=(10, 4))
 
-        # Target Input
-        ctk.CTkLabel(self.parent, text="Target IP or Domain", font=("Segoe UI", 12)).pack(pady=(10, 4))
-        self.target_entry = ctk.CTkEntry(self.parent, width=500)
-        self.target_entry.pack(pady=(0, 10))
+        # Instructions
+        ctk.CTkLabel(self.parent, text="Click 'Start AutoMode' to run automated tasks.", font=("Segoe UI", 12)).pack(pady=(10, 4))
 
-        # Output console for logs
-        self.output_console = ctk.CTkTextbox(self.parent, width=900, height=420, font=("Consolas", 12))
-        self.output_console.pack(pady=10)
+        # Start Button
+        self.start_button = ctk.CTkButton(self.parent, text="Start AutoMode", command=self.start_automode, width=180)
+        self.start_button.pack(pady=(10, 20))
 
-        # Auto Mode Button
-        self.start_button = ctk.CTkButton(
-            self.parent,
-            text="Start Auto Mode",
-            command=self._start_auto_mode,
-            fg_color="#1f6feb",
-            hover_color="#1953c5",
-            width=180
-        )
-        self.start_button.pack(pady=(5, 10))
+        # Stop Button (Disabled initially)
+        self.stop_button = ctk.CTkButton(self.parent, text="Stop AutoMode", command=self.stop_automode, width=180, state="disabled")
+        self.stop_button.pack(pady=(10, 20))
 
-        # Progress bar for task completion
-        self.progress_bar = ctk.CTkProgressBar(self.parent, width=800, height=30)
+        # Progress Bar
+        self.progress_bar = ctk.CTkProgressBar(self.parent, width=500)
         self.progress_bar.pack(pady=(10, 20))
 
-    def _log(self, message):
-        """Log messages to the output console and log file."""
-        self.output_console.insert("end", f"{message}\n")
-        self.output_console.see("end")
+        # Log Display Area
+        self.log_text = ctk.CTkTextbox(self.parent, width=500, height=200, state="disabled")
+        self.log_text.pack(pady=(10, 20))
 
-        # Optionally save log message to file
-        with open("automode_report.txt", "a") as f:
-            f.write(f"{message}\n")
+        # AutoMode Settings Section (e.g., scan intensity)
+        self.scan_intensity_label = ctk.CTkLabel(self.parent, text="Scan Intensity", font=("Segoe UI", 12))
+        self.scan_intensity_label.pack(pady=(10, 4))
 
-    def _start_auto_mode(self):
-        """Start the auto mode process: Recon -> Scan -> Exploit -> Report"""
-        target = self.target_entry.get().strip()
-        if not target:
-            ctk.messagebox.showwarning("Target Missing", "Please enter a valid target IP or domain.")
+        self.scan_intensity = ctk.CTkOptionMenu(self.parent, values=["Low", "Medium", "High"], width=200)
+        self.scan_intensity.set("Medium")  # Default setting
+        self.scan_intensity.pack(pady=(5, 20))
+
+    def log(self, message):
+        """Logs messages to both the log textbox and log file."""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_message = f"[{timestamp}] {message}"
+        
+        # Update the log display area
+        self.log_text.config(state="normal")
+        self.log_text.insert("end", log_message + "\n")
+        self.log_text.config(state="disabled")
+        
+        # Log to file as well
+        with open(self.log_file, "a") as log_file:
+            log_file.write(log_message + "\n")
+        
+        self.log_text.yview("end")  # Scroll to the bottom of the log text box
+
+    def start_automode(self):
+        """Starts the AutoMode process: Recon -> Scan -> Exploit -> Report."""
+        if self.running:
+            msgbox.showinfo("Already Running", "AutoMode is already in progress.")
             return
 
-        self._log("[*] Starting Auto Mode...\n")
-        self._log(f"[*] Target: {target}\n")
+        self.running = True
+        self.start_button.config(state="disabled")
+        self.stop_button.config(state="normal")
+        self.log("AutoMode started.")
+        
+        # Run the AutoMode process in a separate thread to prevent UI freezing
+        threading.Thread(target=self.run_automode).start()
 
-        # Disable start button while process is running
-        self.start_button.configure(state="disabled")
+    def stop_automode(self):
+        """Stops the AutoMode process."""
+        if not self.running:
+            msgbox.showinfo("Not Running", "AutoMode is not currently running.")
+            return
 
-        # Start the task in a separate thread to allow UI updates
-        self.current_task = threading.Thread(target=self._auto_mode_task, args=(target,))
-        self.current_task.start()
+        self.running = False
+        self.start_button.config(state="normal")
+        self.stop_button.config(state="disabled")
+        self.log("AutoMode stopped.")
 
-    def _auto_mode_task(self, target):
-        """The main task of Auto Mode - Running Recon -> Scan -> Exploit."""
+    def run_automode(self):
+        """Handles the execution of AutoMode steps: Recon -> Scan -> Exploit -> Report."""
         try:
-            # Step 1: Recon
-            self._log("[*] Starting Recon...\n")
-            recon_result = self._perform_recon(target)
-            if not recon_result:
-                self._log("[-] Recon failed.")
-                return
+            # Step 1: Run Recon
+            self.log("Starting Recon phase...")
+            self.progress_bar.set(0.0)
+            run_recon(self)
+            self.progress_bar.set(0.25)
+            self.log("Recon phase completed.")
 
-            self._log(f"[*] Recon completed. Found information: {recon_result}\n")
+            # Step 2: Run Scan
+            self.log("Starting Scan phase...")
+            self.progress_bar.set(0.5)
+            run_scan(self, self.scan_intensity.get())
+            self.progress_bar.set(0.75)
+            self.log("Scan phase completed.")
 
-            # Step 2: Scan
-            self._log("[*] Starting Scan...\n")
-            scan_result = self._perform_scan(target, recon_result)
-            if not scan_result:
-                self._log("[-] Scan failed.")
-                return
+            # Step 3: Run Exploit
+            self.log("Starting Exploit phase...")
+            run_exploit(self)
+            self.progress_bar.set(1.0)
+            self.log("Exploit phase completed.")
 
-            self._log(f"[*] Scan completed. Detected vulnerabilities: {scan_result}\n")
-
-            # Step 3: Exploit
-            self._log("[*] Starting Exploit...\n")
-            exploit_result = self._perform_exploit(target, scan_result)
-            if not exploit_result:
-                self._log("[-] Exploit failed.")
-                return
-
-            self._log(f"[*] Exploit completed. Exploited vulnerabilities: {exploit_result}\n")
-
-            # Step 4: Report Generation
-            self._log("[*] Generating Report...\n")
-            self._generate_report(target, recon_result, scan_result, exploit_result)
-
-            # Send email after completion
-            self._send_report_email(target, recon_result, scan_result, exploit_result)
-
+            # Step 4: Generate Report
+            self.log("Generating report...")
+            generate_report(self)
+            self.log("Report generated successfully.")
+            
+            msgbox.showinfo("AutoMode Completed", "AutoMode process completed successfully.")
         except Exception as e:
-            self._log(f"[!] AutoMode error: {e}")
+            error_message = f"Error occurred: {str(e)}"
+            self.log(error_message)
+            msgbox.showerror("Error", error_message)
         finally:
-            self.start_button.configure(state="normal")  # Enable the button after the task is complete
-
-    def _perform_recon(self, target):
-        """Perform a recon on the target (basic info gathering, port scan, etc.)."""
-        try:
-            # Simulating the recon phase
-            self._log("[*] Recon: Gathering target information...")
-            time.sleep(3)  # Simulate network scan
-            self.progress_bar.set(0.25)  # Update progress
-            return {"open_ports": [80, 443], "services": ["HTTP", "HTTPS"], "os": "Linux"}
-        except Exception as e:
-            self._log(f"[!] Recon error: {e}")
-            return None
-
-    def _perform_scan(self, target, recon_result):
-        """Perform a scan based on recon information (vulnerability detection)."""
-        try:
-            # Simulating the scan phase
-            self._log("[*] Scan: Checking for vulnerabilities...")
-            time.sleep(3)  # Simulate vulnerability scan
-            self.progress_bar.set(0.5)  # Update progress
-            return {"vulnerabilities": ["CVE-2020-1234", "CVE-2021-2345"]}
-        except Exception as e:
-            self._log(f"[!] Scan error: {e}")
-            return None
-
-    def _perform_exploit(self, target, scan_result):
-        """Perform an exploit based on the scanned vulnerabilities."""
-        try:
-            # Simulating the exploit phase
-            self._log("[*] Exploit: Attempting to exploit vulnerabilities...")
-            time.sleep(3)  # Simulate exploit attempt
-            self.progress_bar.set(0.75)  # Update progress
-            return {"exploited_vulnerabilities": scan_result["vulnerabilities"]}
-        except Exception as e:
-            self._log(f"[!] Exploit error: {e}")
-            return None
-
-    def _generate_report(self, target, recon_result, scan_result, exploit_result):
-        """Generate and log the final report after completing the full Auto Mode process."""
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        report_content = f"""
-        [*] Auto Mode Report - {timestamp}
-        Target: {target}
-        
-        [*] Recon Results:
-        Open Ports: {recon_result['open_ports']}
-        Services: {recon_result['services']}
-        Operating System: {recon_result['os']}
-        
-        [*] Scan Results:
-        Vulnerabilities: {scan_result['vulnerabilities']}
-        
-        [*] Exploit Results:
-        Exploited Vulnerabilities: {exploit_result['exploited_vulnerabilities']}
-        
-        [*] Auto Mode Process Completed.
-        """
-        self._log(report_content)
-
-        # Optionally, send the report via email or store it for future reference
-        self._save_report(report_content)
-
-    def _save_report(self, report_content):
-        """Save the report to a file."""
-        with open(f"report_{datetime.now().strftime('%Y%m%d%H%M%S')}.txt", "w") as f:
-            f.write(report_content)
-
-    def _send_report_email(self, target, recon_result, scan_result, exploit_result):
-        """Send the generated report via email."""
-        try:
-            # Create the email content
-            report_content = f"""
-            Auto Mode Report for Target: {target}
-            Recon: {recon_result}
-            Scan: {scan_result}
-            Exploit: {exploit_result}
-            """
-            msg = MIMEMultipart()
-            msg['From'] = EMAIL_USER
-            msg['To'] = EMAIL_USER
-            msg['Subject'] = f"Auto Mode Report - {target}"
-
-            body = MIMEText(report_content, 'plain')
-            msg.attach(body)
-
-            # Send the email
-            with smtplib.SMTP(EMAIL_HOST, EMAIL_PORT) as server:
-                server.login(EMAIL_USER, EMAIL_PASS)
-                server.sendmail(EMAIL_USER, EMAIL_USER, msg.as_string())
-
-            self._log("[*] Report sent via email.")
-        except Exception as e:
-            self._log(f"[!] Failed to send report email: {e}")
+            # Reset UI state after completion or failure
+            self.running = False
+            self.start_button.config(state="normal")
+            self.stop_button.config(state="disabled")
+            self.progress_bar.set(0.0)  # Reset progress bar
