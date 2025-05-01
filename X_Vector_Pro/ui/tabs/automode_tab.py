@@ -5,6 +5,9 @@ from utils.logger import log_to_central
 from utils.automode_utils import run_recon, run_scan, run_exploit, generate_report
 import tkinter.messagebox as msgbox
 import threading
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
 class AutoModeTab:
@@ -12,6 +15,7 @@ class AutoModeTab:
         self.parent = parent
         self.running = False  # Flag to track if AutoMode is running
         self.log_file = "automode_log.txt"  # Path for log file
+        self.email_log = "recipient@example.com"  # Set your desired email recipient here
         
         # Initialize the user interface (UI)
         self._setup_ui()
@@ -63,6 +67,28 @@ class AutoModeTab:
             log_file.write(log_message + "\n")
         
         self.log_text.yview("end")  # Scroll to the bottom of the log text box
+
+    def send_email_log(self, subject, body):
+        """Send the log as an email after AutoMode completion."""
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = 'your_email@example.com'  # Set your email here
+            msg['To'] = self.email_log
+            msg['Subject'] = subject
+
+            msg.attach(MIMEText(body, 'plain'))
+
+            # Set up the server
+            server = smtplib.SMTP('smtp.example.com', 587)  # SMTP server and port
+            server.starttls()
+            server.login('your_email@example.com', 'your_password')  # Login with your credentials
+            text = msg.as_string()
+            server.sendmail(msg['From'], msg['To'], text)
+            server.quit()
+
+            self.log(f"Log sent to email: {self.email_log}")
+        except Exception as e:
+            self.log(f"Error sending email: {str(e)}")
 
     def start_automode(self):
         """Starts the AutoMode process: Recon -> Scan -> Exploit -> Report."""
@@ -117,6 +143,12 @@ class AutoModeTab:
             generate_report(self)
             self.log("Report generated successfully.")
             
+            # Send email with logs
+            email_subject = "AutoMode Completion Log"
+            with open(self.log_file, "r") as log_file:
+                log_content = log_file.read()
+            self.send_email_log(email_subject, log_content)
+
             msgbox.showinfo("AutoMode Completed", "AutoMode process completed successfully.")
         except Exception as e:
             error_message = f"Error occurred: {str(e)}"
