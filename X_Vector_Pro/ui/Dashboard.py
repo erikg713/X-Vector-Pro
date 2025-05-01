@@ -1,27 +1,40 @@
-import customtkinter as ctk
-from ui.tabs.recon_tab import load_recon_tab
-from ui.tabs.scanner_tab import load_scanner_tab
-from ui.tabs.brute_force_tab import load_brute_force_tab
-from ui.tabs.exploits_tab import load_exploits_tab
-from ui.tabs.reports_tab import load_reports_tab
-from ui.tabs.settings_tab import load_settings_tab
+# X_Vector_Pro/ui/dashboard.py
 
-class Dashboard(ctk.CTkFrame):
-    def __init__(self, master, settings):
-        super().__init__(master)
-        
-        # Set up the dashboard layout
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
+import tkinter as tk
+from tkinter import ttk
+from ui.tabs.auto_tab import AutoTab
+from ui.tabs.brute_tab import BruteTab
+from ui.tabs.exploits_tab import ExploitsTab
+from ui.tabs.reports_tab import ReportsTab
+from ui.tabs.logs_tab import LogsTab
+from ui.theme import apply_dark_theme
+from ui.notifications import ToastManager
 
-        # Create a tab container
-        self.tab_container = ctk.CTkNotebook(self)
-        self.tab_container.grid(row=0, column=0, sticky="nsew")
+class Dashboard:
+    def __init__(self):
+        self.root = None
+        self.tab_control = None
+        self.toast = ToastManager()
+        self.tabs = {}
 
-        # Load all tabs
-        load_recon_tab(self.tab_container)
-        load_scanner_tab(self.tab_container)
-        load_brute_force_tab(self.tab_container)
-        load_exploits_tab(self.tab_container)
-        load_reports_tab(self.tab_container)
-        load_settings_tab(self.tab_container, settings)
+    def inject(self, root):
+        self.root = root
+        self.root.title("X-Vector Pro")
+        self.root.configure(bg="#1e1e1e")
+        apply_dark_theme(self.root)
+
+        self.tab_control = ttk.Notebook(self.root)
+        self.tab_control.pack(expand=1, fill="both")
+
+        self._load_tabs()
+        self.toast.attach(self.root)
+
+    def _load_tabs(self):
+        self.tabs["Auto"] = AutoTab(self.tab_control, self.toast)
+        self.tabs["Brute"] = BruteTab(self.tab_control, self.toast)
+        self.tabs["Exploits"] = ExploitsTab(self.tab_control, self.toast)
+        self.tabs["Reports"] = ReportsTab(self.tab_control, self.toast)
+        self.tabs["Logs"] = LogsTab(self.tab_control, self.toast)
+
+        for name, tab in self.tabs.items():
+            self.tab_control.add(tab.frame, text=name)
