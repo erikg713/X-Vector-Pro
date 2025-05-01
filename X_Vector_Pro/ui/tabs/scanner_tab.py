@@ -8,7 +8,211 @@ import threading
 from datetime import datetime
 from utils.scanner_utils import perform_port_scan, perform_vuln_scan  # These are placeholder functions
 import tkinter.messagebox as msgbox
+import customtkinter as ctk
+import threading
+from datetime import datetime
+import nmap  # Import the python-nmap library
+import tkinter.messagebox as msgbox
 
+class ScannerTab:
+    def __init__(self, parent):
+        self.parent = parent
+        self.running = False  # Flag to track if scanning is running
+        self.scan_log_file = "scan_log.txt"  # Log file path
+        self.email_log = "recipient@example.com"  # Email recipient for reports
+        self.nm = nmap.PortScanner()  # Initialize the Nmap scanner
+        
+        # Initialize the user interface (UI)
+        self._setup_ui()
+
+    def _setup_ui(self):
+        """Sets up all UI elements for the Scanner Tab."""
+        # Title Label
+        ctk.CTkLabel(self.parent, text="Scanner - Network Scanning", font=("Segoe UI", 14)).pack(pady=(10, 4))
+
+        # Instructions
+        ctk.CTkLabel(self.parent, text="Click 'Start Scan' to perform scanning.", font=("Segoe UI", 12)).pack(pady=(10, 4))
+
+        # Target Input
+        ctk.CTkLabel(self.parent, text="Enter Target Domain or IP", font=("Segoe UI", 12)).pack(pady=(10, 4))
+        self.target_entry = ctk.CTkEntry(self.parent, width=300)
+        self.target_entry.pack(pady=(5, 20))
+
+        # Start Button
+        self.start_button = ctk.CTkButton(self.parent, text="Start Scan", command=self.start_scan, width=180)
+        self.start_button.pack(pady=(10, 20))
+
+        # Stop Button (Disabled initially)
+        self.stop_button = ctk.CTkButton(self.parent, text="Stop Scan", command=self.stop_scan, width=180, state="disabled")
+        self.stop_button.pack(pady=(10, 20))
+
+        # Progress Bar
+        self.progress_bar = ctk.CTkProgressBar(self.parent, width=500)
+        self.progress_bar.pack(pady=(10, 20))
+
+        # Log Display Area
+        self.log_text = ctk.CTkTextbox(self.parent, width=500, height=200, state="disabled")
+        self.log_text.pack(pady=(10, 20))
+
+        # Scan Options
+        self.scan_options_label = ctk.CTkLabel(self.parent, text="Select Scan Type", font=("Segoe UI", 12))
+        self.scan_options_label.pack(pady=(10, 4))
+
+        self.scan_type = ctk.CTkOptionMenu(self.parent, values=["Port Scan", "Service Scan", "OS Scan"], width=200)
+        self.scan_type.set("Port Scan")  # Default setting
+        self.scan_type.pack(pady=(5, 20))
+
+    def log(self, message):
+        """Logs messages to both the log textbox and log file."""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        log_message = f"[{timestamp}] {message}"
+        
+        # Update the log display area
+        self.log_text.config(state="normal")
+        self.log_text.insert("end", log_message + "\n")
+        self.log_text.config(state="disabled")
+        
+        # Log to file as well
+        with open(self.scan_log_file, "a") as log_file:
+            log_file.write(log_message + "\n")
+        
+        self.log_text.yview("end")  # Scroll to the bottom of the log text box
+
+    def send_email_log(self, subject, body):
+        """Send the scan log as an email after scan completion."""
+        try:
+            msg = MIMEMultipart()
+            msg['From'] = 'your_email@example.com'  # Set your email here
+            msg['To'] = self.email_log
+            msg['Subject'] = subject
+
+            msg.attach(MIMEText(body, 'plain'))
+
+            # Set up the server
+            server = smtplib.SMTP('smtp.example.com', 587)  # SMTP server and port
+            server.starttls()
+            server.login('your_email@example.com', 'your_password')  # Login with your credentials
+            text = msg.as_string()
+            server.sendmail(msg['From'], msg['To'], text)
+            server.quit()
+
+            self.log(f"Log sent to email: {self.email_log}")
+        except Exception as e:
+            self.log(f"Error sending email: {str(e)}")
+
+    def start_scan(self):
+        """Starts the Scan process."""
+        if self.running:
+            msgbox.showinfo("Already Running", "Scan process is already in progress.")
+            return
+
+        # Check if target is provided
+        target = self.target_entry.get().strip()
+        if not target:
+            msgbox.showwarning("Input Error", "Please enter a valid target domain or IP.")
+            return
+
+        self.running = True
+        self.start_button.config(state="disabled")
+        self.stop_button.config(state="normal")
+        self.log("Scan process started.")
+        
+        # Run the Scan process in a separate thread to prevent UI freezing
+        threading.Thread(target=self.run_scan, args=(target,)).start()
+
+    def stop_scan(self):
+        """Stops the Scan process."""
+        if not self.running:
+            msgbox.showinfo("Not Running", "Scan is not currently running.")
+            return
+
+        self.running = False
+        self.start_button.config(state="normal")
+        self.stop_button.config(state="disabled")
+        self.log("Scan process stopped.")
+
+    def run_scan(self, target):
+        """Handles the execution of the Scan process using Nmap."""
+        try:
+            # Step 1: Perform selected Scan task
+            scan_type = self.scan_type.get()
+            if scan_type == "Port Scan":
+                self.log("Starting Port Scan...")
+                self.progress_bar.set(0.2)
+                self.perform_port_scan(target)
+            elif scan_type == "Service Scan":
+                self.log("Starting Service Scan...")
+                self.progress_bar.set(0.4)
+                self.perform_service_scan(target)
+            elif scan_type == "OS Scan":
+                self.log("Starting OS Detection Scan...")
+                self.progress_bar.set(0.6)
+                self.perform_os_scan(target)
+            
+            self.progress_bar.set(1.0)
+            self.log(f"{scan_type} completed successfully.")
+
+            # Step 2: Send Email Log
+            email_subject = f"{scan_type} Scan Log"
+            with open(self.scan_log_file, "r") as log_file:
+                log_content = log_file.read()
+            self.send_email_log(email_subject, log_content)
+
+            msgbox.showinfo("Scan Completed", f"{scan_type} Scan completed successfully.")
+        except Exception as e:
+            error_message = f"Error occurred: {str(e)}"
+            self.log(error_message)
+            msgbox.showerror("Error", error_message)
+        finally:
+            # Reset UI state after completion or failure
+            self.running = False
+            self.start_button.config(state="normal")
+            self.stop_button.config(state="disabled")
+            self.progress_bar.set(0.0)  # Reset progress bar
+
+    def perform_port_scan(self, target):
+        """Performs a simple port scan using Nmap."""
+        try:
+            self.nm.scan(hosts=target, arguments='-p 22,80,443')
+            self.log(f"Port Scan Results for {target}:\n{self.nm.all_hosts()}")
+            for host in self.nm.all_hosts():
+                self.log(f"Host: {host} ({self.nm[host].hostname()})")
+                self.log(f"State: {self.nm[host].state()}")
+                for proto in self.nm[host].all_protocols():
+                    self.log(f"Protocol: {proto}")
+                    lport = self.nm[host][proto].keys()
+                    for port in lport:
+                        self.log(f"Port: {port}\tState: {self.nm[host][proto][port]['state']}")
+        except Exception as e:
+            self.log(f"Error in Port Scan: {str(e)}")
+
+    def perform_service_scan(self, target):
+        """Performs a service version scan using Nmap."""
+        try:
+            self.nm.scan(hosts=target, arguments='-sV')
+            self.log(f"Service Scan Results for {target}:\n{self.nm.all_hosts()}")
+            for host in self.nm.all_hosts():
+                self.log(f"Host: {host} ({self.nm[host].hostname()})")
+                self.log(f"State: {self.nm[host].state()}")
+                for proto in self.nm[host].all_protocols():
+                    self.log(f"Protocol: {proto}")
+                    lport = self.nm[host][proto].keys()
+                    for port in lport:
+                        self.log(f"Port: {port}\tState: {self.nm[host][proto][port]['state']}")
+                        self.log(f"Service: {self.nm[host][proto][port]['name']} Version: {self.nm[host][proto][port]['version']}")
+        except Exception as e:
+            self.log(f"Error in Service Scan: {str(e)}")
+
+    def perform_os_scan(self, target):
+        """Performs an OS detection scan using Nmap."""
+        try:
+            self.nm.scan(hosts=target, arguments='-O')
+            self.log(f"OS Scan Results for {target}:\n{self.nm.all_hosts()}")
+            for host in self.nm.all_hosts():
+                self.log(f"Host: {host} ({self.nm[host].hostname()})")
+                self.log(f"OS: {self.nm[host]['osmatch'][0]['name']}")
+        except Exception as e:
+            self.log(f"Error in OS Scan: {str(e)}")
 
 class ScannerTab:
     def __init__(self, parent):
