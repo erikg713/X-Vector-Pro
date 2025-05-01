@@ -1,4 +1,26 @@
-# X_Vector_Pro/opt/xvectorpro/Main.py
+def start_gui():
+    """
+    Starts the X-Vector Pro GUI using customtkinter.
+
+    This function initializes and runs the main GUI loop for the customtkinter application.
+    """
+    import customtkinter as ctk
+    try:
+        from .MainWindow import MainWindow  # Relative import if possible
+    except ImportError:
+        from MainWindow import MainWindow   # Fallback for direct run
+
+    app = MainWindow()
+    app.mainloop()import customtkinter as ctk
+
+class MainWindow(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("800x600")
+        # Add your widgets and layout here
+        label = ctk.CTkLabel(self, text="Welcome to X-Vector Pro!")
+        label.pack(padx=20, pady=20)# X_Vector_Pro/opt/xvectorpro/Main.py
 
 import os
 import sys
