@@ -13,7 +13,9 @@ import threading
 from datetime import datetime
 import nmap  # Import the python-nmap library
 import tkinter.messagebox as msgbox
-
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 class ScannerTab:
     def __init__(self, parent):
         self.parent = parent
