@@ -16,6 +16,112 @@ import tkinter.messagebox as msgbox
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+
+import os
+import threading
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import customtkinter as ctk
+from tkinter import filedialog
+from core.scanner import scan_target
+
+
+class ScannerTab(ctk.CTkFrame):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+
+        self.targets = []
+
+        self.label = ctk.CTkLabel(self, text="Enter target(s) separated by commas:")
+        self.label.pack(pady=(10, 0))
+
+        self.entry = ctk.CTkEntry(self, placeholder_text="e.g., 192.168.1.1, example.com", width=400)
+        self.entry.pack(pady=(0, 10))
+
+        self.add_button = ctk.CTkButton(self, text="Add Targets", command=self.add_targets)
+        self.add_button.pack(pady=(0, 10))
+
+        self.target_box = ctk.CTkTextbox(self, height=100, width=400)
+        self.target_box.pack(pady=(0, 10))
+
+        self.scan_button = ctk.CTkButton(self, text="Start Scan", command=self.start_scan)
+        self.scan_button.pack(pady=(0, 10))
+
+        self.save_button = ctk.CTkButton(self, text="Save Results", command=self.save_results)
+        self.save_button.pack(pady=(0, 10))
+
+        self.result_box = ctk.CTkTextbox(self, height=200, width=600)
+        self.result_box.pack(pady=(0, 10))
+
+        self.send_email_button = ctk.CTkButton(self, text="Send Results via Email", command=self.send_email_log)
+        self.send_email_button.pack(pady=(0, 10))
+
+    def add_targets(self):
+        input_text = self.entry.get()
+        targets = [t.strip() for t in input_text.split(',') if t.strip()]
+        self.targets.extend(targets)
+        self.target_box.delete("1.0", "end")
+        self.target_box.insert("end", "\n".join(self.targets))
+        self.entry.delete(0, 'end')
+
+    def start_scan(self):
+        if not self.targets:
+            self.result_box.insert("end", "[!] No targets specified.\n")
+            return
+        self.scan_button.configure(state="disabled")
+        threading.Thread(target=self.run_scan, daemon=True).start()
+
+    def run_scan(self):
+        def append_text(text):
+            self.result_box.insert("end", text)
+            self.result_box.see("end")
+
+        self.result_box.delete("1.0", "end")
+        for target in self.targets:
+            self.after(0, append_text, f"[+] Scanning target: {target}\n")
+            try:
+                results = scan_target(target)
+                self.after(0, append_text, results + "\n")
+            except Exception as e:
+                self.after(0, append_text, f"[!] Error scanning {target}: {e}\n")
+        self.after(0, lambda: self.scan_button.configure(state="normal"))
+
+    def save_results(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt")
+        if file_path:
+            results = self.result_box.get("1.0", "end").strip()
+            with open(file_path, "w") as f:
+                f.write(results)
+            self.result_box.insert("end", f"[+] Results saved to {file_path}\n")
+
+    def send_email_log(self):
+        sender_email = os.getenv("EMAIL_USER")
+        receiver_email = os.getenv("EMAIL_TO")
+        password = os.getenv("EMAIL_PASS")
+        smtp_server = os.getenv("SMTP_SERVER", "smtp.example.com")
+        smtp_port = int(os.getenv("SMTP_PORT", 587))
+
+        if not sender_email or not receiver_email or not password:
+            self.result_box.insert("end", "[!] Email credentials are not set in environment variables.\n")
+            return
+
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = receiver_email
+        message["Subject"] = "X-Vector Pro Scan Results"
+
+        results = self.result_box.get("1.0", "end").strip()
+        message.attach(MIMEText(results, "plain"))
+
+        try:
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()
+                server.login(sender_email, password)
+                server.send_message(message)
+            self.result_box.insert("end", "[+] Email sent successfully.\n")
+        except Exception as e:
+            self.result_box.insert("end", f"[!] Failed to send email: {e}\n")
 class ScannerTab:
     def __init__(self, parent):
         self.parent = parent
