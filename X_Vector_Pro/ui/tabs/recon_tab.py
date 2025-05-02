@@ -160,3 +160,96 @@ class ReconTab(ctk.CTkFrame):
             self.start_button.config(state="normal")
             self.stop_button.config(state="disabled")
             self.progress_bar.set(0.0)
+
+import customtkinter as ctk import threading import subprocess import time
+
+class ReconTab(ctk.CTkFrame): def init(self, parent, **kwargs): super().init(parent, **kwargs) self.running = False self.log_file = "recon_log.txt" self._initialize_ui()
+
+def _initialize_ui(self):
+    ctk.CTkLabel(self, text="Recon - Information Gathering", font=("Segoe UI", 14)).pack(pady=(10, 4))
+    ctk.CTkLabel(self, text="Start reconnaissance by entering a target and pressing 'Start Recon'.", font=("Segoe UI", 12)).pack(pady=(10, 4))
+    ctk.CTkLabel(self, text="Target Domain or IP:", font=("Segoe UI", 12)).pack(pady=(10, 4))
+
+    self.target_entry = ctk.CTkEntry(self, width=300)
+    self.target_entry.pack(pady=(5, 15))
+
+    self.start_button = ctk.CTkButton(self, text="Start Recon", command=self._start_recon, width=180)
+    self.start_button.pack(pady=(10, 10))
+
+    self.stop_button = ctk.CTkButton(self, text="Stop Recon", command=self._stop_recon, width=180, state="disabled")
+    self.stop_button.pack(pady=(10, 10))
+
+    self.progress_bar = ctk.CTkProgressBar(self, width=500)
+    self.progress_bar.set(0)
+    self.progress_bar.pack(pady=(20, 15))
+
+    self.output_box = ctk.CTkTextbox(self, height=200, width=600)
+    self.output_box.pack(pady=(10, 15))
+
+def _start_recon(self):
+    target = self.target_entry.get().strip()
+    if not target:
+        self._log_output("[!] Please enter a valid target domain or IP.\n")
+        return
+
+    self._log_output(f"[*] Initiating reconnaissance on: {target}\n")
+    self.running = True
+    self.start_button.configure(state="disabled")
+    self.stop_button.configure(state="normal")
+    self.progress_bar.set(0)
+
+    threading.Thread(target=self._run_recon_process, args=(target,), daemon=True).start()
+
+def _run_recon_process(self, target):
+    tasks = [self._nmap_scan, self._whois_lookup]
+    total_tasks = len(tasks)
+
+    for idx, task in enumerate(tasks, start=1):
+        if not self.running:
+            self._log_output("[-] Reconnaissance interrupted by user.\n")
+            break
+
+        self._log_output(f"[*] Starting task {idx}/{total_tasks}: {task.__name__}\n")
+        task(target)
+        self.progress_bar.set(idx / total_tasks)
+
+    if self.running:
+        self._log_output("[+] Reconnaissance completed successfully.\n")
+
+    self._finalize_recon()
+
+def _nmap_scan(self, target):
+    try:
+        self._log_output(f"[*] Running nmap scan on {target}...\n")
+        result = subprocess.run(["nmap", "-Pn", target], capture_output=True, text=True, timeout=120)
+        self._log_output(result.stdout)
+        self._append_log(result.stdout)
+    except Exception as e:
+        self._log_output(f"[!] Nmap scan error: {e}\n")
+
+def _whois_lookup(self, target):
+    try:
+        self._log_output(f"[*] Performing whois lookup on {target}...\n")
+        result = subprocess.run(["whois", target], capture_output=True, text=True, timeout=60)
+        self._log_output(result.stdout)
+        self._append_log(result.stdout)
+    except Exception as e:
+        self._log_output(f"[!] Whois lookup error: {e}\n")
+
+def _stop_recon(self):
+    self.running = False
+
+def _finalize_recon(self):
+    self.running = False
+    self.start_button.configure(state="normal")
+    self.stop_button.configure(state="disabled")
+    self.progress_bar.set(0)
+
+def _log_output(self, message):
+    self.output_box.insert("end", message)
+    self.output_box.see("end")
+
+def _append_log(self, content):
+    with open(self.log_file, "a") as file:
+        file.write(content + "\n")
+
