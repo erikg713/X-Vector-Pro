@@ -16,28 +16,36 @@
 | Settings | Reports | About                                |
 +---------------------------------------------------------+
 
-import os
+    import os
 import sys
 import importlib
 import customtkinter as ctk
 import json
-import os
 
+# Constants for paths and other configurations
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 HITS_FILE = os.path.join(BASE_DIR, "logs", "hits.txt")
 SESSION_FILE = os.path.join(BASE_DIR, "logs", "session.json")
 LOG_FILE = os.path.join(BASE_DIR, "logs", "xvector_log.txt")
 WORDLIST_DIR = os.path.join(BASE_DIR, "wordlists")
-# Load config.json
 DATA_DIR = os.path.dirname(__file__)
 CONFIG_PATH = os.path.join(DATA_DIR, 'config.json')
 
-with open(CONFIG_PATH, 'r') as f:
-    config = json.load(f)
+# Load config.json with error handling
+try:
+    with open(CONFIG_PATH, 'r') as f:
+        config = json.load(f)
+except FileNotFoundError:
+    print(f"Error: {CONFIG_PATH} not found. Please ensure the file exists.")
+    config = {}
+except json.JSONDecodeError:
+    print(f"Error: {CONFIG_PATH} contains invalid JSON. Please check the file.")
+    config = {}
 
-# Example usage:
+# Example usage of the configuration
 if config.get("stealth_mode"):
     print("Stealth mode is ON!")
+
 # Ensure project root is in sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -48,15 +56,22 @@ def load_tabs():
     tabs_package = "gui.tabs"
     tabs_dir = os.path.join(os.path.dirname(__file__), "tabs")
 
+    if not os.path.isdir(tabs_dir):
+        print(f"Error: Tabs directory '{tabs_dir}' does not exist.")
+        return
+
     for module_name in os.listdir(tabs_dir):
         if module_name.endswith(".py") and module_name != "__init__.py":
-            module_path = f"{tabs_package}.{module_name[:-3]}"
-            module = importlib.import_module(module_path)
+            try:
+                module_path = f"{tabs_package}.{module_name[:-3]}"
+                module = importlib.import_module(module_path)
 
-            for attribute_name in dir(module):
-                attribute = getattr(module, attribute_name)
-                if isinstance(attribute, type) and attribute_name.endswith("Tab"):
-                    TAB_CLASSES[attribute_name.replace("Tab", "")] = attribute
+                for attribute_name in dir(module):
+                    attribute = getattr(module, attribute_name)
+                    if isinstance(attribute, type) and attribute_name.endswith("Tab"):
+                        TAB_CLASSES[attribute_name.replace("Tab", "")] = attribute
+            except ImportError as e:
+                print(f"Error loading module {module_name}: {e}")
 
 # Load available tabs at startup
 load_tabs()
@@ -90,7 +105,7 @@ class Dashboard(ctk.CTk):
         self.geometry("1200x800")
         self.minsize(1024, 700)
 
-        ctk.set_appearance_mode("dark")
+        ctk.set_appearance_mode(config.get("appearance_mode", "dark"))
         ctk.set_default_color_theme("dark-blue")
 
         self.active_tab = None
@@ -99,9 +114,12 @@ class Dashboard(ctk.CTk):
         self.build_sidebar()
         self.build_main_area()
 
-        # Load default tab
-        default_tab = next(iter(TAB_CLASSES))
-        self.switch_tab(default_tab)
+        # Load default tab if available
+        if TAB_CLASSES:
+            default_tab = next(iter(TAB_CLASSES))
+            self.switch_tab(default_tab)
+        else:
+            show_toast(self, "No tabs available to load.")
 
     def build_sidebar(self):
         self.sidebar = ctk.CTkFrame(self, width=220, fg_color="#1a1a1a")
