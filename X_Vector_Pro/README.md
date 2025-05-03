@@ -75,7 +75,23 @@ x_vector_pro/
 ├── .gitignore
 └── LICENSE
 ```
-
++---------------------------------------------------------+
+| Recon - Information Gathering                           |
+|---------------------------------------------------------|
+| [Target Input]         [ Start Recon ] [ Stop Recon ]   |
+|                                                           |
+| [ ] Reconnaissance                                        |
+| [ ] Port Scanning                                         |
+| [ ] Vulnerability Scan                                    |
+| [ ] Web Brute Force                                       |
+| [ ] Subdomain Enumeration                                 |
+|                                                           |
+| [Progress Bar]                                            |
+|                                                           |
+| [----------------- Live Logs Text Box ------------------] |
++---------------------------------------------------------+
+| Settings | Reports | About                                |
++---------------------------------------------------------+
 ---
 
 ## Screenshots
