@@ -1,87 +1,97 @@
 ![X-Vector Pro Screenshot](docs/screenshot-dark.png)
 ![X-Vector Pro Auto Mode Demo](docs/demo-auto-mode.gif)
+---
 
-X-Vector Pro
+# X-Vector Pro
 
-A slick GUI tool to brute-force WordPress accounts via xmlrpc.php.
+**Silent. Adaptive. Lethal.**  
+X-Vector Pro is a tactical GUI-based WordPress attack suite. It automates the full penetration lifecycle with modules for recon, scanning, brute-force, CVE discovery, and exploit deployment.
+---
 
-Built for:
-Red teamers, CTF warriors, and penetration testers who enjoy visuals with their exploits.
+## Features
 
-> Educational use only. Do not use on systems you don't own.
+- **Full Auto Mode** (Recon → Scan → Plugin Check → Exploit)
+- **WordPress Brute Force** (via `xmlrpc.php`)
+- **CVE Detection** using local `cve_db.json`
+- **Plugin & Theme Enumeration**
+- **Custom Exploit Runner** from the `exploits/` directory
+- **CustomTkinter GUI Tabs** for modular navigation
+- **Logs, Findings, and HTML Reports** for evidence & export
+---
 
+## Tech Stack
 
+- Python 3.9+
+- CustomTkinter
+- Requests, TLDExtract
+- XML-RPC, Regex, JSON, Sockets
+- Threading, Importlib
+---
 
+## Getting Started
+
+Clone the repository and install the dependencies:
+
+```bash
+git clone https://github.com/erikg713/X-Vector-Pro-GUI-Tool.git
+cd X-Vector-Pro-GUI-Tool
+pip install -r requirements.txt
+python main.py
+```
+---
+
+## File Structure
+
+```
+x_vector_pro/
+├── main.py                    # GUI Entrypoint
+├── gui/                        # GUI interface
+│   ├── main_ui.py             # Launch & layout
+│   ├── tabs/                  # Each tab is a GUI page
+│   │   ├── auto_mode_tab.py
+│   │   ├── scan_tab.py
+│   │   ├── brute_tab.py
+│   │   ├── cve_tab.py
+│   │   ├── exploits_tab.py
+│   │   ├── report_tab.py
+│   │   └── settings_tab.py
+│   └── components/            # Shared widgets
+│       ├── logger_widget.py
+│       └── form_inputs.py
+├── engine/                    # Backend logic for each operation
+│   ├── recon.py               # Domain analysis
+│   ├── scanner.py             # Plugin & theme path checker
+│   ├── cve_scanner.py         # Local CVE lookup engine
+│   ├── brute_engine.py        # XML-RPC brute force logic
+│   ├── exploit_runner.py      # Dynamic exploit loader
+│   ├── auto_mode.py           # Orchestration pipeline
+│   └── threading_manager.py   # Threaded execution manager
+├── exploits/                  # Custom modular scripts (CVE-*.py)
+├── utils/                     # Shared utilities
+├── data/                      # Wordlists, config, CVEs
+├── reports/                   # Auto-generated logs & reports
+├── README.md
+├── requirements.txt
+├── .gitignore
+└── LICENSE
+```
 
 ---
 
-Features
-
-GUI interface (CustomTkinter)
-
-Support multiple usernames
-
-Smart or custom wordlists
-
-system.multicall support for stealth login brute-forcing
-
-Valid credentials saved to hits.txt
-
-Clean logging & reporting system
-
-Cross-platform: Kali, Parrot, Ubuntu
-
-
-
----
-
-How to Use
-
-git clone https://github.com/YOUR_USERNAME/wp-xmlrpc-gui.git
-cd wp-xmlrpc-gui
-./install.sh
-./run.sh
-
-
----
-
-Screenshot
+## Screenshots
 
 Coming Soon – GUI preview image
 
+---
+
+## Authors
+
+Built with dedication and expertise by **Erik G.**
 
 ---
 
-File Tree
+## License
 
-X-Vector-Pro/
-├── main.py
-├── gui/
-│   ├── __init__.py
-│   ├── dashboard.py
-│   └── tabs/
-│       ├── __init__.py
-│       ├── brute_tab.py
-│       ├── recon_tab.py
-│       ├── scanner_tab.py
-│       ├── ids_tab.py
-│       ├── exploit_tab.py
-│       └── auto_mode_tab.py
-
----
-
-Authors
-
-Built with blood, bytes & a keyboard
-by ERIK G.
-
-
----
-
-License
-
-MIT License
-(c) 2024 ERIK G.
-
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
