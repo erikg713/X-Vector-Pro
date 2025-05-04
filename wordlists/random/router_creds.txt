@@ -1,4 +1,3 @@
-### router_creds.txt
 admin:admin
 admin:password
 admin:1234
