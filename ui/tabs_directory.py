@@ -38,17 +38,39 @@ def load_directory_tab(tab):
         result_box.insert("end", msg + "\n")
         result_box.see("end")
 
-    def run_scan():
-        url = target_entry.get().strip()
+  def run_scan():
+    """
+    Initiates a directory scan based on user input from the GUI elements.
+    """
+    try:
+        # Retrieve and validate inputs
+        target_url = target_entry.get().strip()
         wordlist_path = wordlist_entry.get().strip()
         wordlist = load_wordlist(wordlist_path) if wordlist_path else None
-        if not url:
+
+        if not target_url:
             update_output("[!] Target URL required.")
             return
+        
+        if not is_valid_url(target_url):  # Hypothetical validation function
+            update_output("[!] Invalid URL provided.")
+            return
 
-        scanner = DirectoryScanner(base_url=url, logger=log_to_central, wordlist=wordlist, config=settings)
+        # Initialize and execute scanner
+        update_output("[*] Initializing directory scanner...")
+        scanner = DirectoryScanner(
+            base_url=target_url,
+            logger=log_to_central,
+            wordlist=wordlist,
+            config=settings
+        )
         scanner.run(findings=findings, update_callback=update_output)
         update_output("[*] Scan complete.")
+    
+    except FileNotFoundError as e:
+        update_output(f"[!] Wordlist file not found: {e}")
+    except Exception as e:
+        update_output(f"[!] An error occurred: {e}")
 
     def start_thread():
         nonlocal scanner_thread
