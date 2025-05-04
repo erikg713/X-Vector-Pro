@@ -13,6 +13,7 @@ def log_event(category, data):
         category (str): e.g. "scan", "recon", "brute", "exploit"
         data (dict): Your scan result, brute result, etc.
     """
+    # Replace ":" with "-" in the timestamp to make it filename-safe
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     log_file = os.path.join(LOG_DIR, f"{category}_{timestamp}.json")
 

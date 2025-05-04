@@ -13,7 +13,7 @@ from .dashboard import Dashboard
 __all__ = ["Dashboard"]
 
 # Path to the 'tabs' directory
-tabs_package = os.path.dirname(__file__) + "/tabs"
+tabs_package = os.path.join(os.path.dirname(__file__), "tabs")
 
 # Function to recursively load all modules from a directory
 def load_tabs_from_directory(package_name, package_path):

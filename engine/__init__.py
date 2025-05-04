@@ -1,51 +1,34 @@
-"""
-X-Vector Pro - Engine Core Initializer
-
-Initializes engine environment, async utilities, and dynamic module loading.
-Auto-discovers exploits and prepares global access to engine resources.
-"""
-
 import os
-import sys
-import threading
+import json
 import importlib
-from pathlib import Path
+from datetime import datetime
+LOG_DIR = "logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+EXPLOITS_DIR = os.path.join(os.path.dirname(__file__), "exploits")
+os.makedirs(LOG_DIR, exist_ok=True)
 
-# Base paths
-BASE_DIR = Path(__file__).resolve().parent.parent
-CORE_MODULES_DIR = BASE_DIR / "core"
-EXPLOITS_DIR = BASE_DIR / "exploits"
-WORDLISTS_DIR = BASE_DIR / "wordlists"
-REPORTS_DIR = BASE_DIR / "reports"
-LOGS_DIR = BASE_DIR / "logs"
+def log_event(category, data):
+    """
+    Log a structured event to a JSON log file.
 
-# Ensure required directories exist
-def initialize_environment():
-    for directory in [EXPLOITS_DIR, WORDLISTS_DIR, REPORTS_DIR, LOGS_DIR]:
-        os.makedirs(directory, exist_ok=True)
-    if str(CORE_MODULES_DIR) not in sys.path:
-        sys.path.insert(0, str(CORE_MODULES_DIR))
-    if str(EXPLOITS_DIR) not in sys.path:
-        sys.path.insert(0, str(EXPLOITS_DIR))
+    Args:
+        category (str): e.g. "scan", "recon", "brute", "exploit"
+        data (dict): Your scan result, brute result, etc.
+    """
+    # Replace ":" with "-" in the timestamp to make it filename-safe
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    log_file = os.path.join(LOG_DIR, f"{category}_{timestamp}.json")
 
-# Thread utility
-THREAD_POOL = []
+    log_data = {
+        "timestamp": timestamp,
+        "category": category,
+        "data": data
+    }
 
-def run_async(func, *args, **kwargs):
-    """Run a function in a background thread."""
-    thread = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
-    THREAD_POOL.append(thread)
-    thread.start()
-    return thread
+    with open(log_file, "w") as f:
+        json.dump(log_data, f, indent=4)
 
-# Module loader
-def load_module_by_name(name):
-    """Dynamically load a core or exploit module by name."""
-    try:
-        return importlib.import_module(name)
-    except ImportError as e:
-        print(f"[!] Failed to load module '{name}': {e}")
-        return None
+    return log_file
 
 # Auto-discover exploit modules
 def discover_exploits():
@@ -59,8 +42,12 @@ def discover_exploits():
                 print(f"[+] Loaded exploit module: {mod_name}")
             except Exception as e:
                 print(f"[!] Failed to load exploit {mod_name}: {e}")
-    return exploit_modules
+def initialize_environment():
+    # Initialize necessary environment settings
+    pass
 
 # Initialize everything
+initialize_environment()
+discovered_exploits = discover_exploits()
 initialize_environment()
 discovered_exploits = discover_exploits()
