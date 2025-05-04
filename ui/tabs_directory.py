@@ -1,5 +1,3 @@
-# X_Vector_Pro/ui/tabs_directory.py
-
 import customtkinter as ctk
 from tkinter import filedialog
 from engine.dirs import DirectoryScanner
