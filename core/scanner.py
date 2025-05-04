@@ -1,104 +1,79 @@
 import socket
-from core.logger import log_event
+import requests
+from utils.logger import log  # Ensure consistent logging
 
-def run_port_scan(target, ports=None):
-    # ... existing scan logic ...
-    result_text = "\n".join(results)
+# Configuration
+DEFAULT_PORTS = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3389, 8080]
+DEFAULT_DIRB_PATHS = ["admin", "wp-login", "phpmyadmin"]
 
-    log_event("scan", {
-        "target": target,
-        "results": results
-    })
-
-    return result_text
-def run_port_scan(target, ports=None):
+def port_scan(host, ports=None):
     """
-    Basic TCP port scanner.
+    Perform a TCP port scan on a target host.
 
     Args:
-        target (str): IP or hostname to scan.
+        host (str): The target IP or hostname to scan.
         ports (list): List of ports to scan. Defaults to common ports.
 
     Returns:
-        str: Formatted scan result.
+        list: A list of strings describing the status of each port.
     """
     if ports is None:
-        ports = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3389]
+        ports = DEFAULT_PORTS
 
-    results = [f"[SCAN] Starting scan on {target}...\n"]
+    log(f"[*] Starting port scan on {host}")
+    results = []
 
     for port in ports:
         try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(1)
-            result = sock.connect_ex((target, port))
-            if result == 0:
+            with socket.create_connection((host, port), timeout=1):
                 results.append(f"[+] Port {port} is OPEN")
-            else:
-                results.append(f"[-] Port {port} is closed")
-            sock.close()
+                log(f"[+] Port {port} is OPEN")
         except Exception as e:
-            results.append(f"[!] Error scanning port {port}: {str(e)}")
+            results.append(f"[-] Port {port} is closed or filtered ({e})")
+            log(f"[-] Port {port} is closed or filtered ({e})")
 
-    return "\n".join(results)
-def run_port_scan(target):
-    return f"Scan on {target}: Port 80 open (Fake result)"
+    return results
 
-def run_port_scan(target, ports=[22, 80, 443, 8080]):
-    result = []
-    for port in ports:
-        try:
-            with socket.create_connection((target, port), timeout=1):
-                result.append(f"Port {port} is open")
-        except:
-            result.append(f"Port {port} is closed or filtered")
-    return "\n".join(result)
 
-import socket
-import requests
-from utils.logger import log
+def dirb_scan(base_url, paths=None):
+    """
+    Perform a simple directory brute-force scan on a target URL.
 
-def port_scan(host, ports=[21, 22, 80, 443, 3306]):
-    log(f"[*] Scanning ports on {host}")
-    for port in ports:
-        try:
-            s = socket.create_connection((host, port), timeout=1)
-            log(f"[+] Port {port} is OPEN")
-            s.close()
-        except:
-            pass
+    Args:
+        base_url (str): The base URL to scan.
+        paths (list): List of paths to check. Defaults to common paths.
 
-def dirb_scan(base_url, paths=["admin", "wp-login", "phpmyadmin"]):
-    log(f"[*] Starting DirBuster scan on {base_url}")
+    Returns:
+        list: A list of found paths with HTTP 200 status.
+    """
+    if paths is None:
+        paths = DEFAULT_DIRB_PATHS
+
+    log(f"[*] Starting directory brute-force scan on {base_url}")
+    results = []
+
     for path in paths:
         try:
             url = f"{base_url}/{path}"
-            r = requests.get(url)
-            if r.status_code == 200:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                results.append(f"[+] Found: {url}")
                 log(f"[+] Found: {url}")
-        except:
-            pass
-import socket
-import requests
-from utils.logger import log
+        except Exception as e:
+            log(f"[!] Error accessing {url}: {e}")
 
-def port_scan(host, ports=[21, 22, 80, 443, 3306]):
-    log(f"[*] Scanning ports on {host}")
-    for port in ports:
-        try:
-            s = socket.create_connection((host, port), timeout=1)
-            log(f"[+] Port {port} is OPEN")
-            s.close()
-        except:
-            pass
+    return results
 
-def dirb_scan(base_url, paths=["admin", "wp-login", "phpmyadmin"]):
-    log(f"[*] Starting DirBuster scan on {base_url}")
-    for path in paths:
-        try:
-            url = f"{base_url}/{path}"
-            r = requests.get(url)
-            if r.status_code == 200:
-                log(f"[+] Found: {url}")
-        except:
-            pass
+
+if __name__ == "__main__":
+    # Example usage
+    target_host = "127.0.0.1"
+    target_url = "http://example.com"
+
+    # Port Scan Example
+    scan_results = port_scan(target_host)
+    print("\n".join(scan_results))
+
+    # Directory Brute-Force Example
+    dirb_results = dirb_scan(target_url)
+    print("\n".join(dirb_results))
