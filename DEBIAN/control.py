@@ -3,5 +3,5 @@ Version: 1.0
 Section: base
 Priority: optional
 Architecture: all
-Maintainer: Your Name
+Maintainer: Dev713
 Description: X-Vector Pro Supreme - Cybersecurity Toolkit
