@@ -1,4 +1,4 @@
-##### fUcKcOpIlOt""""""""
+"""
 Initialization file for the core.controller module.
 
 This module is responsible for managing and controlling core operations in the X-Vector Pro Supreme toolkit.
@@ -8,8 +8,8 @@ It provides utility functions, task scheduling, and centralized access to packag
 # Import necessary components from the package
 from .controller_utils import ControllerUtils
 from .task_scheduler import TaskScheduler
-from .logging_manager import LoggingManager  # Example: Add a logging component
-from .config_loader import ConfigLoader  # Example: Add a configuration loading component
+from .logging_manager import LoggingManager
+from .config_loader import ConfigLoader
 
 # Define the public API of the module
 __all__ = [
@@ -23,18 +23,24 @@ __all__ = [
 DEFAULT_CONFIG = {
     "debug": False,
     "logging_level": "INFO",
-    "max_tasks": 10,  # Example: Maximum number of tasks to handle concurrently
+    "max_tasks": 10,
 }
 
 # Logging Manager Initialization
 logging_manager = LoggingManager(level=DEFAULT_CONFIG["logging_level"])
 
 # Configuration Loader
-config = ConfigLoader()
-current_config = config.load_config()  # Load dynamic configurations (if any)
+config_loader = ConfigLoader()
+try:
+    current_config = config_loader.load_config()
+    # Merge default and loaded configurations
+    current_config = {**DEFAULT_CONFIG, **current_config}
+except Exception as e:
+    logging_manager.log(f"Error loading configuration: {e}", level="ERROR")
+    current_config = DEFAULT_CONFIG
 
 # Initialize Task Scheduler
-task_scheduler = TaskScheduler(max_tasks=DEFAULT_CONFIG["max_tasks"])
+task_scheduler = TaskScheduler(max_tasks=current_config["max_tasks"])
 
 def initialize_controller():
     """
@@ -43,13 +49,16 @@ def initialize_controller():
     """
     logging_manager.log("Initializing core.controller module...", level="INFO")
     
-    if DEFAULT_CONFIG["debug"]:
+    if current_config["debug"]:
         logging_manager.log("Debug mode enabled for core.controller", level="DEBUG")
     
-    # Example: Perform any additional startup checks or setup
+    # Perform additional startup checks or setup
     if not task_scheduler.is_ready():
         logging_manager.log("Task Scheduler is not ready. Initializing...", level="WARNING")
-        task_scheduler.initialize()
+        try:
+            task_scheduler.initialize()
+        except Exception as e:
+            logging_manager.log(f"Error initializing Task Scheduler: {e}", level="ERROR")
 
 # Call the initialization function
 initialize_controller()
