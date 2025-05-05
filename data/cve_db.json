@@ -1,5 +1,20 @@
 {
-  "CVE-2023-12345": ["exploit_01", "exploit_17"],
-  "CVE-2022-9999": ["exploit_03"],
-  "CVE-2021-40444": ["exploit_09", "exploit_10"]
+  "CVE-2021-40444": {
+    "exploits": ["exploit_09", "exploit_10"],
+    "severity": "critical",
+    "description": "Remote Code Execution via MSHTML vulnerability.",
+    "references": ["https://nvd.nist.gov/vuln/detail/CVE-2021-40444"]
+  },
+  "CVE-2022-9999": {
+    "exploits": ["exploit_03"],
+    "severity": "high",
+    "description": "Example description for CVE-2022-9999.",
+    "references": ["https://nvd.nist.gov/vuln/detail/CVE-2022-9999"]
+  },
+  "CVE-2023-12345": {
+    "exploits": ["exploit_01", "exploit_17"],
+    "severity": "medium",
+    "description": "Example description for CVE-2023-12345.",
+    "references": ["https://nvd.nist.gov/vuln/detail/CVE-2023-12345"]
+  }
 }
