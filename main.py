@@ -3,7 +3,7 @@ import os
 from subprocess import call
 from datetime import datetime
 from cryptography.fernet import Fernet
-from Utils.generator import build_t
+from utils.generator import build_t
 
 
 # Set appearance mode and theme
