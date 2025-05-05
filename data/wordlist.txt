@@ -1,7 +1,100 @@
-root
-admin
-login
-logging
-Mysite
-const 
+# Wordlist for brute-force attack simulations and reconnaissance
+# Includes common usernames, default admin credentials, and generic paths
 
+# General admin-related terms
+admin
+administrator
+root
+superuser
+superadmin
+manager
+moderator
+sysadmin
+support
+helpdesk
+
+# Login-related terms
+login
+logon
+signin
+access
+auth
+authentication
+authorize
+logout
+session
+
+# Common usernames
+user
+guest
+test
+demo
+default
+anonymous
+
+# Default credentials
+password
+123456
+12345678
+1234
+qwerty
+abc123
+letmein
+admin123
+root123
+guest123
+test123
+demo123
+
+# Common paths
+home
+dashboard
+settings
+profile
+account
+controlpanel
+adminpanel
+management
+config
+configuration
+console
+terminal
+secure
+
+# Website-related terms
+mysite
+website
+web
+portal
+index
+home
+default
+main
+site
+page
+
+# Miscellaneous
+const
+variable
+debug
+test
+beta
+release
+production
+staging
+dev
+api
+server
+client
+host
+ip
+network
+domain
+dns
+firewall
+proxy
+vpn
+ssh
+key
+token
+secret
