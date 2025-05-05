@@ -14,7 +14,7 @@ sudo apt update || { echo -e "${RED}[!] Failed to update packages.${NC}"; exit 1
 
 # Install essential system packages
 echo -e "${YELLOW}[*] Installing required system packages...${NC}"
-sudo apt install -y python3-tk build-essential firefox-esr wget curl unzip || { echo -e "${RED}[!] System package installation failed.${NC}"; exit 1; }
+sudo apt install -y python3-tk build-essential firefox-esr wget curl unzip python3-pip || { echo -e "${RED}[!] System package installation failed.${NC}"; exit 1; }
 
 # Install GeckoDriver for Selenium
 echo -e "${YELLOW}[*] Installing GeckoDriver for Selenium...${NC}"
