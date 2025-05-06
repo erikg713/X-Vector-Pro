@@ -19,6 +19,7 @@ import threading
 import socket
 from queue import Queue
 import json
+
 # Configure logging
 LOG_FILE = "xvector_gui.log"
 logging.basicConfig(
@@ -33,7 +34,8 @@ class XVectorGUI(ctk.CTk):
         self.title("X-Vector Pro - Cybersecurity Toolkit")
         self.geometry(self.get_window_geometry())
         self.configure_gui()
-
+        self.create_menu()
+        
         # Create a tab view
         self.tab_view = ctk.CTkTabview(self, width=1280, height=960)
         self.tab_view.pack(expand=True, fill="both")
@@ -62,6 +64,40 @@ class XVectorGUI(ctk.CTk):
         ctk.set_appearance_mode(appearance)
         ctk.set_default_color_theme(theme)
         logging.info(f"Appearance: {appearance}, Theme: {theme}")
+
+    def create_menu(self):
+        """Create a menu bar for additional functionalities."""
+        menu_bar = ctk.CTkMenu(self)
+        file_menu = ctk.CTkMenu(menu_bar, tearoff=0)
+        file_menu.add_command(label="Open", command=self.open_file)
+        file_menu.add_command(label="Save", command=self.save_file)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self.quit)
+        menu_bar.add_cascade(label="File", menu=file_menu)
+
+        help_menu = ctk.CTkMenu(menu_bar, tearoff=0)
+        help_menu.add_command(label="About", command=self.show_about)
+        menu_bar.add_cascade(label="Help", menu=help_menu)
+
+        self.config(menu=menu_bar)
+
+    def open_file(self):
+        """Open a file dialog to load files."""
+        file_path = filedialog.askopenfilename()
+        if file_path:
+            logging.info(f"Opened file: {file_path}")
+            messagebox.showinfo("File Opened", f"File opened successfully:\n{file_path}")
+
+    def save_file(self):
+        """Open a file dialog to save files."""
+        file_path = filedialog.asksaveasfilename()
+        if file_path:
+            logging.info(f"Saved file: {file_path}")
+            messagebox.showinfo("File Saved", f"File saved successfully:\n{file_path}")
+
+    def show_about(self):
+        """Show the About dialog."""
+        messagebox.showinfo("About", "X-Vector Pro - Cybersecurity Toolkit\nVersion 1.0")
 
     def get_window_geometry(self):
         """Adjust window size to 80% of screen."""
