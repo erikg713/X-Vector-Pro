@@ -17,8 +17,9 @@ from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 
-
+enable_stealth_mode(self, self.set_status, self.toast)
 class XVectorProGUI(ctk.CTk):
+   
     def __init__(self):
         super().__init__()
         self.title("X-Vector Pro Supreme Edition")
