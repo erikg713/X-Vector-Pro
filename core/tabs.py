@@ -10,22 +10,34 @@ from ui.tabs_fullauto import load_fullauto_tab
 from ui.tabs_findings import load_findings_tab
 
 def init_tabs(tabs, app, settings):
-    # Create tab frames
-    recon_tab = tabs.add("Recon")
-    scanner_tab = tabs.add("Scanner")
-    brute_tab = tabs.add("Brute Force")
-    exploit_tab = tabs.add("Exploits")
-    logs_tab = tabs.add("Logs")
-    settings_tab = tabs.add("Settings")
-    fullauto_tab = tabs.add("Full Auto")
-    findings_tab = tabs.add("Findings")
+    """
+    Initializes the tabs and loads the content for each tab.
+    
+    Args:
+        tabs (ctk.CTkTabview): The tabview object where tabs will be added.
+        app: The main application object.
+        settings: The settings object to configure the settings tab.
+    """
+    tab_names = [
+        ("Recon", load_recon_tab),
+        ("Scanner", load_scanner_tab),
+        ("Brute Force", load_brute_tab),
+        ("Exploits", load_exploit_tab),
+        ("Logs", load_logs_tab),
+        ("Settings", load_settings_tab, settings),
+        ("Full Auto", load_fullauto_tab),
+        ("Findings", load_findings_tab)
+    ]
+    
+    # Create and load content into each tab
+    for tab_name, load_func, *args in tab_names:
+        try:
+            tab = tabs.add(tab_name)
+            load_func(tab, *args)  # Dynamically load content into the tab
+        except Exception as e:
+            print(f"Error loading tab '{tab_name}': {e}")
+            continue  # Optionally handle tab load errors gracefully
 
-    # Load content into each tab
-    load_recon_tab(recon_tab)
-    load_scanner_tab(scanner_tab)
-    load_brute_tab(brute_tab)
-    load_exploit_tab(exploit_tab)
-    load_logs_tab(logs_tab)
-    load_settings_tab(settings_tab, settings)
-    load_fullauto_tab(fullauto_tab)
-    load_findings_tab(findings_tab)
+# Example usage
+# Assuming `tabs` is an instance of CTkTabview and `settings` is a settings object
+# init_tabs(tabs, app, settings)
