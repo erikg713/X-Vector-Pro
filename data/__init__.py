@@ -1,11 +1,3 @@
-# X_Vector_Pro/data/__init__.py
-
-"""
-Data package for X-Vector Pro.
-Contains wordlists, CVE databases, payloads, templates, and cached recon data.
-"""
-
-# You can optionally load default paths here if needed
 import os
 
 DATA_DIR = os.path.dirname(__file__)
