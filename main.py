@@ -16,7 +16,6 @@ from gui.tabs.recon_tab import ReconTab
 from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
-from gui.dashboard import launch_gui
 
 
 class XVectorProGUI(ctk.CTk):
@@ -166,8 +165,12 @@ class Sidebar(ctk.CTkFrame):
         for name, btn in self.buttons.items():
             btn.configure(fg_color="#2E8B57" if name == active_tab else "transparent")
 
+
 def start_tool():
     print("X-Vector Pro Supreme – Cybersecurity Toolkit")
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    start_tool()
+    app = XVectorProGUI()
+    app.mainloop()
