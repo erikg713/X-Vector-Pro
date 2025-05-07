@@ -4,6 +4,7 @@ from core.scanner import run_port_scan
 from core.brute import brute_force_login
 from core.exploit_01 import run as run_exploit_01
 from core.report import generate_report
+import os 
 
 # Configure logging for better debugging and tracking
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
