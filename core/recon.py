@@ -7,6 +7,22 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 from pymongo import MongoClient
 from utils.logger import log
+from utils import stealth
+
+def perform_recon(target):
+    stealth.apply_stealth_behavior()
+
+    # Example stealth request
+    url = f"http://{target}/robots.txt"
+    response = stealth.stealth_request(url)
+
+    if response and response.status_code == 200:
+        print(f"Found robots.txt on {target}")
+        # optionally log to report
+    else:
+        print(f"No robots.txt or unreachable: {target}")
+
+    # Add more recon steps here, all wrapped in stealth behavior
 from core.recon.recon_engine import ReconEngine
 def run_auto_recon(target_ip, output_dir="reports/auto_recon"):
     os.makedirs(output_dir, exist_ok=True)
