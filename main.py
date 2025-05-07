@@ -1,5 +1,7 @@
 import os
 import json
+import time
+import threading
 import customtkinter as ctk
 from PIL import Image
 from threading import Thread
@@ -21,33 +23,12 @@ class XVectorProGUI(ctk.CTk):
         super().__init__()
         self.title("X-Vector Pro Supreme Edition")
         self.geometry("1100x700")
+        self.resizable(False, False)
         self.stealth_intro()
-        def stealth_intro(self):
-    splash = ctk.CTkToplevel(self)
-    splash.geometry("1100x700")
-    splash.overrideredirect(True)
-    splash.configure(fg_color="black")
-    label = ctk.CTkLabel(splash, text="", text_color="lime", font=("Courier", 18))
-    label.place(relx=0.5, rely=0.5, anchor="center")
 
-    def animate_typing():
-        intro_text = "Initializing X-Vector Pro Supreme Edition..."
-        typed = ""
-        for char in intro_text:
-            typed += char
-            label.configure(text=typed)
-            splash.update()
-            time.sleep(0.04)
-        time.sleep(1.2)
-        splash.destroy()
-
-    threading.Thread(target=animate_typing, daemon=True).start()
-        try:
-            self.iconbitmap(os.path.join("assets", "icon.ico"))
-        except Exception as e:
-            print(f"[Warning] Icon load failed: {e}")
-
+        self.setup_icon()
         self.toast = ToastManager(self)
+
         self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="w")
         self.sidebar = Sidebar(self, self.change_tab)
         self.main_frame = ctk.CTkFrame(self, corner_radius=0)
@@ -67,15 +48,42 @@ class XVectorProGUI(ctk.CTk):
             "Logs": LogsTab(self.main_frame, self.toast),
             "Settings": SettingsTab(self.main_frame, self.toast),
         }
+
         self.active_tab_name = None
         self.change_tab("AutoMode")
 
         if self.load_config().get("stealth_mode"):
             self.after(500, lambda: enable_stealth_mode(self.set_status, self.toast))
 
-        self.bind("<Control-Shift-H>", self.hide_window)
-        self.bind("<Control-q>", lambda e: self.destroy())
-        self.bind("<Control-Tab>", lambda e: self.cycle_tabs())
+        self.bind_shortcuts()
+
+    def stealth_intro(self):
+        splash = ctk.CTkToplevel(self)
+        splash.geometry("1100x700")
+        splash.overrideredirect(True)
+        splash.configure(fg_color="black")
+
+        label = ctk.CTkLabel(splash, text="", text_color="lime", font=("Courier", 18))
+        label.place(relx=0.5, rely=0.5, anchor="center")
+
+        def animate_typing():
+            intro_text = "Initializing X-Vector Pro Supreme Edition..."
+            typed = ""
+            for char in intro_text:
+                typed += char
+                label.configure(text=typed)
+                splash.update()
+                time.sleep(0.04)
+            time.sleep(1.2)
+            splash.destroy()
+
+        threading.Thread(target=animate_typing, daemon=True).start()
+
+    def setup_icon(self):
+        try:
+            self.iconbitmap(os.path.join("assets", "icon.ico"))
+        except Exception as e:
+            print(f"[Warning] Icon load failed: {e}")
 
     def load_config(self):
         try:
@@ -97,6 +105,11 @@ class XVectorProGUI(ctk.CTk):
     def set_status(self, text):
         self.status_bar.configure(text=text)
         Thread(target=log_encrypted, args=(text,), daemon=True).start()
+
+    def bind_shortcuts(self):
+        self.bind("<Control-Shift-H>", self.hide_window)
+        self.bind("<Control-q>", lambda e: self.destroy())
+        self.bind("<Control-Tab>", lambda e: self.cycle_tabs())
 
     def hide_window(self, event=None):
         self.withdraw()
@@ -121,25 +134,7 @@ class Sidebar(ctk.CTkFrame):
         self.callback = callback
         self.buttons = {}
         self.icons = self.load_icons()
-def slide_in(self):
-    self.place(x=-200, y=0)
-    def animate(pos= -200):
-        if pos >= 0:
-            self.place(x=0, y=0)
-            return
-        self.place(x=pos, y=0)
-        self.after(10, lambda: animate(pos + 20))
-    animate()
-        for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
-            btn = ctk.CTkButton(
-                self,
-                text=name,
-                image=self.icons.get(name),
-                anchor="w",
-                command=lambda n=name: callback(n)
-            )
-            btn.pack(fill="x", padx=10, pady=5)
-            self.buttons[name] = btn
+        self.create_buttons()
 
     def load_icons(self):
         icon_dir = os.path.join("assets", "icons")
@@ -154,12 +149,21 @@ def slide_in(self):
                     print(f"[Warning] Failed to load icon for {name}: {e}")
         return icons
 
+    def create_buttons(self):
+        for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
+            btn = ctk.CTkButton(
+                self,
+                text=name,
+                image=self.icons.get(name),
+                anchor="w",
+                command=lambda n=name: self.callback(n)
+            )
+            btn.pack(fill="x", padx=10, pady=5)
+            self.buttons[name] = btn
+
     def highlight(self, active_tab):
         for name, btn in self.buttons.items():
-            if name == active_tab:
-                btn.configure(fg_color="#2E8B57")  # Active tab color (greenish)
-            else:
-                btn.configure(fg_color="transparent")
+            btn.configure(fg_color="#2E8B57" if name == active_tab else "transparent")
 
 
 if __name__ == "__main__":
