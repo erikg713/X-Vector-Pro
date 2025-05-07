@@ -9,17 +9,15 @@ import os
 import subprocess
 from datetime import datetime
 from queue import Queue
-# utils/stealth.py
 
-import threading
-import time
-
-def enable_stealth_mode(set_status_callback, toast_manager):
-    """
-    Puts the app into “stealth mode”:
-     - Updates status bar
-     - Shows a toast
-     - Maybe hides certain UI elements after a delay
+def enable_stealth_mode(root, set_status_callback, toast_manager):
+    def _stealth():
+        set_status_callback("Stealth mode ON")
+        toast_manager.show("Stealth mode activated", "info")
+        time.sleep(3)
+        root.withdraw()  # actually hide the window
+        write_encrypted_log("Main window hidden in stealth mode")
+    threading.Thread(target=_stealth, daemon=True).start()
     """
 
     def _stealth():
