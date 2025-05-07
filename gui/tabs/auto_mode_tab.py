@@ -49,21 +49,21 @@ class AutoModeTab(ctk.CTkFrame):
         self.progress.place_forget()  # Initially hidden
 
     def run_chain_threaded(self):
-        target = self.target_var.get().strip()
-        if not target or not self.is_valid_target(target):
-            self.show_status("Enter a valid target.")
-            return
-        if self._current_thread and self._current_thread.is_alive():
-            self.show_status("Another chain is still running.")
-            return
-        threading.Thread(target=self.run_chain, args=(target,), daemon=True).start()
+    target = self.target_var.get().strip()
+    if not target or not self.is_valid_target(target):
+        self.show_status("Enter a valid target.")
+        return
+    if self._current_thread and self._current_thread.is_alive():
+        self.show_status("Another chain is still running.")
+        return
+    self._current_thread = threading.Thread(target=self.run_chain, args=(target,), daemon=True)
+    self._current_thread.start()
 
-    def run_chain(self, target):
-        self.show_status(f"Running auto recon chain on {target}...")
-        self.set_button_state(False)
-        self.show_progress(True)
-        self.append_output(f"[INFO] Starting full chain on {target}\n")
-        
+def is_valid_target(self, target):
+    ip_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+    domain_pattern = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\.[A-Za-z]{2,})+$"
+    return re.match(ip_pattern, target) or re.match(domain_pattern, target)
+
         try:
             results = run_auto_chain(target, gui_callback=self.append_output)
             self.append_output(f"[INFO] Completed successfully.\n")
