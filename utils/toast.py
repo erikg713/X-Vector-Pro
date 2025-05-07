@@ -1,20 +1,50 @@
 import customtkinter as ctk
+import threading
+import time
 
-def show_toast(message, duration=3, style="info"):
-    toast = ctk.CTkToplevel()
-    toast.overrideredirect(True)
-    toast.geometry("300x50+60+60")
-    toast.attributes("-topmost", True)
+class ToastManager:
+    def __init__(self, root):
+        self.root = root
 
-    colors = {
-        "info": "#1E90FF",
-        "success": "#28a745",
-        "error": "#dc3545"
-    }
+    def show(self, message, level="info", duration=3000):
+        colors = {
+            "info": "#1f6aa5",
+            "success": "#2e8b57",
+            "error": "#a52a2a"
+        }
+        toast = ctk.CTkLabel(
+            self.root,
+            text=message,
+            text_color="white",
+            fg_color=colors.get(level, "#1f6aa5"),
+            corner_radius=8,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            padx=15,
+            pady=8
+        )
+        toast.place(relx=0.5, rely=0.95, anchor="s")
+        toast.attributes = {"alpha": 0}
+        toast.after(10, lambda: self._fade_in(toast, 0))
 
-    frame = ctk.CTkFrame(toast, fg_color=colors.get(style, "#1E90FF"))
-    frame.pack(fill="both", expand=True)
-    label = ctk.CTkLabel(frame, text=message, text_color="white", font=("Arial", 14))
-    label.pack(pady=10)
+        def auto_dismiss():
+            time.sleep(duration / 1000)
+            self._fade_out(toast, 1.0)
 
-    toast.after(duration * 1000, toast.destroy)
+        threading.Thread(target=auto_dismiss, daemon=True).start()
+
+    def _fade_in(self, widget, alpha):
+        if alpha >= 1.0:
+            return
+        widget.attributes["alpha"] = alpha
+        widget.configure(fg_color=widget._fg_color)
+        widget.update()
+        widget.after(30, lambda: self._fade_in(widget, alpha + 0.1))
+
+    def _fade_out(self, widget, alpha):
+        if alpha <= 0:
+            widget.destroy()
+            return
+        widget.attributes["alpha"] = alpha
+        widget.configure(fg_color=widget._fg_color)
+        widget.update()
+        widget.after(30, lambda: self._fade_out(widget, alpha - 0.1))
