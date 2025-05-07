@@ -2,9 +2,9 @@ import os
 import json
 import time
 import threading
+from threading import Thread
 import customtkinter as ctk
 from PIL import Image
-from threading import Thread
 
 from utils.toast import ToastManager
 from utils.stealth import enable_stealth_mode
@@ -17,9 +17,8 @@ from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 
-enable_stealth_mode(self, self.set_status, self.toast)
+
 class XVectorProGUI(ctk.CTk):
-   
     def __init__(self):
         super().__init__()
         self.title("X-Vector Pro Supreme Edition")
@@ -34,7 +33,7 @@ class XVectorProGUI(ctk.CTk):
         self.sidebar = Sidebar(self, self.change_tab)
         self.main_frame = ctk.CTkFrame(self, corner_radius=0)
 
-        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=4)
+        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=2)
         self.sidebar.grid(row=0, column=0, sticky="ns")
         self.main_frame.grid(row=0, column=1, sticky="nsew")
 
@@ -82,15 +81,19 @@ class XVectorProGUI(ctk.CTk):
 
     def setup_icon(self):
         try:
-            self.iconbitmap(os.path.join("assets", "icon.ico"))
+            if os.name == "nt":
+                self.iconbitmap(os.path.join("assets", "icon.ico"))
         except Exception as e:
             print(f"[Warning] Icon load failed: {e}")
 
     def load_config(self):
         try:
             with open("config.json", "r") as f:
-                return json.load(f)
-        except Exception:
+                config = json.load(f)
+                log_encrypted("[Config] Loaded configuration settings.")
+                return config
+        except Exception as e:
+            print(f"[Error] Failed to load config: {e}")
             return {}
 
     def change_tab(self, tab_name):
@@ -111,6 +114,7 @@ class XVectorProGUI(ctk.CTk):
         self.bind("<Control-Shift-H>", self.hide_window)
         self.bind("<Control-q>", lambda e: self.destroy())
         self.bind("<Control-Tab>", lambda e: self.cycle_tabs())
+        self.bind("<Control-Shift-Tab>", lambda e: self.cycle_tabs(reverse=True))
 
     def hide_window(self, event=None):
         self.withdraw()
@@ -122,16 +126,17 @@ class XVectorProGUI(ctk.CTk):
         self.toast.show("App restored.", "success")
         self.bind("<Control-Shift-H>", self.hide_window)
 
-    def cycle_tabs(self):
+    def cycle_tabs(self, reverse=False):
         keys = list(self.tabs.keys())
-        current_idx = keys.index(self.active_tab_name)
-        next_idx = (current_idx + 1) % len(keys)
+        idx = keys.index(self.active_tab_name)
+        next_idx = (idx - 1) % len(keys) if reverse else (idx + 1) % len(keys)
         self.change_tab(keys[next_idx])
 
 
 class Sidebar(ctk.CTkFrame):
     def __init__(self, parent, callback):
         super().__init__(parent, width=180, corner_radius=0)
+        self.pack_propagate(False)
         self.callback = callback
         self.buttons = {}
         self.icons = self.load_icons()
