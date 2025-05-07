@@ -1,3 +1,5 @@
+import os
+import requests
 import customtkinter as ctk
 import threading
 from core.auto_chain import run_auto_chain  # Ensure this function is implemented
