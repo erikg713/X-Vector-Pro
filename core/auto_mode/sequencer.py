@@ -4,11 +4,34 @@ from core.scanner import run_port_scan
 from core.brute import brute_force_login
 from core.exploit_01 import run as run_exploit_01
 from core.report import generate_report
-import os 
+import os
+from concurrent.futures import ThreadPoolExecutor
 
 # Configure logging for better debugging and tracking
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler("operations_log.log")])
 logger = logging.getLogger(__name__)
+
+def run_step(step_name: str, operation, target: str) -> str:
+    """
+    Executes a single operation and returns its result.
+
+    Args:
+        step_name (str): The name of the step.
+        operation (callable): The function to run for the operation.
+        target (str): The target IP or hostname.
+
+    Returns:
+        str: The result of the operation.
+    """
+    try:
+        logger.info(f"Starting {step_name}...")
+        result = operation(target)
+        logger.info(f"{step_name} completed successfully.")
+        return f"[*] {step_name}:\n{result}"
+    except Exception as e:
+        error_message = f"[ERROR] {step_name} failed: {e}"
+        logger.error(error_message)
+        return error_message
 
 def run_sequence(target: str = "127.0.0.1") -> str:
     """
@@ -27,21 +50,19 @@ def run_sequence(target: str = "127.0.0.1") -> str:
         ("Default Exploit", run_exploit_01),
         ("Report Generation", generate_report),
     ]
-
+    
     results = []
+    
+    # Use ThreadPoolExecutor for concurrent execution of steps (if needed)
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = []
+        for step_name, operation in sequence_steps:
+            futures.append(executor.submit(run_step, step_name, operation, target))
 
-    for step_name, operation in sequence_steps:
-        try:
-            logger.info(f"Starting {step_name.lower()}...")
-            result = operation(target)
-            results.append(f"[*] {step_name}:\n{result}")
-        except Exception as e:
-            error_message = f"[ERROR] {step_name} failed: {e}"
-            logger.error(error_message)
-            results.append(error_message)
-
+        for future in futures:
+            results.append(future.result())
+    
     return "\n\n".join(results)
-
 
 if __name__ == "__main__":
     # Example usage
