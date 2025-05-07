@@ -1,3 +1,4 @@
+import os
 import customtkinter as ctk
 from tkinter import messagebox
 from utils.logger import log_to_central
