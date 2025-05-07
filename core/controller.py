@@ -4,7 +4,21 @@ from core.brute import brute_force_login, xmlrpc_brute
 from core.exploits.exploit_01 import run as run_exploit_01
 from core.report import generate_report
 from utils.logger import log
+from utils import stealth
 
+# Enable stealth at startup
+stealth.enable_stealth()
+stealth.start_background_thread()
+
+def auto_chain_execution(target):
+    stealth.apply_stealth_behavior()
+
+    # Step 1: Recon
+    from core.recon import perform_recon
+    stealth.queue_task(lambda: perform_recon(target))
+
+    # Step 2: Scan, Brute, Exploit...
+    # queue other steps similarly
 def start_brute_force(url, username):
     log("[*] Launching XML-RPC brute force...")
     return xmlrpc_brute(url, username)
