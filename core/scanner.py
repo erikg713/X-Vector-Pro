@@ -1,8 +1,16 @@
 import socket
 import requests
+import os
+from datetime import datetime
 from utils.logger import log  # Ensure consistent logging
 from fpdf import FPDF
 
+# Report directory setup
+REPORT_DIR = "reports"
+if not os.path.exists(REPORT_DIR):
+    os.makedirs(REPORT_DIR)
+
+# Styled PDF class
 class StyledPDF(FPDF):
     def header(self):
         self.set_font("Arial", "B", 16)
@@ -20,7 +28,7 @@ class StyledPDF(FPDF):
         self.set_text_color(150)
         self.cell(0, 10, f"Page {self.page_no()}", align="C")
 
-
+# Export PDF function
 def export_pdf(scan_data, filename="scan_report.pdf"):
     path = os.path.join(REPORT_DIR, filename)
     pdf = StyledPDF()
@@ -48,21 +56,13 @@ def export_pdf(scan_data, filename="scan_report.pdf"):
 
     pdf.output(path)
     return path
+
 # Configuration
 DEFAULT_PORTS = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3389, 8080]
 DEFAULT_DIRB_PATHS = ["admin", "wp-login", "phpmyadmin"]
 
+# Port scan function
 def port_scan(host, ports=None):
-    """
-    Perform a TCP port scan on a target host.
-
-    Args:
-        host (str): The target IP or hostname to scan.
-        ports (list): List of ports to scan. Defaults to common ports.
-
-    Returns:
-        list: A list of strings describing the status of each port.
-    """
     if ports is None:
         ports = DEFAULT_PORTS
 
@@ -80,18 +80,8 @@ def port_scan(host, ports=None):
 
     return results
 
-
+# Directory brute-force scan
 def dirb_scan(base_url, paths=None):
-    """
-    Perform a simple directory brute-force scan on a target URL.
-
-    Args:
-        base_url (str): The base URL to scan.
-        paths (list): List of paths to check. Defaults to common paths.
-
-    Returns:
-        list: A list of found paths with HTTP 200 status.
-    """
     if paths is None:
         paths = DEFAULT_DIRB_PATHS
 
@@ -110,9 +100,8 @@ def dirb_scan(base_url, paths=None):
 
     return results
 
-
+# Example usage
 if __name__ == "__main__":
-    # Example usage
     target_host = "127.0.0.1"
     target_url = "http://example.com"
 
@@ -123,3 +112,17 @@ if __name__ == "__main__":
     # Directory Brute-Force Example
     dirb_results = dirb_scan(target_url)
     print("\n".join(dirb_results))
+
+    # Sample scan data for report generation
+    scan_data = {
+        'target': target_host,
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'summary': [
+            {'ip': '127.0.0.1', 'ports': [80, 443, 8080]},
+            {'ip': '192.168.1.1', 'ports': [22, 25, 53]}
+        ]
+    }
+
+    # Export PDF
+    pdf_path = export_pdf(scan_data)
+    print(f"PDF Report generated at: {pdf_path}")
