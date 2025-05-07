@@ -1,7 +1,53 @@
 import socket
 import requests
 from utils.logger import log  # Ensure consistent logging
+from fpdf import FPDF
 
+class StyledPDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 16)
+        self.set_text_color(30, 30, 30)
+        self.cell(0, 10, "X-Vector Pro Scan Report", border=False, ln=True, align="C")
+        self.ln(5)
+        self.set_draw_color(100, 100, 100)
+        self.set_line_width(0.5)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.set_text_color(150)
+        self.cell(0, 10, f"Page {self.page_no()}", align="C")
+
+
+def export_pdf(scan_data, filename="scan_report.pdf"):
+    path = os.path.join(REPORT_DIR, filename)
+    pdf = StyledPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=11)
+
+    # Meta section
+    pdf.set_text_color(0)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(0, 10, f"Target: {scan_data.get('target', 'N/A')}", ln=True)
+    pdf.cell(0, 10, f"Timestamp: {scan_data.get('timestamp', datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}", ln=True)
+    pdf.ln(5)
+
+    # Host summaries
+    pdf.set_font("Arial", size=11)
+    for host in scan_data.get("summary", []):
+        pdf.set_fill_color(240, 240, 240)
+        pdf.set_text_color(0)
+        pdf.set_font("Arial", "B", 11)
+        pdf.cell(0, 8, f"Host: {host.get('ip', 'unknown')}", ln=True, fill=True)
+        pdf.set_font("Arial", "", 11)
+        for port in host.get("ports", []):
+            pdf.cell(0, 8, f"  - Port {port}", ln=True)
+        pdf.ln(2)
+
+    pdf.output(path)
+    return path
 # Configuration
 DEFAULT_PORTS = [21, 22, 23, 25, 53, 80, 110, 139, 143, 443, 445, 3389, 8080]
 DEFAULT_DIRB_PATHS = ["admin", "wp-login", "phpmyadmin"]
