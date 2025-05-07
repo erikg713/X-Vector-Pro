@@ -21,7 +21,27 @@ class XVectorProGUI(ctk.CTk):
         super().__init__()
         self.title("X-Vector Pro Supreme Edition")
         self.geometry("1100x700")
+        self.stealth_intro()
+        def stealth_intro(self):
+    splash = ctk.CTkToplevel(self)
+    splash.geometry("1100x700")
+    splash.overrideredirect(True)
+    splash.configure(fg_color="black")
+    label = ctk.CTkLabel(splash, text="", text_color="lime", font=("Courier", 18))
+    label.place(relx=0.5, rely=0.5, anchor="center")
 
+    def animate_typing():
+        intro_text = "Initializing X-Vector Pro Supreme Edition..."
+        typed = ""
+        for char in intro_text:
+            typed += char
+            label.configure(text=typed)
+            splash.update()
+            time.sleep(0.04)
+        time.sleep(1.2)
+        splash.destroy()
+
+    threading.Thread(target=animate_typing, daemon=True).start()
         try:
             self.iconbitmap(os.path.join("assets", "icon.ico"))
         except Exception as e:
@@ -101,7 +121,15 @@ class Sidebar(ctk.CTkFrame):
         self.callback = callback
         self.buttons = {}
         self.icons = self.load_icons()
-
+def slide_in(self):
+    self.place(x=-200, y=0)
+    def animate(pos= -200):
+        if pos >= 0:
+            self.place(x=0, y=0)
+            return
+        self.place(x=pos, y=0)
+        self.after(10, lambda: animate(pos + 20))
+    animate()
         for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
             btn = ctk.CTkButton(
                 self,
