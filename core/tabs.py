@@ -1,5 +1,5 @@
 import customtkinter as ctk
-
+import os
 from ui.tabs_brute import load_brute_tab
 from ui.tabs_recon import load_recon_tab
 from ui.tabs_scanner import load_scanner_tab
