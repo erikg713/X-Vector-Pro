@@ -2,8 +2,8 @@ import customtkinter as ctk
 import logging
 import os
 import json
-from tkinter import filedialog, messagebox, Menu
-
+from tkinter import filedialog, messagebox
+from tkinter import Menu
 from gui.tabs.recon_tab import ReconTab
 from gui.tabs.brute_tab import BruteTab
 from gui.tabs.exploit_tab import ExploitsTab
@@ -30,6 +30,7 @@ class XVectorGUI(ctk.CTk):
         self.configure_gui()
         self.create_menu()
 
+        # Create and pack the main tab view
         self.tab_view = ctk.CTkTabview(self, width=1280, height=960)
         self.tab_view.pack(expand=True, fill="both")
         self.add_tabs()
@@ -37,6 +38,7 @@ class XVectorGUI(ctk.CTk):
     def configure_gui(self):
         default_appearance = "dark"
         default_theme = "blue"
+
         try:
             if os.path.exists("config.json"):
                 with open("config.json", "r") as f:
@@ -100,13 +102,16 @@ class XVectorGUI(ctk.CTk):
             "Auto Mode": AutoModeTab,
             "Settings": SettingsTab,
             "CVE Lookup": CVETab,
-            "Logs": load_logs_tab
+            "Logs": load_logs_tab  # loader function
         }
 
         for tab_name, TabClass in tab_classes.items():
             try:
                 tab_frame = self.tab_view.add(tab_name)
-                TabClass(tab_frame)
+                if callable(TabClass):  # for load_logs_tab
+                    TabClass(tab_frame)
+                else:
+                    TabClass(tab_frame)
                 logging.info(f"{tab_name} tab loaded successfully.")
             except Exception as e:
                 logging.error(f"Failed to load {tab_name} tab: {e}")
