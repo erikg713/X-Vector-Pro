@@ -1,114 +1,139 @@
-import customtkinter as ctk
-import logging
 import os
 import json
-from tkinter import filedialog, messagebox, Menu
-from gui.tabs.recon_tab import ReconTab
+import customtkinter as ctk
+from PIL import Image
+from threading import Thread
+
+from utils.toast import ToastManager
+from utils.stealth import enable_stealth_mode
+from utils.logger import log_encrypted
+
+from gui.tabs.auto_tab import AutoTab
 from gui.tabs.brute_tab import BruteTab
-from gui.tabs.exploit_tab import ExploitsTab
-from gui.tabs.reports_tab import ReportsTab
-from gui.tabs.ids_tab import IDSTab
-from gui.tabs.auto_mode_tab import AutoModeTab
+from gui.tabs.recon_tab import ReconTab
+from gui.tabs.exploit_tab import ExploitTab
+from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
-from gui.tabs.cve_tab import CVETab
-from gui.tabs.logs_tab import load_logs_tab
 
-LOG_FILE = "xvector_gui.log"
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
-class XVectorGUI(ctk.CTk):
+class XVectorProGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("X-Vector Pro - Cybersecurity Toolkit")
-        self.geometry(self.get_window_geometry())
-        self.configure_gui()
-        self.create_menu()
-
-        self.tab_view = ctk.CTkTabview(self, width=1280, height=960)
-        self.tab_view.pack(expand=True, fill="both")
-        self.add_tabs()
-
-    def configure_gui(self):
-        default_appearance = "dark"
-        default_theme = "blue"
-        appearance = default_appearance
-        theme = default_theme
+        self.title("X-Vector Pro Supreme Edition")
+        self.geometry("1100x700")
 
         try:
-            if os.path.exists("config.json"):
-                with open("config.json", "r") as f:
-                    config = json.load(f)
-                    appearance = config.get("appearance", default_appearance)
-                    theme = config.get("theme", default_theme)
+            self.iconbitmap(os.path.join("assets", "icon.ico"))
         except Exception as e:
-            logging.error(f"Error reading config.json: {e}")
+            print(f"[Warning] Icon load failed: {e}")
 
-        ctk.set_appearance_mode(appearance)
-        ctk.set_default_color_theme(theme)
+        self.toast = ToastManager(self)
+        self.status_bar = ctk.CTkLabel(self, text="Ready", anchor="w")
+        self.sidebar = Sidebar(self, self.change_tab)
+        self.main_frame = ctk.CTkFrame(self, corner_radius=0)
 
-    def get_window_geometry(self):
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        width, height = 1280, 960
-        x = (screen_width - width) // 2
-        y = (screen_height - height) // 2
-        return f"{width}x{height}+{x}+{y}"
+        self.status_bar.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=4)
+        self.sidebar.grid(row=0, column=0, sticky="ns")
+        self.main_frame.grid(row=0, column=1, sticky="nsew")
 
-    def create_menu(self):
-        menu_bar = Menu(self)
-        file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label="Open Config", command=self.open_config)
-        file_menu.add_separator()
-        file_menu.add_command(label="Exit", command=self.quit)
-        menu_bar.add_cascade(label="File", menu=file_menu)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        help_menu = Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="About", command=self.show_about)
-        menu_bar.add_cascade(label="Help", menu=help_menu)
+        self.tabs = {
+            "AutoMode": AutoTab(self.main_frame, self.toast, self.set_status),
+            "Brute": BruteTab(self.main_frame, self.toast, self.set_status),
+            "Recon": ReconTab(self.main_frame, self.toast, self.set_status),
+            "Exploits": ExploitTab(self.main_frame, self.toast, self.set_status),
+            "Logs": LogsTab(self.main_frame, self.toast),
+            "Settings": SettingsTab(self.main_frame, self.toast),
+        }
+        self.active_tab_name = None
+        self.change_tab("AutoMode")
 
-        self.config(menu=menu_bar)
+        if self.load_config().get("stealth_mode"):
+            self.after(500, lambda: enable_stealth_mode(self.set_status, self.toast))
 
-    def open_config(self):
-        file_path = filedialog.askopenfilename(filetypes=[("JSON Files", "*.json")])
-        if file_path:
-            try:
-                with open(file_path, "r") as f:
-                    config = json.load(f)
-                    messagebox.showinfo("Config Loaded", "Configuration loaded successfully.")
-                    logging.info("Configuration loaded from: %s", file_path)
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to load configuration.\n{e}")
-                logging.error("Error loading config: %s", e)
+        self.bind("<Control-Shift-H>", self.hide_window)
+        self.bind("<Control-q>", lambda e: self.destroy())
+        self.bind("<Control-Tab>", lambda e: self.cycle_tabs())
 
-    def show_about(self):
-        messagebox.showinfo("About X-Vector Pro", "X-Vector Pro\nCybersecurity Toolkit\nVersion 1.0")
+    def load_config(self):
+        try:
+            with open("config.json", "r") as f:
+                return json.load(f)
+        except Exception:
+            return {}
 
-    def add_tabs(self):
-        ReconTab(self.tab_view.add("Recon"))
-        BruteTab(self.tab_view.add("Brute"))
-        ExploitsTab(self.tab_view.add("Exploits"))
-        ReportsTab(self.tab_view.add("Reports"))
-        IDSTab(self.tab_view.add("IDS"))
-        AutoModeTab(self.tab_view.add("Auto Mode"))
-        SettingsTab(self.tab_view.add("Settings"))
-        CVETab(self.tab_view.add("CVEs"))
-        load_logs_tab(self.tab_view.add("Logs"))
-                if callable(TabClass):  # Check if it's a loader function
-                    tab = self.tab_view.add(tab_name)
-                    TabClass(tab)  # Call the loader function
-                else:
-                    self.tabs[tab_name] = TabClass(self.tab_view.add(tab_name))
-                logging.info(f"Successfully added tab: {tab_name}")
-            except Exception as e:
-                logging.error(f"Error initializing tab '{tab_name}': {e}")
-                error_tab = self.tab_view.add(tab_name)
-                error_label = ctk.CTkLabel(error_tab, text=f"Error loading {tab_name} tab", text_color="red")
-                error_label.pack(pady=20)
+    def change_tab(self, tab_name):
+        if self.active_tab_name:
+            self.tabs[self.active_tab_name].grid_forget()
+
+        self.active_tab_name = tab_name
+        tab = self.tabs[tab_name]
+        tab.grid(row=0, column=0, sticky="nsew")
+        self.sidebar.highlight(tab_name)
+        self.set_status(f"{tab_name} tab loaded.")
+
+    def set_status(self, text):
+        self.status_bar.configure(text=text)
+        Thread(target=log_encrypted, args=(text,), daemon=True).start()
+
+    def hide_window(self, event=None):
+        self.withdraw()
+        self.toast.show("App hidden. Press Ctrl+Shift+H to restore.", "info")
+        self.bind("<Control-Shift-H>", self.restore_window)
+
+    def restore_window(self, event=None):
+        self.deiconify()
+        self.toast.show("App restored.", "success")
+        self.bind("<Control-Shift-H>", self.hide_window)
+
+    def cycle_tabs(self):
+        keys = list(self.tabs.keys())
+        current_idx = keys.index(self.active_tab_name)
+        next_idx = (current_idx + 1) % len(keys)
+        self.change_tab(keys[next_idx])
+
+
+class Sidebar(ctk.CTkFrame):
+    def __init__(self, parent, callback):
+        super().__init__(parent, width=180, corner_radius=0)
+        self.callback = callback
+        self.buttons = {}
+        self.icons = self.load_icons()
+
+        for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
+            btn = ctk.CTkButton(
+                self,
+                text=name,
+                image=self.icons.get(name),
+                anchor="w",
+                command=lambda n=name: callback(n)
+            )
+            btn.pack(fill="x", padx=10, pady=5)
+            self.buttons[name] = btn
+
+    def load_icons(self):
+        icon_dir = os.path.join("assets", "icons")
+        icons = {}
+        for name in ["AutoMode", "Brute", "Recon", "Exploits", "Logs", "Settings"]:
+            path = os.path.join(icon_dir, f"{name.lower()}.png")
+            if os.path.exists(path):
+                try:
+                    img = ctk.CTkImage(Image.open(path).resize((20, 20)))
+                    icons[name] = img
+                except Exception as e:
+                    print(f"[Warning] Failed to load icon for {name}: {e}")
+        return icons
+
+    def highlight(self, active_tab):
+        for name, btn in self.buttons.items():
+            if name == active_tab:
+                btn.configure(fg_color="#2E8B57")  # Active tab color (greenish)
+            else:
+                btn.configure(fg_color="transparent")
+
 
 if __name__ == "__main__":
-    app = XVectorGUI()
+    app = XVectorProGUI()
     app.mainloop()
