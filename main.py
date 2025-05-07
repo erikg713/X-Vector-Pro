@@ -3,7 +3,6 @@ import logging
 import os
 import json
 from tkinter import filedialog, messagebox, Menu
-
 from gui.tabs.recon_tab import ReconTab
 from gui.tabs.brute_tab import BruteTab
 from gui.tabs.exploit_tab import ExploitsTab
@@ -98,6 +97,17 @@ class XVectorGUI(ctk.CTk):
         SettingsTab(self.tab_view.add("Settings"))
         CVETab(self.tab_view.add("CVEs"))
         load_logs_tab(self.tab_view.add("Logs"))
+                if callable(TabClass):  # Check if it's a loader function
+                    tab = self.tab_view.add(tab_name)
+                    TabClass(tab)  # Call the loader function
+                else:
+                    self.tabs[tab_name] = TabClass(self.tab_view.add(tab_name))
+                logging.info(f"Successfully added tab: {tab_name}")
+            except Exception as e:
+                logging.error(f"Error initializing tab '{tab_name}': {e}")
+                error_tab = self.tab_view.add(tab_name)
+                error_label = ctk.CTkLabel(error_tab, text=f"Error loading {tab_name} tab", text_color="red")
+                error_label.pack(pady=20)
 
 if __name__ == "__main__":
     app = XVectorGUI()
