@@ -5,11 +5,11 @@ This module is responsible for managing and controlling core operations in the X
 It provides utility functions, task scheduling, and centralized access to package components.
 """
 
-# Import necessary components from the package
 from .controller_utils import ControllerUtils
 from .task_scheduler import TaskScheduler
 from .logging_manager import LoggingManager
 from .config_loader import ConfigLoader
+import os
 
 # Define the public API of the module
 __all__ = [
@@ -35,7 +35,7 @@ try:
     current_config = config_loader.load_config()
     # Merge default and loaded configurations
     current_config = {**DEFAULT_CONFIG, **current_config}
-except Exception as e:
+except (FileNotFoundError, json.JSONDecodeError) as e:
     logging_manager.log(f"Error loading configuration: {e}", level="ERROR")
     current_config = DEFAULT_CONFIG
 
