@@ -16,7 +16,10 @@ from gui.tabs.recon_tab import ReconTab
 from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
+from gui.dashboard import launch_gui
 
+if __name__ == "__main__":
+    launch_gui()
 
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
@@ -167,5 +170,4 @@ class Sidebar(ctk.CTkFrame):
 
 
 if __name__ == "__main__":
-    app = XVectorProGUI()
-    app.mainloop()
+    launch_gui()
