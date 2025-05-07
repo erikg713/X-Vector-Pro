@@ -1,4 +1,5 @@
 # gui/tabs/recon_tab.py
+import os
 import threading
 import customtkinter as ctk
 from core.recon.recon_engine import run_recon  # Your recon logic
