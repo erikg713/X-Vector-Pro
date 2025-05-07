@@ -6,6 +6,13 @@ from core.exploit_01 import run as run_exploit_01
 from core.report import generate_report
 from core.auto_mode.sequencer import run_sequence
 from core.auto_mode import run_sequence
+from core.brute import xmlrpc_brute
+from utils.logger import log
+
+def start_brute_force(url, username):
+    log("[*] Launching XML-RPC brute force...")
+    xmlrpc_brute(url, username)
+
 def run_automode_chain(target="127.0.0.1"):
     return run_sequence(target)
 def run_automode_chain(target="127.0.0.1"):
