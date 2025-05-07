@@ -1,3 +1,6 @@
+import os
+import customtkinter 
+import logging
 """
 This module initializes the `full_auto` functionality for the GUI tool.
 
