@@ -1,7 +1,7 @@
 import threading
 import uuid
 from typing import Dict, Optional
-
+import os
 class SessionManager:
     """
     Manages user sessions using a thread-safe approach.
