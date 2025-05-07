@@ -18,8 +18,6 @@ from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 from gui.dashboard import launch_gui
 
-if __name__ == "__main__":
-    launch_gui()
 
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
