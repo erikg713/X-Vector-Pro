@@ -166,8 +166,8 @@ class Sidebar(ctk.CTkFrame):
         for name, btn in self.buttons.items():
             btn.configure(fg_color="#2E8B57" if name == active_tab else "transparent")
 
-    def main():
-    print("X-Vector Pro Supreme - Cybersecurity Toolkit")
+def start_tool():
+    print("X-Vector Pro Supreme – Cybersecurity Toolkit")
 
     if __name__ == "__main__":
         main()
