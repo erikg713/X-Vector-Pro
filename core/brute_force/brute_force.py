@@ -5,6 +5,37 @@ import random
 from utils.wordlist_manager import wordlist_manager
 import os
 
+class BruteForceFrame(ctk.CTkFrame):
+    def __init__(self, parent, toast, set_status):
+        super().__init__(parent)
+        self.toast = toast
+        self.set_status = set_status
+
+        self.target_entry = ctk.CTkEntry(self, placeholder_text="Login URL")
+        self.username_entry = ctk.CTkEntry(self, placeholder_text="Username")
+        self.wordlist_entry = ctk.CTkEntry(self, placeholder_text="Wordlist Path")
+        self.output_box = ctk.CTkTextbox(self, height=200)
+
+        self.run_button = ctk.CTkButton(self, text="Run Brute Force", command=self.run_exploit)
+
+        self.target_entry.pack(padx=10, pady=5)
+        self.username_entry.pack(padx=10, pady=5)
+        self.wordlist_entry.pack(padx=10, pady=5)
+        self.run_button.pack(padx=10, pady=10)
+        self.output_box.pack(padx=10, pady=10, fill="both", expand=True)
+
+    def run_exploit(self):
+        target = self.target_entry.get()
+        user = self.username_entry.get()
+        wordlist = self.wordlist_entry.get()
+
+        self.set_status("Running brute force...")
+        self.output_box.insert("end", f"Target: {target}\nUsername: {user}\nStarting...\n")
+
+        # Import and run the script's core logic
+        from core.exploits.exploit_bruteforce import brute_force
+        brute_force(target, user, wordlist, delay=0.5, output_file=None)
+
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 HITS_FILE = os.path.join(BASE_DIR, "logs", "hits.txt")
 SESSION_FILE = os.path.join(BASE_DIR, "logs", "session.json")
