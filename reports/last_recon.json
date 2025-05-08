@@ -1,0 +1,6 @@
+{
+  "services": [
+    {"name": "Apache", "version": "2.4.49"},
+    {"name": "OpenSSH", "version": "7.2p2"}
+  ]
+}
