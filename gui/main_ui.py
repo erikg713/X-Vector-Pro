@@ -16,7 +16,10 @@ from gui.tabs.recon_tab import ReconTab
 from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
+from gui.training_tab import TrainingTab
 
+# Inside your tab setup function:
+self.tabview.add("Training Logs", TrainingTab(self.tabview))
 
 class XVectorProGUI(ctk.CTk):
     def __init__(self):
