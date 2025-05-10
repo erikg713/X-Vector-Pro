@@ -1,4 +1,3 @@
-import customtkinter from ctk.CTkLabel 
 from core.recon import passive_recon
 from core.scanner import run_port_scan
 from core.brute import brute_force_login, xmlrpc_brute
