@@ -1,5 +1,4 @@
 # gui/widgets/__init__.py
-
 from .stealth_button import StealthButton
 from .dark_mode_toggle import DarkModeToggle
 from .toast_notifier import ToastNotifier
