@@ -5,7 +5,13 @@ from core.exploits.exploit_01 import run as run_exploit_01
 from core.report import generate_report
 from utils.logger import log
 from utils import stealth
+from core import recon
 
+def run_full_auto(target):
+    print("[*] Starting Full Auto Recon...")
+    recon_report = recon.run_auto_recon(target)
+    print(recon_report)
+    # Next steps: scanner, brute, exploit, etc.
 # Enable stealth at startup
 stealth.enable_stealth()
 stealth.start_background_thread()
