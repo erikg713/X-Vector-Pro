@@ -1,10 +1,9 @@
 # core/recon.py
-import os
-import customtkinter 
-import json
+
 import socket
 import subprocess
 import platform
+import os
 from datetime import datetime
 
 try:
@@ -72,6 +71,14 @@ def perform_whois(target):
     except Exception as e:
         return f"[!] WHOIS Failed: {e}"
 
+def save_report(target, content):
+    timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+    filename = f"reports/recon-{target.replace('.', '_')}-{timestamp}.txt"
+    os.makedirs("reports", exist_ok=True)
+    with open(filename, "w") as f:
+        f.write(content)
+    return filename
+
 def run_auto_recon(target="127.0.0.1"):
     output = []
     output.append(f"--- Auto Recon Report ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')}) ---")
@@ -99,4 +106,8 @@ def run_auto_recon(target="127.0.0.1"):
     output.append(perform_whois(target))
 
     output.append("--- Recon Complete ---")
-    return "\n".join(output)
+
+    full_report = "\n".join(output)
+    report_file = save_report(target, full_report)
+    output.append(f"\n[*] Report saved to: {report_file}")
+    return full_report
