@@ -1,5 +1,3 @@
-# core/recon/recon_engine.py
-
 import socket
 import requests
 import subprocess
