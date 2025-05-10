@@ -91,3 +91,28 @@ class ReconTab(ctk.CTkFrame):
     def set_button_state(self, state: bool):
         self.run_button.configure(state="normal" if state else "disabled")
         self.subdomain_button.configure(state="normal" if state else "disabled")
+
+
+# gui/recon_tab.py
+import customtkinter as ctk
+import threading
+from core.recon.recon_engine import run_recon_logic
+
+def load_recon_tab(parent, app):
+    ctk.CTkLabel(parent, text="Target URL (https://example.com)").pack(pady=5)
+    url_entry = ctk.CTkEntry(parent, width=700)
+    url_entry.pack()
+
+    output_box = ctk.CTkTextbox(parent, height=400, width=800)
+    output_box.pack(pady=10)
+
+    def run_recon():
+        target = url_entry.get().strip()
+        output_box.delete("0.0", "end")
+        if not target:
+            output_box.insert("end", "[!] Enter a valid target URL.\n")
+            return
+        output_box.insert("end", f"[*] Starting recon on {target}...\n")
+        threading.Thread(target=run_recon_logic, args=(target, output_box)).start()
+
+    ctk.CTkButton(parent, text="Run Recon", command=run_recon).pack(pady=10)
