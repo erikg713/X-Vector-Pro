@@ -1,41 +1,41 @@
-# gui/brute_tab.py
 import customtkinter as ctk
-from tkinter import filedialog
 import threading
-from core.brute.brute_engine import run_brute_force
+from core.controller import start_brute_force
 
-def load_brute_tab(parent, app):
-    ctk.CTkLabel(parent, text="Target XML-RPC URL (https://example.com/xmlrpc.php)").pack(pady=5)
-    target_entry = ctk.CTkEntry(parent, width=700)
-    target_entry.pack()
+class BruteTab(ctk.CTkFrame):
+    def __init__(self, master):
+        super().__init__(master)
+        self.build_ui()
 
-    ctk.CTkLabel(parent, text="Usernames (one per line)").pack(pady=5)
-    usernames_box = ctk.CTkTextbox(parent, height=100, width=700)
-    usernames_box.pack()
+    def build_ui(self):
+        ctk.CTkLabel(self, text="Brute Force", font=("Segoe UI", 18, "bold")).pack(pady=10)
 
-    ctk.CTkLabel(parent, text="Password Wordlist").pack(pady=5)
-    wordlist_frame = ctk.CTkFrame(parent)
-    wordlist_frame.pack()
-    wordlist_entry = ctk.CTkEntry(wordlist_frame, width=500)
-    wordlist_entry.pack(side="left", padx=5)
-    browse_btn = ctk.CTkButton(wordlist_frame, text="Browse", command=lambda: browse_file(wordlist_entry))
-    browse_btn.pack(side="left")
+        self.url_entry = ctk.CTkEntry(self, placeholder_text="Target XML-RPC URL")
+        self.url_entry.pack(pady=10, padx=20, fill="x")
 
-    output_box = ctk.CTkTextbox(parent, height=200, width=700)
-    output_box.pack(pady=10)
+        self.user_entry = ctk.CTkEntry(self, placeholder_text="Username")
+        self.user_entry.pack(pady=10, padx=20, fill="x")
 
-    def start_brute():
-        threading.Thread(target=run_brute_force, args=(
-            target_entry.get().strip(),
-            usernames_box.get("1.0", "end").strip().splitlines(),
-            wordlist_entry.get().strip(),
-            output_box
-        )).start()
+        self.status_var = ctk.StringVar(value="Idle")
+        ctk.CTkLabel(self, textvariable=self.status_var, text_color="gray").pack(pady=5)
 
-    ctk.CTkButton(parent, text="Start Brute Force", fg_color="green", command=start_brute).pack(pady=10)
+        self.start_button = ctk.CTkButton(self, text="Start Brute Force", command=self.run_brute_threaded)
+        self.start_button.pack(pady=10)
 
-def browse_file(entry):
-    path = filedialog.askopenfilename()
-    if path:
-        entry.delete(0, "end")
-        entry.insert(0, path)
+    def run_brute_threaded(self):
+        url = self.url_entry.get()
+        user = self.user_entry.get()
+
+        if not url or not user:
+            self.status_var.set("Please enter both URL and username.")
+            return
+
+        self.status_var.set("Running brute force...")
+        threading.Thread(target=self.run_brute_force, args=(url, user), daemon=True).start()
+
+    def run_brute_force(self, url, user):
+        try:
+            start_brute_force(url, user)
+            self.status_var.set("Brute force completed.")
+        except Exception as e:
+            self.status_var.set(f"Error: {str(e)}")
