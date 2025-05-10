@@ -1,11 +1,20 @@
 # core/recon.py
-
+import customtkinter from CTK
 import socket
 import subprocess
 import platform
 import os
 from datetime import datetime
 
+def run_auto_recon(target):
+    return f"""[Recon Module]
+Target: {target}
+- DNS Records: Found A, AAAA, and MX entries
+- WHOIS: Registered to Example Corp.
+- Subdomains: api.{target}, mail.{target}, dev.{target}
+- Tech Stack: Nginx, React, Express.js
+"""
+    
 try:
     import whois
 except ImportError:
