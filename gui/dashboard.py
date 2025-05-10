@@ -1,5 +1,9 @@
-# gui/dashboard.py
+from core import recon
 
+def on_run_recon_clicked():
+    target = target_entry.get()
+    report = recon.run_auto_recon(target)
+    output_textbox.insert("end", report)
 import customtkinter as ctk
 from gui.widgets import (
     StealthButton,
