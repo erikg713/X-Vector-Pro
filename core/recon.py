@@ -1,5 +1,7 @@
 # core/recon.py
-
+import os
+import customtkinter 
+import json
 import socket
 import subprocess
 import platform
