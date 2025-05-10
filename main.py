@@ -17,20 +17,24 @@ class XVectorGUI(ctk.CTk):
         show_splash_screen()
 
         # Create Sidebar
-        self.sidebar = ctk.CTkFrame(self, width=200, height=700, corner_radius=0)
+        self.sidebar = ctk.CTkFrame(self, width=200, height=700, corner_radius=0, fg_color="#1C1C1C")
         self.sidebar.pack(side="left", fill="y")
 
-        # Add buttons to Sidebar
-        self.recon_button = ctk.CTkButton(self.sidebar, text="Recon", command=self.switch_to_recon)
+        # Add buttons to Sidebar with blue and orange colors
+        self.recon_button = ctk.CTkButton(self.sidebar, text="Recon", command=self.switch_to_recon, 
+                                          fg_color="#007bff", hover_color="#0056b3", width=200)
         self.recon_button.pack(pady=10, padx=10, fill="x")
 
-        self.brute_button = ctk.CTkButton(self.sidebar, text="Brute Force", command=self.switch_to_brute)
+        self.brute_button = ctk.CTkButton(self.sidebar, text="Brute Force", command=self.switch_to_brute, 
+                                          fg_color="#FF4500", hover_color="#FF6347", width=200)
         self.brute_button.pack(pady=10, padx=10, fill="x")
 
-        self.exploit_button = ctk.CTkButton(self.sidebar, text="Exploit", command=self.switch_to_exploit)
+        self.exploit_button = ctk.CTkButton(self.sidebar, text="Exploit", command=self.switch_to_exploit, 
+                                            fg_color="#007bff", hover_color="#0056b3", width=200)
         self.exploit_button.pack(pady=10, padx=10, fill="x")
 
-        self.report_button = ctk.CTkButton(self.sidebar, text="Reports", command=self.switch_to_reports)
+        self.report_button = ctk.CTkButton(self.sidebar, text="Reports", command=self.switch_to_reports, 
+                                           fg_color="#FF4500", hover_color="#FF6347", width=200)
         self.report_button.pack(pady=10, padx=10, fill="x")
 
         # Create the main content area for tabs
