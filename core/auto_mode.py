@@ -1,89 +1,54 @@
-"""
-Core package for X-Vector Pro modules.
+import customtkinter as ctk
+from core import recon
+from core.recon import passive_recon, perform_recon
+from core.scanner import run_port_scan
+from core.brute import brute_force_login, xmlrpc_brute
+from core.exploits.exploit_01 import run as run_exploit_01
+from core.report import generate_report
+from utils.logger import log
+from utils import stealth
 
-Module Metadata:
-    Author  : Erik G.
-    Version : 1.0.1
-    Description: This package contains the central modules for the X-Vector Pro Supreme cybersecurity toolkit.
-"""
+# Enable stealth at startup
+stealth.enable_stealth()
+stealth.start_background_thread()
 
-import logging
-import os
-import json
+def run_full_auto(target):
+    log("[*] Starting Full Auto Recon...")
+    recon_report = recon.run_auto_recon(target)
+    print(recon_report)
+    return recon_report
 
-# Configure logging for the package with a standardized format
-logging.basicConfig(
-    level=logging.INFO,
-    format="[%(asctime)s] %(levelname)s:%(name)s - %(message)s"
-)
+def auto_chain_execution(target):
+    log("[*] Starting Automated Chain Execution...")
+    stealth.apply_stealth_behavior()
 
-logger = logging.getLogger("xvector.core")
-logger.info("X-Vector Pro core package initialized.")
+    # Queue tasks sequentially (can be adapted for threading)
+    stealth.queue_task(lambda: perform_recon(target))
+    stealth.queue_task(lambda: run_port_scan(target))
+    stealth.queue_task(lambda: brute_force_login(target))
+    stealth.queue_task(lambda: run_exploit_01(target))
+    stealth.queue_task(generate_report)
 
-# Package version definition
-__version__ = "1.0.1"
+def start_brute_force(url, username):
+    log("[*] Launching XML-RPC brute force...")
+    return xmlrpc_brute(url, username)
 
-def load_configuration(config_file=None):
-    """
-    Load application configuration from an external JSON file or use default settings.
+def run_automode_chain(target="127.0.0.1"):
+    output = []
 
-    Args:
-        config_file (str, optional): Path to a JSON configuration file.
+    log("[*] Starting passive recon...")
+    output.append(passive_recon(target))
 
-    Returns:
-        dict: A dictionary containing configuration settings.
-    """
-    # Default configuration values
-    default_config = {
-        "setting_a": True,
-        "setting_b": 10,
-        "setting_c": "default",
-        "logging_level": "INFO",
-        "stealth_mode": False
-    }
+    log("[*] Running port scan...")
+    output.append(run_port_scan(target))
 
-    # Try to load configuration from a file if provided
-    if config_file and os.path.isfile(config_file):
-        try:
-            with open(config_file, "r", encoding="utf-8") as f:
-                file_config = json.load(f)
-            default_config.update(file_config)
-            logger.info(f"Configuration loaded from {config_file}")
-        except json.JSONDecodeError as e:
-            logger.error(f"Error decoding JSON from {config_file}: {e}")
-        except Exception as e:
-            logger.warning(f"Failed to load config from {config_file}: {e}")
-            logger.info("Reverting to default configuration.")
-    else:
-        logger.info("No config file provided or file not found, using default configuration.")
+    log("[*] Starting brute force...")
+    output.append(brute_force_login(target))
 
-    # Adjust the logging level based on configuration setting
-    try:
-        logging_level = default_config.get("logging_level", "INFO").upper()
-        logging.basicConfig(level=logging_level)
-        logger.setLevel(logging_level)
-        logger.info(f"Logging level set to {logging_level}")
-    except ValueError:
-        logger.warning(f"Invalid logging level in config, defaulting to INFO.")
-        logging.basicConfig(level=logging.INFO)
-        logger.setLevel(logging.INFO)
+    log("[*] Running default exploit (Exploit 01)...")
+    output.append(run_exploit_01(target))
 
-    return default_config
+    log("[*] Generating report...")
+    output.append(generate_report())
 
-def update_configuration(new_config):
-    """
-    Update the global configuration with new settings.
-
-    Args:
-        new_config (dict): New configuration values to apply.
-
-    Returns:
-        dict: Updated configuration dictionary.
-    """
-    global configuration
-    configuration.update(new_config)
-    logger.info("Configuration updated.")
-    return configuration
-
-# Initialize and expose the package configuration globally
-configuration = load_configuration()
+    return "\n\n".join(output)
