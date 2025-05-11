@@ -1,5 +1,7 @@
 import logging
+from core.logger import log_event
 
+log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
 # Configure the logger for the 'X_Vector_Pro.logs.alerts' namespace
 logger = logging.getLogger(__name__)
 
