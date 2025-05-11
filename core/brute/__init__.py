@@ -1,9 +1,10 @@
-# X_Vector_Pro/core/brute_force/__init__.py
-
 import socket
-from .ftp_brute import ftp_brute_force
-from .http_login_brute import http_login_brute_force
+from core.logger import log_event
 
+log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
+from .ftp_brute import ftp_brute_force
+from .http_login_brute import http_login_brute
+from utils.logger import save_hit, log_event
 available_modules = {
     "FTP": {
         "func": ftp_brute_force,
