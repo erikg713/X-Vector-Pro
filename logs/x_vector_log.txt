@@ -1,3 +1,8 @@
+import os
+from core.logger import log_event
+
+log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
+
 log_contents = """Training X-Vector Model
 ----------------------------------------
 Epoch 1/30
