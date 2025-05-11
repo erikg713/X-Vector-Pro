@@ -7,7 +7,9 @@ from core.exploits.exploit_01 import run as run_exploit_01
 from core.report import generate_report
 from utils.logger import log
 from utils import stealth
+from core.logger import log_event
 
+log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
 # Enable stealth at startup
 stealth.enable_stealth()
 stealth.start_background_thread()
