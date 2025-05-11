@@ -1,40 +1,44 @@
 import os
 import json
-from datetime import datetime
-import json
 import time
-from config import LOG_FILE
+from datetime import datetime
 
-def log_event(event_type, data):
-    log_entry = {
-        "timestamp": time.time(),
-        "event": event_type,
-        "data": data
-    }
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(log_entry) + "\n")
 LOG_DIR = "logs"
+LOG_FILE = os.path.join(LOG_DIR, "xvector_log.txt")
+
 os.makedirs(LOG_DIR, exist_ok=True)
 
-def log_event(category, data):
+def log_event(category, data, write_structured_file=False):
     """
-    Log a structured event to a JSON log file.
+    Log an event to both a rolling log file and optionally a timestamped structured JSON file.
 
     Args:
         category (str): e.g. "scan", "recon", "brute", "exploit"
-        data (dict): Your scan result, brute result, etc.
+        data (dict): Result or event data
+        write_structured_file (bool): Whether to create a separate timestamped JSON file
     """
-    # Replace ":" with "-" in the timestamp to make it filename-safe
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    log_file = os.path.join(LOG_DIR, f"{category}_{timestamp}.json")
 
-    log_data = {
-        "timestamp": timestamp,
+    # Rolling append-only log file
+    rolling_log = {
+        "timestamp": time.time(),
         "category": category,
         "data": data
     }
 
-    with open(log_file, "w") as f:
-        json.dump(log_data, f, indent=4)
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(rolling_log) + "\n")
 
-    return log_file
+    # Optional timestamped structured JSON file
+    if write_structured_file:
+        event_file = os.path.join(LOG_DIR, f"{category}_{timestamp}.json")
+        structured_log = {
+            "timestamp": timestamp,
+            "category": category,
+            "data": data
+        }
+        with open(event_file, "w") as f:
+            json.dump(structured_log, f, indent=4)
+        return event_file
+
+    return LOG_FILE
