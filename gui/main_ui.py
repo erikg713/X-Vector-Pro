@@ -17,7 +17,17 @@ from gui.tabs.exploit_tab import ExploitTab
 from gui.tabs.logs_tab import LogsTab
 from gui.tabs.settings_tab import SettingsTab
 from gui.training_tab import TrainingTab
+# main.py
 
+from core import logger, configuration
+from core.recon import passive_recon
+
+if __name__ == "__main__":
+    target = "192.168.1.1"
+    logger.info(f"Launching X-Vector Pro full auto on {target}")
+
+    result = passive_recon(target)
+    print(result)
 # Inside your tab setup function:
 self.tabview.add("Training Logs", TrainingTab(self.tabview))
 
