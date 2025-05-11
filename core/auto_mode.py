@@ -1,3 +1,4 @@
+import os
 import customtkinter as ctk
 from core import recon
 from core.recon import passive_recon, perform_recon
