@@ -44,6 +44,48 @@ class XVectorGUI(ctk.CTk):
         # Main tab view
         self.tabs = ctk.CTkTabview(self.content_frame, width=980, height=640)
         self.tabs.pack(padx=10, pady=10)
+import customtkinter as ctk from gui.brute_tab import BruteTab from gui.auto_tab import AutoModeTab from gui.exploit_tab import ExploitsTab from gui.reports_tab import ReportsTab from gui.logs_tab import LogsTab
+
+class DashboardFrame(ctk.CTkFrame): def init(self, parent): super().init(parent) self.pack(fill="both", expand=True)
+
+# Tab View
+    self.tab_view = ctk.CTkTabview(self)
+    self.tab_view.pack(fill="both", expand=True, padx=20, pady=20)
+
+    # Brute Force Tab
+    self.brute_tab = BruteTab(self.tab_view)
+    self.tab_view.add("Brute Force")
+    self.brute_tab.pack(fill="both", expand=True)
+    self.tab_view.tab("Brute Force").configure(content=self.brute_tab)
+
+    # Auto Mode Tab
+    self.auto_tab = AutoModeTab(self.tab_view)
+    self.tab_view.add("Auto Mode")
+    self.auto_tab.pack(fill="both", expand=True)
+    self.tab_view.tab("Auto Mode").configure(content=self.auto_tab)
+
+    # Exploits Tab
+    self.exploits_tab = ExploitsTab(self.tab_view)
+    self.tab_view.add("Exploits")
+    self.exploits_tab.pack(fill="both", expand=True)
+    self.tab_view.tab("Exploits").configure(content=self.exploits_tab)
+
+    # Reports Tab
+    self.reports_tab = ReportsTab(self.tab_view)
+    self.tab_view.add("Reports")
+    self.reports_tab.pack(fill="both", expand=True)
+    self.tab_view.tab("Reports").configure(content=self.reports_tab)
+
+    # Logs Tab
+    self.logs_tab = LogsTab(self.tab_view)
+    self.tab_view.add("Logs")
+    self.logs_tab.pack(fill="both", expand=True)
+    self.tab_view.tab("Logs").configure(content=self.logs_tab)
+
+class MainApp(ctk.CTk): def init(self): super().init() self.title("X-Vector Pro") self.geometry("1200x800") DashboardFrame(self)
+
+if name == "main": ctk.set_appearance_mode("dark") ctk.set_default_color_theme("blue") MainApp().mainloop()
+
 
         # Load settings and init tabs
         settings = load_settings()
