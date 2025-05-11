@@ -1,6 +1,8 @@
 import socket
 import requests
+from core.logger import log_event
 
+log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
 def get_local_ip():
     """Get the local machine's IP address."""
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
