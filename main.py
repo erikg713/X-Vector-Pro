@@ -4,6 +4,15 @@ import xmlrpc.client
 import customtkinter as ctk
 from tkinter import messagebox
 from datetime import datetime
+from utils import logger
+
+def gui_log_handler(entry, level="info"):
+    tag = level
+    log_textbox.insert("end", entry + "\n")
+    log_textbox.tag_add(tag, f"end-{len(entry)+1}c", "end")
+    log_textbox.see("end")
+
+logger.central_log_hook = gui_log_handler
 
 # === SPLASH SCREEN ===
 def show_splash_screen():
