@@ -10,6 +10,8 @@ from utils.logger import log
 from utils import stealth
 from core.logger import log_event
 
+log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
+
 log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
 # Enable stealth at startup
 stealth.enable_stealth()
