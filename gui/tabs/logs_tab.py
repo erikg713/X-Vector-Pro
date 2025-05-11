@@ -2,6 +2,9 @@ import os
 import customtkinter as ctk
 from tkinter import messagebox
 from utils.logger import log_to_central
+from core.logger import log_event
+
+log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
 
 def logs_tab_widgets(tab):
     log_box = ctk.CTkTextbox(tab, height=20, width=80)
