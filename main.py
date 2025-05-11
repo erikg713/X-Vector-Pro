@@ -6,13 +6,6 @@ from tkinter import messagebox
 from datetime import datetime
 from utils import logger
 
-def gui_log_handler(entry, level="info"):
-    tag = level
-    log_textbox.insert("end", entry + "\n")
-    log_textbox.tag_add(tag, f"end-{len(entry)+1}c", "end")
-    log_textbox.see("end")
-
-logger.central_log_hook = gui_log_handler
 
 # === SPLASH SCREEN ===
 def show_splash_screen():
@@ -53,6 +46,13 @@ def log_to_central(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
     logs_output.insert("end", f"[{timestamp}] {msg}\n")
     logs_output.see("end")
+def gui_log_handler(entry, level="info"):
+    tag = level
+    log_textbox.insert("end", entry + "\n")
+    log_textbox.tag_add(tag, f"end-{len(entry)+1}c", "end")
+    log_textbox.see("end")
+
+logger.central_log_hook = gui_log_handler
 
 # === BRUTE FORCE FUNCTION ===
 def run_brute_force():
