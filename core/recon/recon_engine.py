@@ -2,7 +2,9 @@ import socket
 import requests
 import subprocess
 from datetime import datetime
+from core.logger import log_event
 
+log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
 class ReconEngine:
     def __init__(self, target):
         self.target = target
