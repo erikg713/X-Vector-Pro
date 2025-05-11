@@ -1,7 +1,12 @@
+import os
 import threading
 import uuid
 from typing import Dict, Optional
-import os
+from core.logger import log_event
+
+log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
+
+
 class SessionManager:
     """
     Manages user sessions using a thread-safe approach.
