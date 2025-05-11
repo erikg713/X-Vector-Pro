@@ -23,6 +23,7 @@ def save_settings(use_proxy_toggle, delay_slider, ua_toggle, wordlist_path_entry
     with open("config.json", "w") as f:
         json.dump(config, f, indent=2)
     print("[+] Settings saved to config.json")  # You can replace this with your custom logging
+
 # General settings
 PROJECT_NAME = "X-Vector Pro"
 VERSION = "1.0.0"
