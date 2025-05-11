@@ -1,7 +1,18 @@
 import os
 import json
 from datetime import datetime
+import json
+import time
+from config import LOG_FILE
 
+def log_event(event_type, data):
+    log_entry = {
+        "timestamp": time.time(),
+        "event": event_type,
+        "data": data
+    }
+    with open(LOG_FILE, "a") as f:
+        f.write(json.dumps(log_entry) + "\n")
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 
