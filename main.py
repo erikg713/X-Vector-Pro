@@ -64,10 +64,14 @@ class XVectorGUI(ctk.CTk):
     def switch_to_reports(self):
         # Logic for switching to the "Reports" tab
         self.tabs.set("Reports")
-
-def launch_gui():
-    app = XVectorGUI()
-    app.mainloop()
+class MainApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("X-Vector Pro")
+        self.geometry("1000x700")
+        DashboardFrame(self)
 
 if __name__ == "__main__":
-    launch_gui()
+    ctk.set_appearance_mode("dark")
+    ctk.set_default_color_theme("blue")
+    MainApp().mainloop()
