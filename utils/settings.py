@@ -1,6 +1,29 @@
 import os
 import json
+import json
+import os
 
+DEFAULT_SETTINGS = {
+    "use_proxy": False,
+    "delay_seconds": 0.5,
+    "random_user_agent": True,
+    "default_wordlist": ""
+}
+
+CONFIG_PATH = "config.json"
+
+def load_settings():
+    if not os.path.exists(CONFIG_PATH):
+        return DEFAULT_SETTINGS
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            return json.load(f)
+    except:
+        return DEFAULT_SETTINGS
+
+def save_settings(data):
+    with open(CONFIG_PATH, "w") as f:
+        json.dump(data, f, indent=2)
 def load_settings():
     try:
         with open("config.json", "r") as f:
