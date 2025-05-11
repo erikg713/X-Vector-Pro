@@ -6,7 +6,6 @@ from tkinter import messagebox
 from datetime import datetime
 from utils import logger
 
-
 # === SPLASH SCREEN ===
 def show_splash_screen():
     splash = ctk.CTk()
