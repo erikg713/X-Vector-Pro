@@ -40,6 +40,43 @@ def save_settings():
         json.dump(config, f, indent=2)
     log_to_central("[+] Settings saved to config.json")
 
+from utils.settings import load_settings, save_settings
+
+settings_data = load_settings()
+
+# === UI Elements ===
+proxy_toggle = ctk.CTkSwitch(settings_tab, text="Use Proxy")
+proxy_toggle.pack(pady=5)
+proxy_toggle.select() if settings_data["use_proxy"] else proxy_toggle.deselect()
+
+ua_toggle = ctk.CTkSwitch(settings_tab, text="Random User-Agent")
+ua_toggle.pack(pady=5)
+ua_toggle.select() if settings_data["random_user_agent"] else ua_toggle.deselect()
+
+delay_slider = ctk.CTkSlider(settings_tab, from_=0.0, to=5.0, number_of_steps=50)
+delay_slider.set(settings_data["delay_seconds"])
+delay_label = ctk.CTkLabel(settings_tab, text=f"Delay: {settings_data['delay_seconds']}s")
+delay_label.pack(pady=(10, 0))
+delay_slider.pack()
+delay_slider.configure(command=lambda val: delay_label.configure(text=f"Delay: {float(val):.2f}s"))
+
+wordlist_path_entry = ctk.CTkEntry(settings_tab, width=400, placeholder_text="Path to default wordlist")
+wordlist_path_entry.insert(0, settings_data["default_wordlist"])
+wordlist_path_entry.pack(pady=10)
+
+def save_gui_settings():
+    config = {
+        "use_proxy": proxy_toggle.get(),
+        "delay_seconds": float(delay_slider.get()),
+        "random_user_agent": ua_toggle.get(),
+        "default_wordlist": wordlist_path_entry.get().strip()
+    }
+    save_settings(config)
+    logger.log("[+] Settings saved to config.json")
+
+save_btn = ctk.CTkButton(settings_tab, text="Save Settings", command=save_gui_settings)
+save_btn.pack(pady=10)
+
 # === LOGGER ===
 def log_to_central(msg):
     timestamp = datetime.now().strftime("%H:%M:%S")
