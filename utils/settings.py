@@ -1,5 +1,28 @@
 import os
+import json
 
+def load_settings():
+    try:
+        with open("config.json", "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {
+            "use_proxy": False,
+            "delay_seconds": 0.5,
+            "random_user_agent": True,
+            "default_wordlist": ""
+        }
+
+def save_settings(use_proxy_toggle, delay_slider, ua_toggle, wordlist_path_entry):
+    config = {
+        "use_proxy": use_proxy_toggle.get(),
+        "delay_seconds": delay_slider.get(),
+        "random_user_agent": ua_toggle.get(),
+        "default_wordlist": wordlist_path_entry.get().strip()
+    }
+    with open("config.json", "w") as f:
+        json.dump(config, f, indent=2)
+    print("[+] Settings saved to config.json")  # You can replace this with your custom logging
 # General settings
 PROJECT_NAME = "X-Vector Pro"
 VERSION = "1.0.0"
