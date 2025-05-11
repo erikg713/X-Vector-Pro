@@ -3,6 +3,14 @@ import customtkinter as ctk
 from tkinter import messagebox
 from utils.logger import log_to_central
 
+def logs_tab_widgets(tab):
+    log_box = ctk.CTkTextbox(tab, height=20, width=80)
+    log_box.pack(pady=10, padx=10)
+
+    clear_logs_button = ctk.CTkButton(tab, text="Clear Logs", command=lambda: log_box.delete(1.0, "end"))
+    clear_logs_button.pack(pady=10, padx=10)
+
+    # You can add more log-specific functionalities here
 def load_logs_tab(tab):
     global logs_output
     logs_output = ctk.CTkTextbox(tab, height=450, width=800)
