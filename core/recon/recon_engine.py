@@ -5,6 +5,7 @@ from datetime import datetime
 from core.logger import log_event
 
 log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
+
 class ReconEngine:
     def __init__(self, target):
         self.target = target
@@ -44,3 +45,6 @@ class ReconEngine:
         self.whois_lookup()
         print("[+] Recon complete.")
         return self.results
+from core.logger import log_event
+
+log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
