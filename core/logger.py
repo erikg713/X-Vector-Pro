@@ -9,17 +9,8 @@ LOG_FILE = os.path.join(LOG_DIR, "xvector_log.txt")
 os.makedirs(LOG_DIR, exist_ok=True)
 
 def log_event(category, data, write_structured_file=False):
-    """
-    Log an event to both a rolling log file and optionally a timestamped structured JSON file.
-
-    Args:
-        category (str): e.g. "scan", "recon", "brute", "exploit"
-        data (dict): Result or event data
-        write_structured_file (bool): Whether to create a separate timestamped JSON file
-    """
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    # Rolling append-only log file
     rolling_log = {
         "timestamp": time.time(),
         "category": category,
@@ -29,7 +20,6 @@ def log_event(category, data, write_structured_file=False):
     with open(LOG_FILE, "a") as f:
         f.write(json.dumps(rolling_log) + "\n")
 
-    # Optional timestamped structured JSON file
     if write_structured_file:
         event_file = os.path.join(LOG_DIR, f"{category}_{timestamp}.json")
         structured_log = {
