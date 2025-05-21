@@ -9,7 +9,41 @@ from core.report import generate_report
 from utils.logger import log
 from utils import stealth
 from core.logger import log_event
+from core.recon import passive_recon, perform_recon
+from core.scanner import run_port_scan
+from core.brute import brute_force_login, xmlrpc_brute
+from core.exploits.exploit_01 import run as run_exploit_01
+from core.report import generate_report
+from utils.logger import log
+from utils import stealth
+from core.logger import log_event
 
+def run_automated_chain(target: str = "127.0.0.1") -> str:
+    """
+    Runs the full automated chain: passive recon, port scan, brute force, exploit, and reporting.
+    Returns a formatted multiline string with all results.
+    """
+    results = []
+    tasks = [
+        ("Passive Recon", passive_recon, (target,)),
+        ("Port Scan", run_port_scan, (target,)),
+        ("Brute Force Login", brute_force_login, (target,)),
+        ("Exploit 01", run_exploit_01, (target,)),
+        ("Generate Report", generate_report, ()),
+    ]
+
+    for task_name, func, args in tasks:
+        log(f"[*] {task_name} started for target: {target}")
+        try:
+            result = func(*args)
+            results.append(f"{task_name} Result:\n{result}")
+            log(f"[+] {task_name} completed successfully", level="info")
+        except Exception as exc:
+            error_msg = f"[-] {task_name} failed: {exc}"
+            results.append(error_msg)
+            log(error_msg, level="error")
+
+    return "\n\n".join(results)
 log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
 
 log_event("scan", {"target": "example.com", "status": "open ports found"}, level="info", write_structured_file=True)
