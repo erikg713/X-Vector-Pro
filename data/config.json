@@ -1,55 +1,100 @@
 import json
 import os
+import logging
+from typing import Any, Dict, Optional
 
-# Load config.json
-DATA_DIR = os.path.dirname(__file__)
-CONFIG_PATH = os.path.join(DATA_DIR, 'config.json')
+try:
+    from jsonschema import validate, ValidationError
+except ImportError:
+    validate = None  # Fallback if jsonschema is not installed
 
-# Function to safely load the configuration
-def load_config(config_path):
-    if not os.path.exists(config_path):
-        print(f"[-] Error: Config file '{config_path}' not found.")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] %(levelname)s: %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Expected config schema (optional, requires jsonschema)
+CONFIG_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "stealth_mode": {"type": "boolean"},
+        "smtp_server": {"type": "string"},
+        "smtp_port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "smtp_user": {"type": "string"},
+        "smtp_pass": {"type": "string"},
+        "proxy_list": {"type": "array", "items": {"type": "string"}},
+        "use_tor": {"type": "boolean"},
+        "random_delay_min": {"type": "number", "minimum": 0},
+        "random_delay_max": {"type": "number", "minimum": 0},
+        "use_proxy": {"type": "boolean"},
+        "concurrency": {"type": "integer", "minimum": 1},
+        "retry_delay": {"type": "number", "minimum": 0}
+    },
+    "required": [
+        "smtp_server", "smtp_port", "smtp_user", "smtp_pass"
+    ]
+}
+
+def load_config(path: str) -> Optional[Dict[str, Any]]:
+    """Safely load and validate a JSON config file."""
+    if not os.path.isfile(path):
+        logger.error(f"Config file not found: {path}")
         return None
-
     try:
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        print(f"[-] Error: Failed to decode JSON from the config file.")
-        return None
+        with open(path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        if validate:
+            try:
+                validate(instance=config, schema=CONFIG_SCHEMA)
+                logger.info("Configuration validated successfully.")
+            except ValidationError as e:
+                logger.error(f"Config validation error: {e.message}")
+                return None
+        else:
+            logger.warning("jsonschema not installed; skipping config validation.")
+        return config
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse config JSON: {e}")
     except Exception as e:
-        print(f"[-] Error: {e}")
-        return None
+        logger.error(f"Error loading config: {e}")
+    return None
 
-# Load the config
-config = load_config(CONFIG_PATH)
+def main():
+    # Determine config path
+    data_dir = os.path.dirname(os.path.abspath(__file__))
+    config_path = os.path.join(data_dir, 'config.json')
 
-if config:
-    # Example usage:
-    if config.get("stealth_mode"):
-        print("Stealth mode is ON!")
-    
-    # Accessing other config values
-    smtp_server = config.get("smtp_server")
-    smtp_port = config.get("smtp_port")
-    smtp_user = config.get("smtp_user")
-    smtp_pass = config.get("smtp_pass")
-    proxy_list = config.get("proxy_list", [])
-    use_tor = config.get("use_tor", False)
-    random_delay_min = config.get("random_delay_min", 0.5)
-    random_delay_max = config.get("random_delay_max", 3.0)
-    
-    # Logging or utilizing these values as needed
-    print(f"SMTP Server: {smtp_server}")
-    print(f"Use Tor: {use_tor}")
-    
-    # Example of how you might use proxy settings
-    if config.get("use_proxy"):
-        print(f"Using proxies: {proxy_list}")
-    
-    # Example of concurrency and retry settings
-    concurrency = config.get("concurrency", 10)
-    retry_delay = config.get("retry_delay", 1.5)
-    print(f"Concurrency: {concurrency}, Retry Delay: {retry_delay}")
-else:
-    print("[-] Configuration failed to load.")
+    config = load_config(config_path)
+    if not config:
+        logger.critical("Configuration failed to load. Exiting.")
+        return
+
+    # Example usages (do not log secrets!)
+    if config.get('stealth_mode'):
+        logger.info("Stealth mode is enabled.")
+
+    smtp_server = config.get('smtp_server')
+    smtp_port = config.get('smtp_port')
+    smtp_user = config.get('smtp_user')
+    # Never log passwords!
+    smtp_pass = os.environ.get('SMTP_PASS') or config.get('smtp_pass')
+    if not smtp_pass:
+        logger.critical("SMTP password missing. Set via environment variable SMTP_PASS or in config.")
+        return
+
+    logger.info(f"SMTP Server: {smtp_server}:{smtp_port} as {smtp_user}")
+
+    if config.get('use_proxy'):
+        proxies = config.get('proxy_list', [])
+        logger.info(f"Using proxies: {proxies}")
+
+    concurrency = config.get('concurrency', 10)
+    retry_delay = config.get('retry_delay', 1.5)
+    logger.info(f"Concurrency: {concurrency}, Retry Delay: {retry_delay}s")
+
+    # ...rest of your application logic...
+
+if __name__ == "__main__":
+    main()
