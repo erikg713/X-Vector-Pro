@@ -1,5 +1,3 @@
-# core/neural_engine/deep_plugin.py
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
