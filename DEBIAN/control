@@ -1,7 +1,39 @@
-Package: xvectorpro
-Version: 1.0
-Section: base
+# X-Vector Pro - Security tool package 
+# Maintainer: Erik G <erik@x-vector-security.io>
+# Last modified: 2025-05-31
+
+Package: x-vector-pro
+Version: 0.3.5
+Architecture: amd64
+Maintainer: Erik G <erik@x-vector-security.io>
+Installed-Size: 12480
+# We need this for the GTK frontend
+Depends: libc6 (>= 2.33), 
+         libgtk-3-0 (>= 3.24.0), 
+         python3 (>= 3.9),
+         python3-gi,
+         gir1.2-gtk-3.0,
+         python3-requests,
+         python3-cryptography (>= 37.0.0),
+         python3-numpy
+Recommends: python3-matplotlib, intel-opencl-icd
+Suggests: wireshark, nmap
+Section: utils
 Priority: optional
-Architecture: all
-Maintainer: Dev713
-Description: X-Vector Pro Supreme - Cybersecurity Toolkit
+Homepage: https://x-vector-security.io
+Description: Advanced security analysis and visualization toolkit
+ X-Vector Pro provides comprehensive security analysis and visualization
+ tools for network traffic, binary files, and system monitoring.
+ .
+ Features:
+  * Real-time network traffic visualization
+  * Malware behavior analysis and sandboxing
+  * Digital forensics tools for incident response
+  * Security posture assessment and reporting
+  * Threat intelligence integration
+ .
+ This package provides the GTK-based GUI frontend for X-Vector Pro.
+ For CLI-only version, install the x-vector-cli package instead.
+ 
+# TODO: Add python3-torch as optional dependency once we've slimmed down
+# the AI models - current models are too big for most desktop installs
