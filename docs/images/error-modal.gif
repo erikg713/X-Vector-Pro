@@ -1,1 +1,6 @@
+<figure>
+  <img src="docs/images/error-modal.gif"
+       alt="Animated error modal with red error icon, descriptive message, and two buttons: retry and cancel">
+  <figcaption>Figure 2: Animated error dialog presenting an error icon, message, and action buttons.</figcaption>
+</figure>
 
