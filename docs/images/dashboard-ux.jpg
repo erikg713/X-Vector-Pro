@@ -1,2 +1,8 @@
+<figure>
+  <img src="docs/images/dashboard-ux.jpg"
+       alt="User dashboard overview with key metrics, including navigation sidebar, KPI cards, trend chart, and recent activity table">
+  <figcaption>Figure 1: UX mockup of the analytics dashboard showing KPIs, trends, and recent events.</figcaption>
+</figure>
+
 <img src="images/dashboard-ux.jpg" alt="User dashboard" width="600px">
 
