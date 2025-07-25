@@ -2,7 +2,7 @@
 name = "x-vector-pro"
 version = "1.0.0"
 description = "Advanced modular cybersecurity tool for Windows"
-authors = ["Your Name"]
+authors = ["Erik G."]
 requires-python = ">=3.8"
 
 [project.dependencies]
