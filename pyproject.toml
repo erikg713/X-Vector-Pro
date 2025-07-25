@@ -20,8 +20,8 @@ classifiers      = [
   "Programming Language :: Python :: 3.9",
   "Operating System :: Microsoft :: Windows"
 ]
-homepage         = "https://github.com/yourorg/x-vector-pro"
-repository-url   = "https://github.com/yourorg/x-vector-pro.git"
+homepage         = "https://github.com/erikg713/x-vector-pro"
+repository-url   = "https://github.com/erikg713/x-vector-pro-GUI-tool.git"
 
 [project.dependencies]
 requests                 = ">=2.28,<3.0"
