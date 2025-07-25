@@ -1,19 +1,15 @@
-Below is the complete docs package—polished README, MkDocs config, and all `/docs/` pages—ready to drop into your repo.
-
----
-
-# README.md
+## README.md ##
 
 ```markdown
 # X-Vector Pro
-
+---------------------------------------------------------
 ██╗░░██╗░░░░░░██╗░░░██╗███████╗░█████╗░████████╗  
 ╚██╗██╔╝░░░░░░██║░░░██║██╔════╝██╔══██╗╚══██╔══╝  
 ░╚███╔╝░█████╗╚██╗░██╔╝█████╗░░██║░░╚═╝░░░██║░░░  
 ░██╔██╗░╚════╝░╚████╔╝░██╔══╝░░██║░░██╗░░░██║░░░  
 ██╔╝╚██╗░░░░░░░░╚██╔╝░░███████╗╚█████╔╝░░░██║░░░  
 ╚═╝░░╚═╝░░░░░░░░░╚═╝░░░╚══════╝░╚════╝░░░░╚═╝░░░  
-
+----------------------------------------------------------
 **Silent. Adaptive. Lethal.**  
 Tactical GUI-based WordPress attack suite automating recon, scanning, brute-force, CVE discovery, and exploits.
 
