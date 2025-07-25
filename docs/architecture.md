@@ -1,4 +1,4 @@
-## docs/architecture.md
+## Architecture.md ##
 
 ```markdown
 # Architecture Overview
