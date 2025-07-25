@@ -1,5 +1,26 @@
-# X-Vector Pro
+-----------------------------
+### X-Vector Pro ###
+-----------------------------
 
+▀▄▀ ▄▄ █░█ █▀▀ █▀▀ ▀█▀ █▀█ █▀█ ▄▄ █▀█ █▀█ █▀█
+█░█ ░░ ▀▄▀ ██▄ █▄▄ ░█░ █▄█ █▀▄ ░░ █▀▀ █▀▄ █▄█
+
+**Silent. Adaptive. Lethal.**  
+Tactical GUI-based WordPress attack suite automating recon, scanning, brute-force, CVE discovery, and exploit deployment.
+
+---
+
+## Table of Contents
+
+1. [Quick Start & Usage](#quick-start--usage)  
+2. [Features & Examples](#features--examples)  
+3. [Architecture Overview](#architecture-overview)  
+4. [Project Documentation Site (MkDocs)](#project-documentation-site-mkdocs)  
+5. [Developer Guidelines](#developer-guidelines)  
+6. [Roadmap](#roadmap)  
+
+---
+---------------------------------------------------------
 
 ██╗░░██╗░░░░░░██╗░░░██╗███████╗░█████╗░████████╗
 ╚██╗██╔╝░░░░░░██║░░░██║██╔════╝██╔══██╗╚══██╔══╝
@@ -7,139 +28,11 @@
 ░██╔██╗░╚════╝░╚████╔╝░██╔══╝░░██║░░██╗░░░██║░░░
 ██╔╝╚██╗░░░░░░░░╚██╔╝░░███████╗╚█████╔╝░░░██║░░░
 ╚═╝░░╚═╝░░░░░░░░░╚═╝░░░╚══════╝░╚════╝░░░░╚═╝░░░
-
-**Silent. Adaptive. Lethal.**  
-X-Vector Pro is a tactical GUI-based WordPress attack suite. It automates the full penetration lifecycle with modules for recon, scanning, brute-force, CVE discovery, and exploit deployment.
-
+----------------------------------------------------------
 ---
+## Quick Start & Usage ##
 
-## Features
-
-- **Full Auto Mode** (Recon → Scan → Plugin Check → Exploit)
-- **WordPress Brute Force** (via `xmlrpc.php`)
-- **CVE Detection** using local `cve_db.json`
-- **Plugin & Theme Enumeration**
-- **Custom Exploit Runner** from the `exploits/` directory
-- **CustomTkinter GUI Tabs** for modular navigation
-- **Logs, Findings, and HTML Reports** for evidence & export
-
----
-
-## Tech Stack
-
-- Python 3.9+
-- CustomTkinter
-- Requests, TLDExtract
-- XML-RPC, Regex, JSON, Sockets
-- Threading, Importlib
-
-
-
-▀▄▀ ▄▄ █░█ █▀▀ █▀▀ ▀█▀ █▀█ █▀█ ▄▄ █▀█ █▀█ █▀█
-█░█ ░░ ▀▄▀ ██▄ █▄▄ ░█░ █▄█ █▀▄ ░░ █▀▀ █▀▄ █▄█
-
-X-Vector-Pro/
-│
-├── Main.py                  # Entry point
-├── gui/                     # GUI components
-│   ├── __init__.py
-│   ├── main_window.py
-│   ├── widgets/
-│   ├── themes/
-│   └── resources/
-│
-├── engine/                  # Main engine logic
-│   ├── __init__.py
-│   ├── controller.py
-│   ├── scheduler.py
-│   └── plugin_manager.py
-│
-├── core/                    # Core libraries/utilities
-│   ├── __init__.py
-│   ├── config.py
-│   ├── logger.py
-│   ├── database.py
-│   └── utils.py
-│
-├── scanner/                 # Scanning modules
-│   ├── __init__.py
-│   ├── port_scanner.py
-│   ├── vuln_scanner.py
-│   └── service_scanner.py
-│
-├── brute/                   # Brute-forcing modules
-│   ├── __init__.py
-│   ├── password_brute.py
-│   ├── username_enum.py
-│   └── wordlists/
-│
-├── exploits/                # Exploit modules
-│   ├── __init__.py
-│   ├── exploit_base.py
-│   ├── cve2025_1234.py
-│   └── ...
-│
-├── recon/                   # Reconnaissance modules
-│   ├── __init__.py
-│   ├── subdomain_enum.py
-│   ├── whois_lookup.py
-│   └── passive_dns.py
-│
-├── report/                  # Reporting modules
-│   ├── __init__.py
-│   ├── html_report.py
-│   ├── pdf_report.py
-│   └── templates/
-│
-├── stealth/                 # Stealth/anti-detection modules
-│   ├── __init__.py
-│   ├── traffic_obfuscation.py
-│   ├── user_agent_rotator.py
-│   └── timing_attack.py
-│
-├── data/                    # Static data, wordlists, etc.
-│   ├── fingerprints/
-│   ├── payloads/
-│   └── ...
-│
-├── docs/                    # Documentation
-│   ├── README.md
-│   └── usage.md
-│
-└── requirements.txt         # Dependencies
-
-# X-Vector Pro
-
-**Silent. Adaptive. Lethal.**  
-X-Vector Pro is a tactical GUI-based WordPress attack suite. It automates the full penetration lifecycle with modules for recon, scanning, brute-force, CVE discovery, and exploit deployment.
-
----
-
-## Features
-
-- **Full Auto Mode** (Recon → Scan → Plugin Check → Exploit)
-- **WordPress Brute Force** (via `xmlrpc.php`)
-- **CVE Detection** using local `cve_db.json`
-- **Plugin & Theme Enumeration**
-- **Custom Exploit Runner** from the `exploits/` directory
-- **CustomTkinter GUI Tabs** for modular navigation
-- **Logs, Findings, and HTML Reports** for evidence & export
-
----
-
-## Tech Stack
-
-- Python 3.9+
-- CustomTkinter
-- Requests, TLDExtract
-- XML-RPC, Regex, JSON, Sockets
-- Threading, Importlib
-
----
-
-## Getting Started
-
-Clone the repository and install the dependencies:
+Clone the repo and install dependencies:
 
 ```bash
 git clone https://github.com/erikg713/X-Vector-Pro-GUI-Tool.git
@@ -148,82 +41,187 @@ pip install -r requirements.txt
 python main.py
 ```
 
----
+Run Full Auto Mode against a target:
 
-## File Structure
-
-```
-x_vector_pro/
-├── main.py                    # GUI Entrypoint
-├── gui/                        # GUI interface
-│   ├── main_ui.py             # Launch & layout
-│   ├── tabs/                  # Each tab is a GUI page
-│   │   ├── auto_mode_tab.py
-│   │   ├── scan_tab.py
-│   │   ├── brute_tab.py
-│   │   ├── cve_tab.py
-│   │   ├── exploits_tab.py
-│   │   ├── report_tab.py
-│   │   └── settings_tab.py
-│   └── components/            # Shared widgets
-│       ├── logger_widget.py
-│       └── form_inputs.py
-├── engine/                    # Backend logic for each operation
-│   ├── recon.py               # Domain analysis
-│   ├── scanner.py             # Plugin & theme path checker
-│   ├── cve_scanner.py         # Local CVE lookup engine
-│   ├── brute_engine.py        # XML-RPC brute force logic
-│   ├── exploit_runner.py      # Dynamic exploit loader
-│   ├── auto_mode.py           # Orchestration pipeline
-│   └── threading_manager.py   # Threaded execution manager
-├── exploits/                  # Custom modular scripts (CVE-*.py)
-├── utils/                     # Shared utilities
-├── data/                      # Wordlists, config, CVEs
-├── reports/                   # Auto-generated logs & reports
-├── README.md
-├── requirements.txt
-├── .gitignore
-└── LICENSE
+```bash
+python main.py --auto --target “https://example.com”
 ```
 
----
+Breakdown:
 
-## Screenshots
-
-+---------------------------------------------------------+
-| Recon - Information Gathering                           |
-|---------------------------------------------------------|
-| [Target Input]         [ Start Recon ] [ Stop Recon ]   |
-|                                                           |
-| [ ] Reconnaissance                                        |
-| [ ] Port Scanning                                         |
-| [ ] Vulnerability Scan                                    |
-| [ ] Web Brute Force                                       |
-| [ ] Subdomain Enumeration                                 |
-|                                                           |
-| [Progress Bar]                                            |
-|                                                           |
-| [----------------- Live Logs Text Box ------------------] |
-+---------------------------------------------------------+
-| Settings | Reports | About                                |
-+---------------------------------------------------------+
+- `--auto` invokes Recon → Scan → Plugin Check → Exploit  
+- `--target` specifies the WordPress site URL  
+- Logs and HTML reports land in `reports/YYYYMMDD_HHMMSS/`
 
 ---
 
-## Authors
+## Features & Examples
 
-Built with dedication and expertise by **Erik G.**
+### 1. Full Auto Mode
+
+Launch end-to-end workflow in one click:
+
+```bash
+# GUI: Auto Mode tab → Enter URL → Start
+# CLI: 
+python main.py --auto --target https://testwp.local
+```
+
+### 2. WordPress Brute Force
+
+Via `xmlrpc.php` with custom wordlists:
+
+```python
+from brute.password_brute import BruteEngine
+
+engine = BruteEngine(target="https://site.local/xmlrpc.php")
+engine.load_wordlist("data/wordlists/passwords.txt")
+engine.start()
+```
+
+### 3. CVE Detection
+
+Local lookup using `cve_db.json`:
+
+```bash
+python main.py --cve-check --target https://vulnerable.site
+```
+
+List of detected CVEs outputs to console and embeds in HTML report.
+
+### 4. Plugin & Theme Enumeration
+
+```bash
+python main.py --scan-plugins --target https://demo.wp
+```
+
+Outputs versions and flags any outdated components.
 
 ---
 
-## License
+## Architecture Overview
 
-This project is licensed under MIT
+This section maps key modules and data flows.
+
+```
+       +--------------+          +------------------+
+       |   GUI Layer  |          |   CLI Interface  |
+       +------+-------+          +----------+-------+
+              |                           |
+              | user action               | flags & args
+              v                           v
+       +------+---------------------------+------+
+       |          Controller / Scheduler        |
+       +------+---------------------------+------+
+              |                           |
+   +----------+----------+      +---------+--------+
+   |    Recon Module     |      |    Scanner       |
+   +----------+----------+      +---------+--------+
+              |                           |
+   +----------+----------+      +---------+--------+
+   |    Brute Engine     |      |  CVE Scanner      |
+   +----------+----------+      +---------+--------+
+              \                           /
+               \                         /
+                +------------+----------+
+                             |
+                   +---------+--------+
+                   |   Exploit Runner  |
+                   +-------------------+
+                             |
+                   +---------+---------+
+                   |   Report Generator |
+                   +--------------------+
+```
+
+Data flows from user input through orchestrator, then through recon/scanning/bruting/CVE, culminating in exploit execution and report generation.
+
+---
+
+## Project Documentation Site (MkDocs)
+
+Proposed structure:
+
+```
+mkdocs.yml
+/docs
+  index.md
+  usage.md
+  architecture.md
+  developer_guide.md
+```
+
+`mkdocs.yml`:
+
+```yaml
+site_name: X-Vector Pro Docs
+nav:
+  - Home: index.md
+  - Usage: usage.md
+  - Architecture: architecture.md
+  - Developer Guide: developer_guide.md
+theme:
+  name: material
+```
+
+Create each markdown under `/docs/`:
+
+- **index.md**: Project intro and features  
+- **usage.md**: Quick start snippets, CLI flags, GUI walkthrough  
+- **architecture.md**: ASCII/diagram, module descriptions  
+- **developer_guide.md**: Coding standards, module extension, testing  
+
+Build site:
+
+```bash
+pip install mkdocs-material
+mkdocs serve       # for local preview
+mkdocs build       # output to site/
+```
+
+---
+
+## Developer Guidelines
+
+### Coding Standards
+
+- Follow PEP8: 79-char line width, snake_case for functions, PascalCase for classes.  
+- Docstrings: use Google style for all public methods.  
+- Logging: leverage `core/logger.py` at INFO/DEBUG levels; avoid print statements.
+
+### Adding a New Exploit Module
+
+1. Create `exploits/CVEYYYY_NNNN.py`.  
+2. Inherit from `ExploitBase` and implement:
+   ```python
+   class CVE2025_9999(ExploitBase):
+       def check(self):    # fingerprint target
+           ...
+       def exploit(self):  # deliver payload
+           ...
+   ```
+3. Update `exploits/__init__.py` if using manual import (dynamic import covers most cases).
+
+### Testing Tips
+
+- Unit tests live in `tests/` alongside each module.  
+- Use pytest fixtures to simulate HTTP endpoints via `responses` library.  
+- For GUI elements, use `pytest-qt` or `unittest.mock` to stub button callbacks.
+
+### Workflow for Contributions
+
+1. Fork repo & create feature branch.  
+2. Write tests—ensure 80%+ coverage.  
+3. Submit PR with descriptive title and linked issue.  
+4. CI runs lint, tests, and builds docs automatically.  
+
+---
 
 ## Roadmap
 
-- [ ] Modular plugin system for custom threat detection
-- [ ] Fine-tuning workflows for organizational threat patterns
-- [ ] Expanded API and protocol adapters
-- [ ] Advanced analytics dashboard
----
+- Modular plugin system for custom threat detection  
+- Fine-tuning workflows for organizational threat patterns  
+- Expanded API and protocol adapters  
+- Advanced analytics dashboard  
+
+Looking forward to your feedback and contributions!
