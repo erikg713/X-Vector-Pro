@@ -221,8 +221,3 @@ MIT License. See [LICENSE](./LICENSE).
 * Powered by Python, Qt5, and a healthy dose of paranoia
 
 ---
-
-> “You won't see us coming. But your logs will remember.”
-
-```
----
