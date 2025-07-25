@@ -1,27 +1,26 @@
-```markdown
-flowchart TD
-  A[Start] --> B{Is it working?}
-  B -- Yes --> C[Celebrate]
-  B -- No  --> D[Debug]
-  D --> B
+%%{init: {"theme": "forest", "fontFamily": "Arial, sans-serif"}}%%
+flowchart LR
+  subgraph UI Layer
+    GUI[GUI Tab]
+    CLI[CLI Interface]
+  end
 
-## 4. Preview & Build
+  subgraph Entry Points
+    GUI --> Controller[Controller / Scheduler]
+    CLI --> ArgParser[ArgParser / CLI Parser]
+    ArgParser --> Controller
+  end
 
-1. Run `mkdocs serve`  
-2. Open `http://127.0.0.1:8000/your-page/`  
-3. Confirm your diagrams render and interact (zoom, pan).
+  subgraph Core Modules
+    Controller --> Recon[Recon Module]
+    Controller --> Scan[Scan Module]
+    Controller --> Brute[Brute Module]
+    Controller --> CVE[CVE Module]
+  end
 
-When satisfied, `mkdocs build` will bake the SVGs into your `site/` folder.
+  Recon --> Exploit[Exploit Runner]
+  Scan  --> Exploit
+  Brute --> Exploit
+  CVE   --> Exploit
 
----
-
-## Advanced Tips
-
-- To customize diagram theme or font, add Mermaid config in your `docs/extra.js`:
-
-  ```js
-  mermaid.initialize({
-    theme: 'forest',
-    fontFamily: 'Arial, sans-serif'
-  });
-
+  Exploit --> Reports[Report Generator]
