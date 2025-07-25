@@ -1,17 +1,18 @@
-customtkinter==5.2.2
-requests==2.32.4
-tldextract==5.3.0
-Pillow==11.2.1
-PyQt5==5.15.11
-cryptography==44.0.2
-yagmail==0.15.293
-scapy==2.5.0
 beautifulsoup4==4.13.4
-lxml==5.4.0
+cryptography==44.0.2
+customtkinter==5.2.2
 dnspython==2.4.2
-python-nmap==0.7.1
-pymongo==4.12.0
 email-validator==2.2.0
-python-whois
-pyinstaller
-pythondotenv
+lxml==5.4.0
+pillow==11.2.1
+pyinstaller==5.16.0          # pin to the latest tested version
+python-dotenv==1.0.0        # formerly “pythondotenv”
+python-nmap==0.7.1
+python-whois==0.7.3         # add a version pin
+pymongo==4.12.0
+pyqt5==5.15.11
+requests==2.32.4
+scapy==2.5.0
+tldextract==5.3.0
+yagmail==0.15.293
+
