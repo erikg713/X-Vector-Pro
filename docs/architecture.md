@@ -1,3 +1,4 @@
+```markdown
 flowchart TD
   A[Start] --> B{Is it working?}
   B -- Yes --> C[Celebrate]
