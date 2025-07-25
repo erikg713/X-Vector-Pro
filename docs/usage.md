@@ -1,6 +1,4 @@
-docs/usage.md
-markdown
-# Usage & Examples
+# Usage & Examples #
 
 ## Installation
 
