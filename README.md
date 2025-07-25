@@ -108,10 +108,6 @@ X-Vector-Pro/
 │
 └── requirements.txt         # Dependencies
 
-Your `README.md` file is quite informative but could benefit from some enhancements and cleanup for better readability and professionalism. Here's a refined and improved version:
-
----
-
 # X-Vector Pro
 
 **Silent. Adaptive. Lethal.**  
