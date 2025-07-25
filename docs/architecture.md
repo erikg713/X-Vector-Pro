@@ -1,3 +1,11 @@
+## docs/architecture.md
+
+```markdown
+# Architecture Overview
+
+The diagram below shows X-Vector Pro’s modular layers and data flow.
+
+```mermaid
 %%{init: {"theme": "forest", "fontFamily": "Arial, sans-serif"}}%%
 flowchart LR
   subgraph UI Layer
