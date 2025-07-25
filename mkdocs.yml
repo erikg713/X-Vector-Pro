@@ -1,1 +1,8 @@
+site_name: X-Vector-Pro-GUI Docs
+theme:
+  name: material
+
+plugins:
+  - search
+  - mermaid2
 
