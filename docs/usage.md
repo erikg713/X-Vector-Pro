@@ -1,3 +1,15 @@
+## GUI Walkthrough
+
+1. Launch `python main.py`.  
+2. Select **Auto Mode** tab:  
+   ![Auto Mode Tab](img/auto_mode_tab.png)
+
+3. Switch to **Scan & Enumeration**:  
+   ![Scan Tab](img/scan_tab.png)
+
+4. Final **Report Preview**:  
+   ![Report Preview](img/report_preview.png)
+
 sequenceDiagram
   participant U as User
   participant GUI
