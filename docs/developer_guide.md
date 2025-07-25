@@ -1,7 +1,4 @@
-## docs/developer_guide.md
-
-```markdown
-# Developer Guide
+# Developer Guide #
 
 Welcome, contributor! This guide covers coding standards, how to add modules, and testing workflows.
 
