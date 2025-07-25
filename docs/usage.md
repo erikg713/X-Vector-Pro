@@ -25,9 +25,7 @@ python main.py --scan-plugins --target https://demo.wp	Enumerate and version-che
 python main.py --cve-check --target https://vuln.site	Detect local CVEs and annotate results in reports
 python main.py --auto --target https://test --report-dir r	Custom directory for saving logs & HTML report
 
-Sequence Diagram
-mermaid
-sequenceDiagram
+### Sequence Diagram ###
   participant U as User
   participant GUI
   participant CLI
