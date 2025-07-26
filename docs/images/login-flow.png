@@ -1,1 +1,6 @@
+<figure>
+  <img src="docs/images/login-flow.png"
+       alt="Sequence of user login flow from credential entry to dashboard display">
+  <figcaption>Figure 3: User login workflow illustrating authentication steps and success path.</figcaption>
+</figure>
 
