@@ -1,90 +1,94 @@
+#!/usr/bin/env python3
 import argparse
 import sys
 import json
-# core/main.py
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow
-from core.tabs import MainTabs
 
-def main():
-    app = QApplication(sys.argv)
-    win = QMainWindow()
-    win.setWindowTitle("X-Vector Pro GUI Tool")
-    tabs = MainTabs()
-    win.setCentralWidget(tabs)
-    win.resize(800, 600)
-    win.show()
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()
-
+# CLI Engines
 from core.brute_force_wallet import BruteEngine
-from engine.recon import ReconEngine
-from engine.scanner import PluginScanner
+from engine.recon       import ReconEngine
+from engine.scanner     import PluginScanner
 from engine.cve_checker import CVEChecker
+
+# GUI launcher
 from gui.app import XVectorProApp
 
+
 def run_full_pipeline(target, report_dir=None):
+    """
+    Runs Recon → Scan → Brute → CVE checks,
+    then dumps a JSON report if requested.
+    """
     print(f"[+] Starting full pipeline against {target}")
+
     recon = ReconEngine(target)
-    scan = PluginScanner(target)
+    scan  = PluginScanner(target)
     brute = BruteEngine(target)
-    cve = CVEChecker()
+    cve   = CVEChecker()
 
     recon_results = recon.run()
-    scan_results = scan.run()
+    scan_results  = scan.run()
     brute.load_wordlist("data/wordlists/passwords.txt")
     brute_results = brute.start()
-    cve_results = cve.check_plugins(scan_results)
+    cve_results   = cve.check_plugins(scan_results)
 
     report = {
-        "target": target,
-        "recon": recon_results,
-        "scan": scan_results,
+        "target":      target,
+        "recon":       recon_results,
+        "scan":        scan_results,
         "brute_force": brute_results,
-        "cve": cve_results,
+        "cve":         cve_results,
     }
 
     if report_dir:
-        report_file = f"{report_dir}/report.json"
-        with open(report_file, "w") as f:
+        filepath = f"{report_dir}/report.json"
+        with open(filepath, "w") as f:
             json.dump(report, f, indent=2)
-        print(f"[+] Report saved to {report_file}")
+        print(f"[+] Report saved to {filepath}")
 
     return report
 
+
 def main():
-    parser = argparse.ArgumentParser(description="X-Vector Pro WordPress Attack Suite")
-    parser.add_argument("--auto", action="store_true", help="Run full pipeline (Recon → Scan → Plugins → Exploits)")
-    parser.add_argument("--target", help="Target WordPress URL (e.g. https://site.local)")
-    parser.add_argument("--scan-plugins", action="store_true", help="Enumerate installed plugins and versions")
-    parser.add_argument("--cve-check", action="store_true", help="Detect local CVEs from data/cve_db.json")
-    parser.add_argument("--report-dir", help="Directory to save logs & HTML reports")
-    parser.add_argument("--gui", action="store_true", help="Launch GUI application")
+    parser = argparse.ArgumentParser(
+        description="X-Vector Pro WordPress Attack Suite"
+    )
+    parser.add_argument("--gui",         action="store_true", help="Launch the GUI")
+    parser.add_argument("--auto",        action="store_true",
+                        help="Run full pipeline (Recon → Scan → Brute → CVE)")
+    parser.add_argument("--scan-plugins",action="store_true",
+                        help="Enumerate installed plugins and versions")
+    parser.add_argument("--cve-check",   action="store_true",
+                        help="Detect CVEs from local database")
+    parser.add_argument("--report-dir",  help="Directory to save JSON report")
+    parser.add_argument("--target",      help="Target WordPress URL")
+
     args = parser.parse_args()
 
+    # GUI mode
     if args.gui:
-        app = XVectorProApp()
-        app.run()
-        sys.exit(0)
+        sys.exit(XVectorProApp().run())
 
+    # CLI requires --target
     if not args.target:
-        print("[-] Error: --target argument is required for CLI operations.")
-        sys.exit(1)
+        parser.error("the following argument is required: --target")
 
+    # Auto pipeline
     if args.auto:
         run_full_pipeline(args.target, args.report_dir)
-    else:
-        if args.scan_plugins:
-            scanner = PluginScanner(args.target)
-            plugins = scanner.run()
-            print(f"[+] Plugins found: {plugins}")
+        return
 
-        if args.cve_check:
-            cve = CVEChecker()
-            results = cve.check_plugins([])  # Ideally pass scanned plugins
-            print(f"[+] CVE Results: {results}")
+    # Individual operations
+    if args.scan_plugins:
+        scanner = PluginScanner(args.target)
+        plugins = scanner.run()
+        print(f"[+] Plugins found: {plugins}")
+
+    if args.cve_check:
+        cve = CVEChecker()
+        results = cve.check_plugins([])  # ideally pass actual plugins
+        print(f"[+] CVE Results: {results}")
+
 
 if __name__ == "__main__":
     main()
+
