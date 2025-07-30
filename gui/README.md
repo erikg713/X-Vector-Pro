@@ -43,6 +43,8 @@ git clone https://github.com/erikg713/X-Vector-Pro-GUI-Tool.git
 cd X-Vector-Pro-GUI-Tool
 pip install -r requirements.txt
 python main.py --auto --target "https://targetsite.tld"
+python gui/main.py
+
 ````
 
 ### Command Breakdown:
