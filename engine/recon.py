@@ -1,5 +1,23 @@
-# engine/recon.py
 import requests
+
+class ReconEngine:
+    def __init__(self, target):
+        self.target = target.rstrip('/')
+
+    def run(self):
+        # Simple subdomain enumeration example
+        subdomains = ['www', 'mail', 'ftp', 'test']
+        found = []
+
+        for sub in subdomains:
+            url = f"http://{sub}.{self.target}"
+            try:
+                resp = requests.head(url, timeout=3)
+                if resp.status_code < 400:
+                    found.append(url)
+            except Exception:
+                continue
+        return found
 
 class ReconScanner:
     def __init__(self, url, logger):
