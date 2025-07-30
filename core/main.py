@@ -1,6 +1,23 @@
 import argparse
 import sys
 import json
+# core/main.py
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from core.tabs import MainTabs
+
+def main():
+    app = QApplication(sys.argv)
+    win = QMainWindow()
+    win.setWindowTitle("X-Vector Pro GUI Tool")
+    tabs = MainTabs()
+    win.setCentralWidget(tabs)
+    win.resize(800, 600)
+    win.show()
+    sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
 
 from core.brute_force_wallet import BruteEngine
 from engine.recon import ReconEngine
