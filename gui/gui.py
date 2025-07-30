@@ -18,7 +18,7 @@ from sentenial_core.cortex.intel_analyzer import BERTIntelAnalyzer
 from sentenial_core.interfaces.logger import log_event
 import datetime
 
-class SentenialXGUI(QMainWindow):
+class XVectorPro(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Sentenial X - Autonomous Cyber Defense GUI")
