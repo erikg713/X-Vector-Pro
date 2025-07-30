@@ -1,5 +1,27 @@
 import os
 import customtkinter as ctk
+import customtkinter as ctk
+
+class AutoTab(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.label = ctk.CTkLabel(self, text="Auto Mode: Full Recon, Scan, Brute Force")
+        self.label.pack(pady=20)
+
+        self.target_entry = ctk.CTkEntry(self, placeholder_text="Enter target URL")
+        self.target_entry.pack(pady=10, padx=20, fill="x")
+
+        self.start_button = ctk.CTkButton(self, text="Start", command=self.start_auto)
+        self.start_button.pack(pady=10)
+
+        self.output_box = ctk.CTkTextbox(self, height=200, width=600)
+        self.output_box.pack(padx=20, pady=20, fill="both", expand=True)
+
+    def start_auto(self):
+        target = self.target_entry.get()
+        self.output_box.insert("end", f"Starting full pipeline against {target}...\n")
+        # Here you would kick off the full pipeline asynchronously, updating the output box
 
 class AutoTab(ctk.CTkFrame):
     def __init__(self, parent):
