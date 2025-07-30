@@ -91,6 +91,7 @@ python main.py --scan-plugins --target https://demo.wp
 ```
 
 Flags outdated components for further action.
+pytest tests/test_tor_detector.py
 
 ---
 
