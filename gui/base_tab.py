@@ -1,44 +1,71 @@
-import os
-
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-HITS_FILE = os.path.join(BASE_DIR, "logs", "hits.txt")
-SESSION_FILE = os.path.join(BASE_DIR, "logs", "session.json")
-LOG_FILE = os.path.join(BASE_DIR, "logs", "xvector_log.txt")
-WORDLIST_DIR = os.path.join(BASE_DIR, "wordlists")
-
+import threading
+import re
 import customtkinter as ctk
+from core.auto_chain import run_auto_chain  # Your main scanning pipeline function
 
-class BaseTab(ctk.CTkFrame):
-    def __init__(self, master, title: str = "", **kwargs):
-        super().__init__(master, **kwargs)
-        self.title = title
-        self.setup_base_ui()
+class AutoTab(BaseTab):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, title="Auto Mode: Full Recon, Scan, Exploit", **kwargs)
+        self._current_thread = None
+        self._build_ui()
 
-    def setup_base_ui(self):
-        if self.title:
-            ctk.CTkLabel(self, text=self.title, font=("Segoe UI", 20, "bold")).pack(pady=(10, 5))
+    def _build_ui(self):
+        self.target_entry = self.add_entry("Enter target IP or domain...")
+        self.start_button = self.add_button("Start Full Pipeline", command=self._start_pipeline)
+        self.status_label = ctk.CTkLabel(self, text="Idle", text_color="gray")
+        self.status_label.pack(pady=(5, 10))
 
-    def add_section_label(self, text: str):
-        label = ctk.CTkLabel(self, text=text, font=("Segoe UI", 14, "bold"), text_color="white")
-        label.pack(anchor="w", padx=20, pady=(10, 0))
-        return label
+        self.output_box = ctk.CTkTextbox(self, height=300, wrap="word")
+        self.output_box.pack(padx=20, pady=10, fill="both", expand=True)
+        self.output_box.configure(state="disabled")
 
-    def add_separator(self):
-        separator = ctk.CTkFrame(self, height=1, fg_color="#444")
-        separator.pack(fill="x", padx=20, pady=10)
-        return separator
+        self.clear_button = self.add_button("Clear Output", command=self.clear_output)
 
-    def add_entry(self, placeholder: str = "", **kwargs):
-        entry = ctk.CTkEntry(self, placeholder_text=placeholder, **kwargs)
-        entry.pack(fill="x", padx=20, pady=10)
-        return entry
+    def _start_pipeline(self):
+        target = self.target_entry.get().strip()
+        if not self._validate_target(target):
+            self._set_status("Invalid target. Enter a valid IP or domain.", "red")
+            return
 
-    def add_button(self, text: str, command=None, **kwargs):
-        button = ctk.CTkButton(self, text=text, command=command, **kwargs)
-        button.pack(pady=5)
-        return button
+        if self._current_thread and self._current_thread.is_alive():
+            self._set_status("Pipeline already running.", "orange")
+            return
 
-    def add_checkbox(self, text: str, variable=None, **kwargs):
-        checkbox = ctk.CTkCheckBox(self, text=text, variable=variable, **kwargs)
-        checkbox.pack(pady=5)
-        return checkbox
+        self._set_status("Starting pipeline...", "blue")
+        self.start_button.configure(state="disabled")
+        self._current_thread = threading.Thread(target=self._run_pipeline, args=(target,), daemon=True)
+        self._current_thread.start()
+
+    def _run_pipeline(self, target):
+        try:
+            def gui_callback(text):
+                self.append_output(text + "\n")
+
+            results = run_auto_chain(target, gui_callback=gui_callback)
+            self.append_output("[INFO] Pipeline completed successfully.\n")
+            self._set_status("Idle", "gray")
+        except Exception as e:
+            self.append_output(f"[ERROR] {str(e)}\n")
+            self._set_status("Error occurred.", "red")
+        finally:
+            self.start_button.configure(state="normal")
+
+    def _validate_target(self, target):
+        ip_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
+        domain_pattern = r"^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.[A-Za-z]{2,}$"
+        return re.match(ip_pattern, target) or re.match(domain_pattern, target)
+
+    def append_output(self, text):
+        self.output_box.configure(state="normal")
+        self.output_box.insert("end", text)
+        self.output_box.see("end")
+        self.output_box.configure(state="disabled")
+
+    def clear_output(self):
+        self.output_box.configure(state="normal")
+        self.output_box.delete("1.0", "end")
+        self.output_box.configure(state="disabled")
+
+    def _set_status(self, message, color="gray"):
+        self.status_label.configure(text=message, text_color=color)
+
