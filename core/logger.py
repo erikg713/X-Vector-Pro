@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 from utils.setup_logger import create_logger
 import logging
-import os
 
 LOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs')
 os.makedirs(LOG_DIR, exist_ok=True)
