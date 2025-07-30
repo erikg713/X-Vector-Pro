@@ -168,3 +168,52 @@ def is_valid_target(self, target):
             self.append_output(f"[WARNING] {message}\n")
         elif log_type == "ERROR":
             self.append_output(f"[ERROR] {message}\n")
+import customtkinter as ctk
+
+class AutoTab(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        label = ctk.CTkLabel(self, text="Auto Mode: Full Recon, Scan, Brute Force", font=("Segoe UI", 16))
+        label.pack(pady=20)
+        # Add your Auto mode widgets here
+
+
+class ScanTab(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+        label = ctk.CTkLabel(self, text="Scan Plugins: Enumerate Installed Plugins", font=("Segoe UI", 16))
+        label.pack(pady=20)
+        # Add your Scan mode widgets here
+
+
+class XVectorProApp:
+    def __init__(self):
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("blue")
+
+        self.root = ctk.CTk()
+        self.root.title("X-Vector Pro")
+        self.root.geometry("900x600")
+
+        self.tab_view = ctk.CTkTabview(self.root)
+        self.tab_view.pack(expand=True, fill="both")
+
+        self.tab_view.add("Auto Mode")
+        self.tab_view.add("Scan Plugins")
+
+        self.auto_tab = AutoTab(self.tab_view)
+        self.scan_tab = ScanTab(self.tab_view)
+
+        self.tab_view.set("Auto Mode")
+
+        # Pack the tabs inside their respective tab pages
+        self.auto_tab.pack(expand=True, fill="both")
+        self.scan_tab.pack(expand=True, fill="both")
+
+    def run(self):
+        self.root.mainloop()
+
+
+if __name__ == "__main__":
+    app = XVectorProApp()
+    app.run()
