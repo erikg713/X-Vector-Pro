@@ -1,5 +1,8 @@
 # core/__init__.py
-
+# Core package initialization
+from .brute_force_wallet import BruteEngine
+from .config import Config
+from .logger import logger
 import logging
 import os
 import json
