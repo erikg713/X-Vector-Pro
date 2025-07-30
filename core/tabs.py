@@ -8,6 +8,15 @@ from ui.tabs_logs import load_logs_tab
 from ui.tabs_settings import load_settings_tab
 from ui.tabs_fullauto import load_fullauto_tab
 from ui.tabs_findings import load_findings_tab
+from PyQt5.QtWidgets import QTabWidget
+# … existing imports …
+from core.gui_bruteforce import BruteForceTab
+
+class MainTabs(QTabWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        # … your other tabs …
+        self.addTab(BruteForceTab(), "Brute-Force")
 
 def init_tabs(tabs, app, settings):
     """
