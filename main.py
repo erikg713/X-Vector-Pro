@@ -17,6 +17,16 @@ def log_to_central(msg): timestamp = datetime.now().strftime("%H:%M:%S") logs_ou
 
 def gui_log_handler(entry, level="info"): tag = level log_textbox.insert("end", entry + "\n") log_textbox.tag_add(tag, f"end-{len(entry)+1}c", "end") log_textbox.see("end")
 
+parser.add_argument("--detect-tor", action="store_true", help="Run Tor exit node detection")
+
+# Inside the main logic block:
+if args.detect_tor and args.target:
+    from engine.network.tor_detector import run_detection
+    result = run_detection(args.target)
+    print(json.dumps(result, indent=2))
+    sys.exit(0)
+
+
 logger.central_log_hook = gui_log_handler
 
 === BRUTE FORCE ===
