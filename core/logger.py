@@ -20,9 +20,12 @@ logging.basicConfig(
 
 logger = logging.getLogger('XVectorPro')
 
-logger = create_logger()
+# Override logger with custom logger if needed
+custom_logger = create_logger()
+if custom_logger:
+    logger = custom_logger
 
-def log_event(category, data, level="info", write_structured_file=False, log_dir="logs"):
+def log_event(category, data, level="info", write_structured_file=False, log_dir=LOG_DIR):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     payload = {
         "timestamp": time.time(),
@@ -32,9 +35,11 @@ def log_event(category, data, level="info", write_structured_file=False, log_dir
 
     try:
         msg = json.dumps(payload)
-        getattr(logger, level.lower(), logger.info)(msg)
+        log_func = getattr(logger, level.lower(), logger.info)
+        log_func(msg)
 
         if write_structured_file:
+            os.makedirs(log_dir, exist_ok=True)
             file_name = f"{category}_{timestamp}.json"
             full_path = os.path.join(log_dir, file_name)
             with open(full_path, "w") as f:
