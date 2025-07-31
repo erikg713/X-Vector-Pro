@@ -1,0 +1,10 @@
+akismet
+jetpack
+contact-form-7
+yoast-seo
+woocommerce
+google-analytics-for-wordpress
+wordpress-seo
+w3-total-cache
+wordpress-importer
+all-in-one-seo-pack
