@@ -1,5 +1,3 @@
-# core/recon/__init__.py
-
 from .recon_engine import ReconEngine
 from . import recon
 
