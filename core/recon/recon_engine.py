@@ -5,6 +5,20 @@ from datetime import datetime
 from core.logger import log_event
 
 log_event("scan", {"target": "localhost"}, level="debug", write_structured_file=True)
+from core.recon.subdomain_enum import SubdomainEnum
+from core.recon.port_scan import PortScanner
+from core.recon.http_header_collector import HTTPHeaderCollector
+
+domain = "example.com"
+sub_enum = SubdomainEnum(domain)
+print("Found subdomains:", sub_enum.run())
+
+scanner = PortScanner("93.184.216.34")  # example.com IP
+print("Open ports:", scanner.run())
+
+header_collector = HTTPHeaderCollector("http://example.com")
+print("HTTP Headers:", header_collector.collect_headers())
+
 
 class ReconEngine:
     def __init__(self, target):
