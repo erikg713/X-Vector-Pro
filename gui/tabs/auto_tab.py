@@ -1,6 +1,43 @@
 import os
 import customtkinter as ctk
 import customtkinter as ctk
+import customtkinter as ctk
+
+def build_tab(parent):
+    frame = ctk.CTkFrame(parent)
+
+    title = ctk.CTkLabel(frame, text="Auto Mode", font=("Arial", 20, "bold"))
+    title.pack(pady=(20, 10))
+
+    desc = ctk.CTkLabel(frame, text="Automated Analysis Mode — Scan, Detect & Report Threats", wraplength=600, justify="center")
+    desc.pack(pady=(0, 20))
+
+    # Scan Target Input
+    target_label = ctk.CTkLabel(frame, text="Target URL or IP:")
+    target_label.pack(pady=(10, 0))
+    target_entry = ctk.CTkEntry(frame, placeholder_text="http://example.com or 192.168.1.1", width=400)
+    target_entry.pack(pady=5)
+
+    # Wordlist Selector
+    wordlist_label = ctk.CTkLabel(frame, text="Select Wordlist Type:")
+    wordlist_label.pack(pady=(15, 0))
+    wordlist_option = ctk.CTkOptionMenu(frame, values=["Scam Domains", "Phishing Keywords", "Flagged Users"])
+    wordlist_option.pack(pady=5)
+
+    # Auto Scan Button
+    def handle_scan():
+        target = target_entry.get()
+        list_type = wordlist_option.get()
+        result_label.configure(text=f"🕵️‍♂️ Scanning {target} using {list_type} wordlist...")
+
+    scan_button = ctk.CTkButton(frame, text="Start Scan", command=handle_scan)
+    scan_button.pack(pady=15)
+
+    # Output Label
+    result_label = ctk.CTkLabel(frame, text="", text_color="green", wraplength=500, justify="center")
+    result_label.pack(pady=10)
+
+    return frame
 
 class AutoTab(ctk.CTkFrame):
     def __init__(self, parent):
