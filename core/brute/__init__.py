@@ -1,3 +1,6 @@
+# Brute force module initializer
+
+
 import socket
 from core.logger import log_event
 
