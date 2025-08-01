@@ -1,48 +1,44 @@
+import argparse
 import os
-import json
-import xmlrpc.client
-from datetime import datetime
-from tkinter import messagebox
-import customtkinter as ctk
-from utils import logger
-from utils.settings import load_settings, save_settings
+import tkinter as tk
+from tkinter import ttk
+# Your other imports (scanners, exploit modules, etc.)
 
-=== SPLASH SCREEN ===
+def parse_args():
+    parser = argparse.ArgumentParser(description="X-Vector-Pro CLI Mode")
+    parser.add_argument("--auto", action="store_true", help="Run full pipeline")
+    parser.add_argument("--target", type=str, help="Target WordPress URL")
+    parser.add_argument("--scan-plugins", action="store_true")
+    parser.add_argument("--cve-check", action="store_true")
+    parser.add_argument("--report-dir", type=str, default="reports/latest")
+    return parser.parse_args()
 
-def show_splash_screen(): splash = ctk.CTk() splash.geometry("400x200") splash.title("X-Vector Pro") ctk.CTkLabel(splash, text="Initializing X-Vector Pro...", font=("Arial", 18)).pack(pady=40) ctk.CTkLabel(splash, text="Silent. Adaptive. Lethal.", font=("Courier", 12)).pack() splash.after(2000, splash.destroy) splash.mainloop()
+def run_cli_mode(args):
+    print(f"[+] Target: {args.target}")
+    os.makedirs(args.report_dir, exist_ok=True)
 
-=== GUI LOGGER ===
+    if args.auto:
+        print("[*] Running full pipeline...")
+        # call pipeline functions
+    if args.scan_plugins:
+        print("[*] Scanning plugins...")
+        # call plugin scanner
+    if args.cve_check:
+        print("[*] Checking for CVEs...")
+        # call CVE checker
 
-def log_to_central(msg): timestamp = datetime.now().strftime("%H:%M:%S") logs_output.insert("end", f"[{timestamp}] {msg}\n") logs_output.see("end")
+    print(f"[+] Report saved to: {args.report_dir}")
 
-def gui_log_handler(entry, level="info"): tag = level log_textbox.insert("end", entry + "\n") log_textbox.tag_add(tag, f"end-{len(entry)+1}c", "end") log_textbox.see("end")
+def launch_gui():
+    root = tk.Tk()
+    root.title("X-Vector-Pro GUI")
+    root.geometry("1024x720")
+    # GUI init and event bindings here...
+    root.mainloop()
 
-parser.add_argument("--detect-tor", action="store_true", help="Run Tor exit node detection")
-
-# Inside the main logic block:
-if args.detect_tor and args.target:
-    from engine.network.tor_detector import run_detection
-    result = run_detection(args.target)
-    print(json.dumps(result, indent=2))
-    sys.exit(0)
-
-
-logger.central_log_hook = gui_log_handler
-
-=== BRUTE FORCE ===
-
-def run_brute_force(): target = target_entry.get().strip() usernames = [u.strip() for u in usernames_box.get("1.0", "end").strip().splitlines()] wordlist_path = wordlist_entry.get().strip()
-
-if not target or not usernames or not wordlist_path:
-    messagebox.showerror("Error", "Please fill all fields.")
-    return
-
-try:
-    with open(wordlist_path, 'r') as f:
-        passwords = [line.strip() for line in f if line.strip()]
-except Exception as e:
-    messagebox.showerror("File Error", f"Cannot read password list:\n{e}")
-    return
-
-log_box.insert("end", "[*] Starting brute force...\
-
+if __name__ == "__main__":
+    args = parse_args()
+    if args.target:
+        run_cli_mode(args)
+    else:
+        launch_gui()
