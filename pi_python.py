@@ -1,7 +1,54 @@
 import requests
 import os
 from dotenv import load_dotenv
+import hmac
+import hashlib
+import base64
 
+PI_API_BASE_URL = "https://api.minepi.com/v2"
+
+class PiNetworkClient:
+    def __init__(self, app_id: str, api_key: str, api_secret: str):
+        self.app_id = app_id
+        self.api_key = api_key
+        self.api_secret = api_secret
+
+    def _get_headers(self):
+        return {
+            "Authorization": f"Key {self.api_key}",
+            "Content-Type": "application/json"
+        }
+
+    def create_payment(self, user_uid: str, amount: float, memo: str, metadata: dict):
+        payload = {
+            "amount": amount,
+            "memo": memo,
+            "metadata": metadata,
+            "uid": user_uid
+        }
+
+        response = requests.post(
+            f"{PI_API_BASE_URL}/payments",
+            json=payload,
+            headers=self._get_headers()
+        )
+        return response.json()
+
+    def complete_payment(self, payment_id: str, txid: str):
+        response = requests.post(
+            f"{PI_API_BASE_URL}/payments/{payment_id}/complete",
+            json={"txid": txid},
+            headers=self._get_headers()
+        )
+        return response.json()
+
+    def verify_webhook_signature(self, raw_body: bytes, x_signature: str):
+        expected_sig = hmac.new(
+            self.api_secret.encode(),
+            msg=raw_body,
+            digestmod=hashlib.sha256
+        ).hexdigest()
+        return hmac.compare_digest(expected_sig, x_signature)
 load_dotenv()
 
 class PiNetwork:
