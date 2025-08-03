@@ -54,4 +54,45 @@ def test_get_incomplete_server_payments(self, mock_get):
 
 if name == 'main': unittest.main()
 
+# pi_python_test.py
+
+import unittest
+import json
+from pi_python import PiNetworkClient
+
+class TestPiNetworkClient(unittest.TestCase):
+    def setUp(self):
+        self.client = PiNetworkClient(
+            app_id="test_app_id",
+            api_key="test_api_key",
+            api_secret="test_api_secret"
+        )
+
+    def test_verify_webhook_signature_valid(self):
+        body = json.dumps({"uid": "abc", "amount": 3.14}).encode()
+        sig = self.client.verify_webhook_signature(
+            raw_body=body,
+            x_signature=self._mock_signature(body)
+        )
+        self.assertTrue(sig)
+
+    def test_verify_webhook_signature_invalid(self):
+        body = json.dumps({"uid": "abc", "amount": 3.14}).encode()
+        sig = self.client.verify_webhook_signature(
+            raw_body=body,
+            x_signature="invalidsignature"
+        )
+        self.assertFalse(sig)
+
+    def _mock_signature(self, body: bytes):
+        import hmac, hashlib
+        return hmac.new(
+            self.client.api_secret.encode(),
+            msg=body,
+            digestmod=hashlib.sha256
+        ).hexdigest()
+
+if __name__ == "__main__":
+    unittest.main()
+
  
