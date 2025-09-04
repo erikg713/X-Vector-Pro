@@ -1,0 +1,4 @@
+1qaz@WSX3edc$RFV (one-down, shift two-down, three-down, shift four-down)
+ZAQ!2wsxXSW@1qaz (shift one-up, two-down, shift two-up, one-down)
+1234qwer$#@!REWQ (one-right, q-right, shift one-left, shift q-left)
+1q2w#E$R (half one-down, half two-down, shift half three-down, shift half four-down)
