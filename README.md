@@ -1,7 +1,7 @@
-## README.md ##
+### 📘 README.md ###
 
-```markdown
 # X-Vector Pro
+
 ---------------------------------------------------------
 ██╗░░██╗░░░░░░██╗░░░██╗███████╗░█████╗░████████╗  
 ╚██╗██╔╝░░░░░░██║░░░██║██╔════╝██╔══██╗╚══██╔══╝  
@@ -10,24 +10,28 @@
 ██╔╝╚██╗░░░░░░░░╚██╔╝░░███████╗╚█████╔╝░░░██║░░░  
 ╚═╝░░╚═╝░░░░░░░░░╚═╝░░░╚══════╝░╚════╝░░░░╚═╝░░░  
 ----------------------------------------------------------
-**Silent. Adaptive. Lethal.**  
-Tactical GUI-based WordPress attack suite automating recon, scanning, brute-force, CVE discovery, and exploits.
+
+[![Build](https://img.shields.io/github/actions/workflow/status/erikg713/X-Vector-Pro-GUI-Tool/ci.yml?branch=main)](https://github.com/erikg713/X-Vector-Pro-GUI-Tool/actions)
+[![Docs](https://img.shields.io/badge/docs-online-blue)](https://erikg713.github.io/X-Vector-Pro-GUI-Tool/)
+[![License](https://img.shields.io/github/license/erikg713/X-Vector-Pro-GUI-Tool)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue)
+
+**Silent. Adaptive. Modular.**  
+X-Vector Pro is a tactical, GUI-based assessment toolkit with both **graphical** and **CLI** workflows.
 
 ---
 
-## Table of Contents
+## 🚀 Why X-Vector Pro?
 
-1. [Quick Start](#quick-start)  
-2. [Features & Examples](#features--examples)  
-3. [Architecture](#architecture)  
-4. [Documentation Site](#documentation-site)  
-5. [Contributing & Developer Guide](#contributing--developer-guide)  
-6. [Roadmap](#roadmap)  
-7. [License](#license)  
+- Unified **GUI + CLI** workflow  
+- Modular architecture (Recon, Scan, Analysis, Reports)  
+- Extensible exploit and plugin system  
+- Generates **HTML/PDF reports** for documentation  
+- Built with contributors in mind (PEP-8, testing, CI/CD)
 
 ---
 
-## Quick Start
+## 📦 Quick Start
 
 Clone and launch:
 
@@ -36,344 +40,126 @@ git clone https://github.com/erikg713/X-Vector-Pro-GUI-Tool.git
 cd X-Vector-Pro-GUI-Tool
 pip install -r requirements.txt
 python main.py
-```
 
-CLI flags:
-
-| Flag            | Description                                                |
-| --------------- | ---------------------------------------------------------- |
-| `--auto`        | Run full pipeline (Recon → Scan → Plugins → Exploits)      |
-| `--target URL`  | Specify WordPress site (e.g. `https://vuln.site`)         |
-| `--scan-plugins`| Enumerate installed plugins and versions                  |
-| `--cve-check`   | Detect local CVEs from `data/cve_db.json`                 |
-| `--report-dir`  | Custom output directory for logs & HTML reports           |
-
-Generate an HTML report:
-
-```bash
-python main.py --auto --target https://testwp.local --report-dir reports/$(date +%Y%m%d)
-```
 
 ---
 
-## Features & Examples
+⚡ CLI Usage
 
-### Full Auto Mode
+Flag	Description
 
-Kick off end-to-end assessment:
+--auto	Run full pipeline (Recon → Scan → Analysis)
+--target URL	Specify target (e.g. https://demo.site)
+--scan-plugins	Enumerate installed plugins and themes
+--cve-check	Check against local data/cve_db.json
+--report-dir	Output directory for logs & reports
 
-```bash
-python main.py --auto --target https://example.com
-```
 
-### WordPress Brute-Force
+Example:
 
-```python
-from brute.password_brute import BruteEngine
+python main.py --auto --target https://demo.site --report-dir reports/$(date +%Y%m%d)
 
-engine = BruteEngine(target="https://site.local/xmlrpc.php")
-engine.load_wordlist("data/wordlists/passwords.txt")
-engine.start()
-```
-
-### CVE Detection & Enumeration
-
-```bash
-python main.py --cve-check --target https://vuln.site
-```
-
-Outputs discovered CVEs in console and `reports/`.
-
-### Plugin & Theme Scan
-
-```bash
-python main.py --scan-plugins --target https://demo.wp
-```
-
-Flags outdated components for further action.
-pytest tests/test_tor_detector.py
 
 ---
 
-## Architecture
+📊 Features
 
-Core layers and data-flow:
+Full Auto Mode – end-to-end assessment pipeline
 
-```
-       +-----------+       +-----------+
-       |  GUI Tab  |       |   CLI     |
-       +-----+-----+       +-----+-----+
-             |                   |
-             v                   v
-    +--------+--------+ +--------+--------+
-    |   Controller    | |  ArgParser/CLI  |
-    +--------+--------+ +--------+--------+
-             |                   |
-+------------+------------+      |
-| Recon | Scan | Brute | CVE |   |
-+------------+------------+      |
-             |                   |
-         +---+---+           +---+---+
-         | Exploit |-------->| Reports|
-         +--------+           +-------+
-```
+GUI Interface – CustomTkinter dashboard
 
-See full breakdown in [`docs/architecture.md`](docs/architecture.md).
+Reports – exportable HTML/PDF with findings
+
+Extensible – drop-in modules for new features
+
+
 
 ---
 
-## Documentation Site
+🏗 Architecture
 
-We use **MkDocs + Material** theme.  
+flowchart LR
+  GUI[GUI Tabs] --> Controller
+  CLI[CLI Parser] --> Controller
+  Controller --> Recon
+  Controller --> Scan
+  Controller --> CVE
+  Controller --> Reports
 
-**mkdocs.yml**:
+See full breakdown in docs/architecture.md.
 
-```yaml
-site_name: X-Vector Pro Docs
-nav:
-  - Home: index.md
-  - Usage: usage.md
-  - Architecture: architecture.md
-  - Developer Guide: developer_guide.md
-theme:
-  name: material
-markdown_extensions:
-  - toc:
-      permalink: true
-```
 
-Build & preview locally:
+---
 
-```bash
+📚 Documentation
+
+Built with MkDocs + Material
+
+Live docs: 📖 X-Vector Pro Docs
+
+
+Local build:
+
 pip install mkdocs-material
 mkdocs serve
-```
+
 
 ---
 
-## Contributing & Developer Guide
+🤝 Contributing
 
-- Follow **PEP-8**: line width ≤79, snake_case, Google-style docstrings.  
-- Logging via `core/logger.py`, avoid `print()`.  
-- Unit tests in `tests/`, use `pytest` + `responses` for HTTP mocking.
+We welcome contributions!
 
-### Adding a New Exploit Module
+Follow PEP-8 (≤79 chars/line).
 
-1. Create `exploits/CVEYYYY_NNNN.py`.  
-2. Subclass `ExploitBase`:
+Add tests (pytest) with ≥80% coverage.
 
-   ```python
-   class CVE2025_9999(ExploitBase):
-       def check(self):
-           # fingerprint logic
-           ...
-       def exploit(self):
-           # payload delivery
-           ...
-   ```
+Use core/logger.py (no raw print).
 
-3. Drop into `exploits/`; dynamic loader picks it up.
+Submit PR → CI runs lint, tests, docs build.
 
-### Pull Request Workflow
 
-1. Fork & branch off `main`.  
-2. Add tests with ≥80% coverage.  
-3. Submit PR—CI runs lint, tests, docs build.  
+See docs/developer_guide.md for full guide.
 
-Full developer guide in [`docs/developer_guide.md`](docs/developer_guide.md).
 
 ---
 
-## Roadmap
+🗺 Roadmap
 
-- Modular plugin system for custom threat detection  
-- Fine-tuned organizational workflows  
-- Expanded API & protocol adapters  
-- Advanced analytics dashboard  
+Plugin system for custom detection modules
 
----
+Expanded API and integrations
 
-## License
+Advanced reporting & analytics dashboard
 
-This project is MIT-licensed. See `LICENSE` for details.
-```
+Community-driven exploit/scan library
+
+
 
 ---
 
-# mkdocs.yml
+📄 License
+
+This project is licensed under the MIT License. See LICENSE for details.
+
+---
+
+# ✅ Docs Additions
+
+- Add `docs/quickstart.md` (step-by-step install + screenshots).  
+- Add `docs/faq.md` (common Q&A).  
+- Add `docs/contributing.md` (contributor checklist).  
+- Enhance `mkdocs.yml` navigation:
 
 ```yaml
-site_name: X-Vector Pro Docs
 nav:
   - Home: index.md
+  - Quick Start: quickstart.md
   - Usage: usage.md
   - Architecture: architecture.md
   - Developer Guide: developer_guide.md
-theme:
-  name: material
-markdown_extensions:
-  - toc:
-      permalink: true
-```
+  - FAQ: faq.md
+  - Contributing: contributing.md
+
 
 ---
-
-# /docs/index.md
-
-```markdown
-# X-Vector Pro Documentation
-
-Welcome to the official docs for **X-Vector Pro**, a GUI-based WordPress attack suite.
-
-X-Vector Pro automates:
-- Reconnaissance
-- Scanning & Enumeration
-- Brute-force attacks
-- CVE lookup
-- Exploit deployment
-- HTML report generation
-
-Use the sidebar to explore setup, workflow examples, architecture details, and developer guidelines.
-```
-
----
-
-# /docs/usage.md
-
-```markdown
-# Usage & Examples
-
-## Installation
-
-```bash
-git clone https://github.com/erikg713/X-Vector-Pro-GUI-Tool.git
-cd X-Vector-Pro-GUI-Tool
-pip install -r requirements.txt
-```
-
-## GUI Walkthrough
-
-1. Launch `python main.py`.  
-2. Select **Auto Mode** tab.  
-3. Enter target URL and click **Start**.  
-4. Watch progress logs, then export HTML/PDF report.
-
-## CLI Examples
-
-| Command                                                     | Effect                                                             |
-| ----------------------------------------------------------- | ------------------------------------------------------------------ |
-| `python main.py --auto --target https://example.com`         | Full pipeline from recon to exploit + report                       |
-| `python main.py --scan-plugins --target https://demo.wp`     | Enumerate and version-check plugins/themes                         |
-| `python main.py --cve-check --target https://vuln.site`      | Detect local CVEs and annotate results in reports                  |
-| `python main.py --auto --target https://test --report-dir r` | Custom directory for saving logs & HTML report                     |
-```
-
----
-
-# /docs/architecture.md
-
-```markdown
-# Architecture Overview
-
-X-Vector Pro is divided into modular layers:
-
-```
-       +-----------+       +-----------+
-       |  GUI Tab  |       |   CLI     |
-       +-----+-----+       +-----+-----+
-             |                   |
-             v                   v
-    +--------+--------+ +--------+--------+
-    |   Controller    | |  ArgParser/CLI  |
-    +--------+--------+ +--------+--------+
-             |                   |
-+------------+------------+      |
-| Recon | Scan | Brute | CVE |   |
-+------------+------------+      |
-             |                   |
-         +---+---+           +---+---+
-         | Exploit |-------->| Reports|
-         +--------+           +-------+
-```
-
-## Layer Descriptions
-
-- **GUI Layer**  
-  CustomTkinter tabs for each feature.  
-- **CLI Interface**  
-  `argparse` parser supporting flags shown in Usage.  
-- **Controller/Scheduler**  
-  Orchestrates module execution, manages threading.  
-- **Recon / Scan / Brute / CVE**  
-  Individual modules under `/recon`, `/scanner`, `/brute`, `/core/cve_scanner.py`.  
-- **Exploit Runner**  
-  Dynamically loads `exploits/*` classes and executes them.  
-- **Report Generator**  
-  Builds HTML/PDF using Jinja2 templates in `/docs/templates`.
-
-See code comments in `/engine/` for data-flow details.
-```
-
----
-
-# /docs/developer_guide.md
-
-```markdown
-# Developer Guide
-
-Welcome, contributor! This guide covers coding standards, how to add modules, and testing workflows.
-
-## Coding Standards
-
-- Follow PEP-8: max 79-char lines, snake_case for funcs, PascalCase for classes.  
-- Docstrings: use Google style.  
-- Logging: use `core/logger.py` at appropriate levels; no `print()`.
-
-## Adding a New Exploit
-
-1. Create `exploits/CVEYYYY_NNNN.py`.  
-2. Import and subclass:
-
-   ```python
-   from exploits.exploit_base import ExploitBase
-
-   class CVE2025_9999(ExploitBase):
-       def check(self):
-           # Detect vulnerability
-           ...
-       def exploit(self):
-           # Execute payload
-           ...
-   ```
-
-3. No extra imports required—dynamic loader autodiscovers.
-
-## Testing
-
-- Tests live in `tests/` mirroring module structure.  
-- Use `pytest` and `responses` for HTTP mocks.  
-- GUI: stub with `pytest-qt` or `unittest.mock`.
-
-Example test:
-
-```python
-def test_recon_subdomain_enum(monkeypatch):
-    from recon.subdomain_enum import SubdomainEnum
-    monkeypatch.setattr('requests.get', lambda *a, **k: DummyResponse(...))
-    se = SubdomainEnum(target="example.com")
-    assert "sub.example.com" in se.run()
-```
-
-## CI & Workflow
-
-1. Fork & PR against `main`.  
-2. Ensure ≥80% coverage.  
-3. PR triggers GitHub Actions: lint, pytest, mkdocs build.  
-4. Merge upon green checks.
-
-Thank you for helping X-Vector Pro evolve!
-```
-
----
-
-Copy these files into your repo, install `mkdocs-material`, and you’ll have a complete, polished documentation suite. Let me know if you need screenshots embedded or any further tweaks!
