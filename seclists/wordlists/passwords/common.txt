@@ -33,3 +33,17 @@ fuckfriends
 friends
 mylove420
 
+# Common paths
+home
+dashboard
+settings
+profile
+account
+controlpanel
+adminpanel
+management
+config
+configuration
+console
+terminal
+secure
